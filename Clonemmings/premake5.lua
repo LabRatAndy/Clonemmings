@@ -1,5 +1,5 @@
 project "Clonemmings"
-	kind "console app"
+	kind "consoleapp"
 	language "c++"
 	cppdialect "c++17"
 	staticruntime "off"
