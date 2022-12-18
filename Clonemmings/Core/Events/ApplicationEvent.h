@@ -33,6 +33,12 @@ namespace Clonemmings
 	{
 	public:
 		WindowCloseEvent() = default;
+		std::string ToString() const override
+		{
+			std::stringstream ss;
+			ss << "Window close event";
+			return ss.str();
+		}
 		EVENT_CLASS_TYPE(WindowClose)
 		EVENT_CLASS_CATEGORY(EventCategoryApplication)
 	};
