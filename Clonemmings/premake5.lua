@@ -27,6 +27,7 @@ project "Clonemmings"
 		"../Dependencies/ImGui",
 		"../Dependencies/spdlog/include",
 		"../Dependencies/yaml-cpp/include",
+		".",
 	}
 
 
