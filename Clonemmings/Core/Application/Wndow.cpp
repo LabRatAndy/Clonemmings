@@ -1,6 +1,9 @@
 #include "Core/Application/Window.h"
 #include "Core/Log/Log.h"
 #include "Core/Application/Assert.h"
+#include "Core/Events/ApplicationEvent.h"
+#include "Core/Events/KeyEvent.h"
+#include "Core/Events/MouseEvent.h"
 
 #include <glad.h>
 namespace Clonemmings

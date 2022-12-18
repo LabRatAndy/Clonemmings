@@ -1,6 +1,9 @@
 #pragma once
 #include "Core/Events/Event.h"
 
+#include <string>
+#include <sstream>
+
 namespace Clonemmings
 {
 	class WindowResizeEvent : public Event

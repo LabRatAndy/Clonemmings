@@ -2,9 +2,9 @@
 #include <cinttypes>
 namespace Clonemmings
 {
+	using KeyCode = int16_t;
 	namespace Key
 	{
-		using KeyCode = int16_t;
 		
 		enum :KeyCode
 		{
@@ -130,9 +130,9 @@ namespace Clonemmings
 			Menu =348,
 		};
 	}
+	using MouseCode = int16_t;
 	namespace MouseButton
 	{
-		using MouseCode = int16_t;
 		enum Mouse :MouseCode
 		{
 			Button1 =0,
