@@ -33,10 +33,11 @@ project "Clonemmings"
 
 	links
 	{
-		"GLFW",
-		"GLAD",
-		"Box2D",
-		"yaml-cpp",
+		"../Dependencies/GLFW/bin/".. outputdir.."/GLFW/GLFW.lib",
+		"../Dependencies/Glad/bin/".. outputdir.."/Glad/GLAD.lib",
+		"../Dependencies/Box2D/bin/".. outputdir.."/Box2D/Box2D.lib",
+		"../Dependencies/yaml-cpp/bin/".. outputdir.."/yaml-cpp/yaml-cpp.lib",
+		"../Dependencies/ImGui/bin/".. outputdir.."/ImGui/ImGui.lib",
 		"opengl32.lib"
 	}
 	defines 
