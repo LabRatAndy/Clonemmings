@@ -4,11 +4,12 @@
 #include "Core/Events/Event.h"
 #include "Core/Events/ApplicationEvent.h"
 #include "Core/Application/Assert.h"
+#include "Core/ImGui/ImGuiLayer.h"
 
+#include <memory>
 
 namespace Clonemmings
 {
-	class ImGuiLayer;
 	struct  CommandLineArguements
 	{
 		int Count = 0;
@@ -30,14 +31,14 @@ namespace Clonemmings
 		void PushOverlay(Layer* overlay);
 		void Run();
 		void Close();
-		Window& GetWindow() { return m_Window; }
+		Window& GetWindow() { return *m_Window; }
 		CommandLineArguements GetCommandLineArguments() { return m_CommandLineArgs; }
 		static Application& Get() { return *s_Instance; }
 		ImGuiLayer* GetImGuiLayer() { return m_ImGuiLayer; }
 
 	private:
 		LayerStack m_Layers;
-		Window m_Window;
+		std::unique_ptr<Window> m_Window;
 		bool m_Running = true;
 		bool m_Minimised = false;
 		float m_LastFrameTime = 0.0f;
