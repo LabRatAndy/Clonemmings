@@ -8,11 +8,11 @@ namespace Clonemmings
 	public:
 		Layer(const std::string& name = "Layer"): m_Name(name){}
 		virtual ~Layer() = default;
-		void OnAttach() {}
-		void OnDetach() {}
-		void OnUpdate(TimeStep ts) {}
-		void OnImGuiRender() {}
-		void OnEvent(Event& e) {}
+		virtual void OnAttach() {}
+		virtual void OnDetach() {}
+		virtual void OnUpdate(TimeStep ts) {}
+		virtual void OnImGuiRender() {}
+		virtual void OnEvent(Event& e) {}
 
 		const std::string& GetName() { return m_Name; }
 	protected:
