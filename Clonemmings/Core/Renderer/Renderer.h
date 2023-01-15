@@ -1,0 +1,64 @@
+/*MIT License
+
+Copyright(c) 2022, Andrew Dawson
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this softwareand associated documentation files(the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions :
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.*/
+#pragma once
+#include "Core/Renderer/Shader.h"
+#include "Core/Renderer/VertexArray.h"
+#include "Core/Renderer/Texture.h"
+#include <glm/glm.hpp>
+#include <memory>
+namespace Clonemmings
+{
+	class Renderer
+	{
+	public:
+		Renderer();
+		~Renderer();
+
+		//non batched renderering functions
+		void DrawColouredNonIndexed(const VertexArrayObject& vao, const glm::mat4& modeltransform);
+		void DrawTexturedNonIndexed(const VertexArrayObject& vao, const glm::mat4& modeltransform);
+		void DrawColouredIndexed(const VertexArrayObject& vao, const glm::mat4& modeltransform);
+		void DrawTexturedIndexed(const VertexArrayObject& vao, const glm::mat4& modeltransform);
+
+		//Batched Renderering functions
+		void StartBatch();
+		void SubmitToBatch(const glm::mat4& transform, Texture& texture, glm::vec4& colour, float tilingfactor);
+		void EndBatch();
+
+		//General renderer functions
+		void Clear();
+		void SetClearColour(const glm::vec4& colour);
+		void SetViewPort(uint32_t x, uint32_t y, uint32_t width, uint32_t height);
+		void SetDepthTest(bool enable);
+		void SetBlending(bool enable);
+
+	private:
+		//shaders
+		std::unique_ptr<Shader> m_TexturedShader = nullptr;
+		std::unique_ptr<Shader> m_ColouredShader = nullptr;
+		std::unique_ptr<Shader> m_BatchShader = nullptr;
+
+		//Renderer Settings
+		bool m_DepthTestOn = false;
+		bool m_BlendingOn = false;
+	};
+}
