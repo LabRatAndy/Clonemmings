@@ -3,9 +3,10 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>
 
+#pragma warning(push,0)
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/ostr.h>
-
+#pragma warning(pop)
 #include <memory>
 namespace Clonemmings
 {
@@ -44,13 +45,13 @@ inline OStream& operator<<(OStream& os, const glm::qua<T, Q> quaternion)
 #ifdef DIST
 #define TRACE(...)
 #define INFO(...)
-#define ERROR(...)
+#define LOGERROR(...)
 #define WARN(...)
 #define CRITICAL(...)
 #else
 #define TRACE(...) ::Clonemmings::Log::GetLogger()->trace(__VA_ARGS__)
 #define WARN(...) ::Clonemmings::Log::GetLogger()->warn(__VA_ARGS__)
 #define INFO(...) ::Clonemmings::Log::GetLogger()->info(__VA_ARGS__)
-#define ERROR(...) ::Clonemmings::Log::GetLogger()->error(__VA_ARGS__)
+#define LOGERROR(...) ::Clonemmings::Log::GetLogger()->error(__VA_ARGS__)
 #define CRITICAL(...) ::Clonemmings::Log::GetLogger()->critical(__VA_ARGS__)
 #endif
