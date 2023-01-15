@@ -1,9 +1,10 @@
 #pragma once
 
+#include "Core/Events/Event.h"
 #include <GLFW/glfw3.h>
 
 #include <string>
-
+#include <functional>
 namespace Clonemmings
 {
 	class Window
@@ -19,6 +20,7 @@ namespace Clonemmings
 		bool GetVSyncEnabled() const { return m_VsyncEnabled; }
 		void EnableVSync();
 		void DisableVSync();
+		GLFWwindow* GetHandle() const { return m_Window; }
 	private:
 		struct DataPointers
 		{

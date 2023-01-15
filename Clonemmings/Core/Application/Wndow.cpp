@@ -12,7 +12,7 @@ namespace Clonemmings
 	
 	static void GLFWErrorCallBack(int error, const char* description)
 	{
-		ERROR("GLFW error({0}): {1}", error, description);
+		LOGERROR("GLFW error({0}): {1}", error, description);
 	}
 
 	Window::Window(const std::string& title, uint32_t width, uint32_t height) : m_Title(title), m_Width(width), m_Height(height)
@@ -40,12 +40,11 @@ namespace Clonemmings
 		ASSERT(status, "Failed to initialise GLAD");
 		//opengl info
 		INFO("OpenGL info:");
-		INFO(" Vendor: {0}", glGetString(GL_VENDOR));
-		INFO(" Renderer: {0}", glGetString(GL_RENDERER));
-		INFO(" Version: {0}", glGetString(GL_VERSION));
+		INFO(" Vendor: {0}", (void*)glGetString(GL_VENDOR));
+		INFO(" Renderer: {0}", (void*)glGetString(GL_RENDERER));
+		INFO(" Version: {0}", (void*)glGetString(GL_VERSION));
 		ASSERT(GLVersion.major > 4 || (GLVersion.major == 4 && GLVersion.minor >= 5), "OpenGL version must be at least 4.5");
 		EnableVSync();
-		//todo GFLW call backs 
 		m_Data.Title = &m_Title;
 		m_Data.Height = &m_Height;
 		m_Data.Width = &m_Width;
