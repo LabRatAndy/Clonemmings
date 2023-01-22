@@ -203,4 +203,40 @@ namespace Clonemmings
 		CheckUniformCache(name);
 		glUniformMatrix4fv(m_UniformCache[name], 1, GL_FALSE, glm::value_ptr(value));
 	}
+	
+	void Shader::SetInt(const std::string& name,  const int32_t& value)
+	{
+		CheckUniformCache(name);
+		glUniform1i(m_UniformCache[name], value);
+	}
+	void Shader::SetFloat(const std::string& name, const float& value)
+	{
+		CheckUniformCache(name);
+		glUniform1f(m_UniformCache[name], value);
+	}
+	void Shader::SetFloat2(const std::string& name, const glm::vec2& value)
+	{
+		CheckUniformCache(name);
+		glUniform2f(m_UniformCache[name], value.x, value.y);
+	}
+	void Shader::SetFloat3(const std::string& name, const glm::vec3& value)
+	{
+		CheckUniformCache(name);
+		glUniform3f(m_UniformCache[name], value.x, value.y, value.z);
+	}
+	void Shader::SetFloat4(const std::string& name, const glm::vec4& value)
+	{
+		CheckUniformCache(name);
+		glUniform4f(m_UniformCache[name], value.x, value.y, value.z, value.w);
+	}
+	void Shader::SetMat3(const std::string& name, const glm::mat3& value)
+	{
+		CheckUniformCache(name);
+		glUniformMatrix3fv(m_UniformCache[name], 1, GL_FALSE, glm::value_ptr(value));
+	}
+	void Shader::SetMat4(const std::string& name, const glm::mat4& value)
+	{
+		CheckUniformCache(name);
+		glUniformMatrix4fv(m_UniformCache[name], 1, GL_FALSE, glm::value_ptr(value));
+	}
 }

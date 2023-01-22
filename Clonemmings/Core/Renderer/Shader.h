@@ -44,7 +44,14 @@ namespace Clonemmings
 		void SetFloat4(const std::string& name, glm::vec4& value);
 		void SetMat3(const std::string& name, glm::mat3& value);
 		void SetMat4(const std::string& name, glm::mat4& value);
-
+		
+		void SetInt(const std::string& name, const int32_t& value);
+		void SetFloat(const std::string& name, const float& value);
+		void SetFloat2(const std::string& name, const glm::vec2& value);
+		void SetFloat3(const std::string& name, const glm::vec3& value);
+		void SetFloat4(const std::string& name, const glm::vec4& value);
+		void SetMat3(const std::string& name, const glm::mat3& value);
+		void SetMat4(const std::string& name, const glm::mat4& value);
 	private:
 		uint32_t m_Handle;
 		const std::filesystem::path& m_VertexFilename;
