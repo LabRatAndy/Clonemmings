@@ -38,6 +38,8 @@ namespace Clonemmings
 		void Bind(uint32_t slot = 0) const;
 		void UnBind(uint32_t slot = 0) const;
 
+		bool operator==(const Texture& other) { return m_Handle == other.m_Handle; }
+		bool operator!=(const Texture& other) { return m_Handle != other.m_Handle; }
 	private:
 		uint32_t m_Width = 0;
 		uint32_t m_Height = 0;
