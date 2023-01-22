@@ -49,6 +49,6 @@ namespace Clonemmings
 	private:
 		uint32_t m_Handle = 0;
 		VertexType m_VertexType = VertexType::NotSet;
-		uint32_t m_VertexCount = 0;
+		size_t m_VertexCount = 0;
 	};
 }
