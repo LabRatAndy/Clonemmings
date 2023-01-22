@@ -10,10 +10,24 @@ namespace Clonemmings
 	{
 		ASSERT(!s_Instance, "Application already exists!");
 		s_Instance = this;
+		INFO("Setting up the application window");
 		m_Window = std::make_unique<Window>(name, 640, 480);
 		m_Window->SetEventCallbackFunction([this](auto&&...args)->decltype(auto) {return this->Application::OnEvent(std::forward<decltype(args)>(args)...); });
+		INFO("Window set up complete!");
 		m_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(m_ImGuiLayer);
+		INFO("Setting up Renderer");
+		RendererSetupData renererdata;
+		renererdata.BatchFragmentShaderFilename = "Assets/Shaders/Batch.frag";
+		renererdata.BatchVertexShaderFilename = "Assets/Shaders/Batch.vert";
+		renererdata.ColouredFragmentShaderFilename = "Assets/Shaders/Coloured.frag";
+		renererdata.ColouredVertexShaderFilename = "Assets/Shaders/Coloured.vert";
+		renererdata.TexturedVertexShaderFilename = "Assets/Shaders/Textureed.vert";
+		renererdata.TexturedFragmentShaderFilename = "Assets/ShadersTextured.frag";
+		renererdata.MaxQuads = 1000;
+		renererdata.MaxTextures = 32;
+		m_Renderer = std::make_unique<Renderer>(renererdata);
+		INFO("Renderer set up complete");
 	}
 
 	Application::~Application()
