@@ -20,7 +20,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 #include "Core/Renderer/VertexBuffer.h"
-
+#include "Core/Application/Assert.h"
 #include <glad/glad.h>
 
 namespace Clonemmings
@@ -31,6 +31,21 @@ namespace Clonemmings
 		glCreateBuffers(1, &m_Handle);
 		glBindBuffer(GL_ARRAY_BUFFER, m_Handle);
 		glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
+		switch (m_VertexType)
+		{
+		case  VertexType::Coloured:
+			m_VertexCount = size / sizeof(ColouredVertex);
+			break;
+		case VertexType::Textured:
+			m_VertexCount = size / sizeof(TexturedVertex);
+			break;
+		case VertexType::Batch:
+			m_VertexCount = size / sizeof(BatchedVertex);
+			break;
+		default:
+			ASSERT(false, "Vertex type is not set!");
+			break;
+		}
 	}
 	// size is the amount of space to reserve in buffer
 	VertexBufferObject::VertexBufferObject(uint32_t size, VertexType vertextype) : m_VertexType(vertextype)
@@ -38,6 +53,21 @@ namespace Clonemmings
 		glCreateBuffers(1, &m_Handle);
 		glBindBuffer(GL_ARRAY_BUFFER, m_Handle);
 		glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
+		switch (m_VertexType)
+		{
+		case  VertexType::Coloured:
+			m_VertexCount = size / sizeof(ColouredVertex);
+			break;
+		case VertexType::Textured:
+			m_VertexCount = size / sizeof(TexturedVertex);
+			break;
+		case VertexType::Batch:
+			m_VertexCount = size / sizeof(BatchedVertex);
+			break;
+		default:
+			ASSERT(false, "Vertex type is not set!");
+			break;
+		}
 	}
 	VertexBufferObject::~VertexBufferObject()
 	{
@@ -69,5 +99,10 @@ namespace Clonemmings
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, m_Handle);
 		glDrawArrays(GL_TRIANGLES, start, count);
+	}
+	void VertexBufferObject::Draw() const
+	{
+		glBindBuffer(GL_ARRAY_BUFFER, m_Handle);
+		glDrawArrays(GL_TRIANGLES, 0, m_VertexCount);
 	}
 }

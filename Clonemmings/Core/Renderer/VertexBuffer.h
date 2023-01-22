@@ -44,9 +44,11 @@ namespace Clonemmings
 		}
 
 		void Draw(uint32_t start, uint32_t count) const;
+		void Draw() const;
 	
 	private:
 		uint32_t m_Handle = 0;
 		VertexType m_VertexType = VertexType::NotSet;
+		uint32_t m_VertexCount = 0;
 	};
 }
