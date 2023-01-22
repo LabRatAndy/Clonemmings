@@ -26,7 +26,7 @@ SOFTWARE.*/
 namespace Clonemmings
 {
 	// size is size in bytes of data buffer ie length of data * sizeof(vertex)
-	VertexBufferObject::VertexBufferObject(void* data, uint32_t size, VertexType vertextype) :m_VertexType(vertextype)
+	VertexBufferObject::VertexBufferObject(void* data, size_t size, VertexType vertextype) :m_VertexType(vertextype)
 	{
 		glCreateBuffers(1, &m_Handle);
 		glBindBuffer(GL_ARRAY_BUFFER, m_Handle);
@@ -48,7 +48,7 @@ namespace Clonemmings
 		}
 	}
 	// size is the amount of space to reserve in buffer
-	VertexBufferObject::VertexBufferObject(uint32_t size, VertexType vertextype) : m_VertexType(vertextype)
+	VertexBufferObject::VertexBufferObject(size_t size, VertexType vertextype) : m_VertexType(vertextype)
 	{
 		glCreateBuffers(1, &m_Handle);
 		glBindBuffer(GL_ARRAY_BUFFER, m_Handle);

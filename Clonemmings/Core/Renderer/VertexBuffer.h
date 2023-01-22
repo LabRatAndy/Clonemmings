@@ -28,8 +28,8 @@ namespace Clonemmings
 	class VertexBufferObject
 	{
 	public:
-		VertexBufferObject(void* data, uint32_t size, VertexType vertextype);
-		VertexBufferObject(uint32_t size, VertexType vertextype);
+		VertexBufferObject(void* data, size_t size, VertexType vertextype);
+		VertexBufferObject(size_t size, VertexType vertextype);
 		~VertexBufferObject();
 
 		void Bind() const;
