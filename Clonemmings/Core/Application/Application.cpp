@@ -22,8 +22,8 @@ namespace Clonemmings
 		renererdata.BatchVertexShaderFilename = "Assets/Shaders/Batch.vert";
 		renererdata.ColouredFragmentShaderFilename = "Assets/Shaders/Coloured.frag";
 		renererdata.ColouredVertexShaderFilename = "Assets/Shaders/Coloured.vert";
-		renererdata.TexturedVertexShaderFilename = "Assets/Shaders/Textureed.vert";
-		renererdata.TexturedFragmentShaderFilename = "Assets/ShadersTextured.frag";
+		renererdata.TexturedVertexShaderFilename = "Assets/Shaders/Textured.vert";
+		renererdata.TexturedFragmentShaderFilename = "Assets/Shaders/Textured.frag";
 		renererdata.MaxQuads = 1000;
 		renererdata.MaxTextures = 32;
 		m_Renderer = std::make_unique<Renderer>(renererdata);
