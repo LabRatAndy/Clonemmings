@@ -27,9 +27,10 @@ namespace Clonemmings
 	Renderer::Renderer(RendererSetupData setupdata) : m_MaxQuads(setupdata.MaxQuads), m_MaxTextures(setupdata.MaxTextures)
 	{
 		//batch renderer
+		INFO("Building batch shader");
 		m_BatchShader = std::make_unique<Shader>(setupdata.BatchVertexShaderFilename, setupdata.BatchFragmentShaderFilename);
 		m_BatchVBO = std::make_shared<VertexBufferObject>(m_MaxVertices * sizeof(BatchedVertex), VertexType::Batch);
-		m_BatchIBO = std::make_shared<IndexBuffer>(m_MaxIndices);
+		m_BatchIBO = std::make_shared<IndexBuffer>((uint32_t) m_MaxIndices);
 		m_BatchVAO = std::make_unique<VertexArrayObject>();
 		m_BatchVAO->Bind();
 		m_BatchVAO->AddVertexBuffer(m_BatchVBO);
@@ -47,7 +48,9 @@ namespace Clonemmings
 		m_TexCoords[3] = { 0.0f,1.0f };
 			
 		//setup other shaders
+		INFO("Building texture shader");
 		m_TexturedShader = std::make_unique<Shader>(setupdata.TexturedVertexShaderFilename, setupdata.TexturedFragmentShaderFilename);
+		INFO("Building coloured shader");
 		m_ColouredShader = std::make_unique<Shader>(setupdata.ColouredVertexShaderFilename, setupdata.ColouredFragmentShaderFilename);
 	}
 	Renderer::~Renderer()
@@ -167,7 +170,7 @@ namespace Clonemmings
 		{
 			if (*m_Textures[i] == *texture)
 			{
-				textureindex = i;
+				textureindex = (float)i;
 				break;
 			}
 		}
@@ -175,7 +178,7 @@ namespace Clonemmings
 		{
 			//new texture
 			m_Textures[m_TextureCount] = texture;
-			textureindex = m_TextureCount;
+			textureindex = (float)m_TextureCount;
 			m_TextureCount++;
 		}
 		for (uint32_t i = 0; i < 4; i++)
@@ -205,6 +208,6 @@ namespace Clonemmings
 		m_Textures[0] = m_WhiteTexture;
 		m_TextureCount = 1;
 		m_QuadCount = 0;
-		m_CurrentVertex = (BatchedVertex*)m_BatchVBO->GetMappedDataPointer();
+		m_CurrentVertex = nullptr;
 	}
 }
