@@ -23,6 +23,7 @@ SOFTWARE.*/
 #include "Core/Renderer/Shader.h"
 #include "Core/Renderer/VertexArray.h"
 #include "Core/Renderer/Texture.h"
+#include "Core/Renderer/SceneCamera.h"
 #include <glm/glm.hpp>
 #include <memory>
 #include <filesystem>
@@ -44,6 +45,9 @@ namespace Clonemmings
 	public:
 		Renderer(RendererSetupData setupdata);
 		~Renderer();
+
+		void SetCamera(std::shared_ptr<SceneCamera>camera, const glm::mat4& transform) { m_Camera = camera; m_CameraTransform = transform; }
+		std::shared_ptr<SceneCamera> GetCamera() { return m_Camera; }
 
 		//non batched renderering functions
 		void DrawColouredNonIndexed(const VertexArrayObject& vao, const glm::mat4& modeltransform);
@@ -89,5 +93,9 @@ namespace Clonemmings
 		uint32_t m_TextureCount = 0;
 		BatchedVertex* m_CurrentVertex = nullptr;
 		std::shared_ptr<Texture> m_WhiteTexture = nullptr;
+
+		//Camera
+		std::shared_ptr<SceneCamera> m_Camera = nullptr;
+		glm::mat4 m_CameraTransform;
 	};
 }

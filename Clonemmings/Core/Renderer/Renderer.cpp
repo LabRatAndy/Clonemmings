@@ -114,24 +114,30 @@ namespace Clonemmings
 	}
 	void Renderer::DrawColouredNonIndexed(const VertexArrayObject& vao, const glm::mat4& modeltransform)
 	{
+		glm::mat4 viewprojection = m_Camera->GetProjection() * glm::inverse(m_CameraTransform);
 		m_ColouredShader->Bind();
-		m_ColouredShader->SetMat4("model", modeltransform);
+		m_ColouredShader->SetMat4("u_ModelTransform", modeltransform);
+		m_ColouredShader->SetMat4("uViewProjection", viewprojection);
 		vao.Bind();
 		ASSERT(vao.GetVertexBuffer(), "No VBO is added to VAO!");
 		vao.GetVertexBuffer()->Draw();
 	}
 	void Renderer::DrawColouredIndexed(const VertexArrayObject& vao, const glm::mat4& modeltransform)
 	{
+		glm::mat4 viewporjection = m_Camera->GetProjection() * glm::inverse(m_CameraTransform);
 		m_ColouredShader->Bind();
-		m_ColouredShader->SetMat4("model", modeltransform);
+		m_ColouredShader->SetMat4("u_ModelTransform", modeltransform);
+		m_ColouredShader->SetMat4("u_ViewProjection", viewporjection);
 		vao.Bind();
 		ASSERT(vao.GetIndexBuffer(), "No IBO is added to VAO!");
 		vao.GetIndexBuffer()->Draw();
 	}
 	void Renderer::DrawTexturedNonIndexed(const VertexArrayObject& vao, const glm::mat4& modeltransform, Texture& texture)
 	{
+		glm::mat4 viewprojection = m_Camera->GetProjection() * glm::inverse(m_CameraTransform);
 		m_TexturedShader->Bind();
-		m_TexturedShader->SetMat4("model", modeltransform);
+		m_TexturedShader->SetMat4("u_ModelTransform", modeltransform);
+		m_TexturedShader->SetMat4("u_ViewProjection", viewprojection);
 		ASSERT(texture.IsLoaded(), "Supplied texture is not loaded");
 		texture.Bind();
 		ASSERT(vao.GetVertexBuffer(), "No VBO is added to VAO!");
@@ -140,8 +146,10 @@ namespace Clonemmings
 	}
 	void Renderer::DrawTexturedIndexed(const VertexArrayObject& vao, const glm::mat4& modeltransform, Texture& texture)
 	{
+		glm::mat4 viewprojection = m_Camera->GetProjection() * glm::inverse(m_CameraTransform);
 		m_TexturedShader->Bind();
-		m_TexturedShader->SetMat4("model", modeltransform);
+		m_TexturedShader->SetMat4("u_ModelTransform", modeltransform);
+		m_TexturedShader->SetMat4("u_ViewProjection", viewprojection);
 		ASSERT(texture.IsLoaded(), "Supplied texture is not loaded!");
 		texture.Bind();
 		ASSERT(vao.GetIndexBuffer(), "No IBO is added to VAO!");
@@ -199,7 +207,9 @@ namespace Clonemmings
 		{
 			m_Textures[i]->Bind(i);
 		}
+		glm::mat4 viewprojection = m_Camera->GetProjection() * glm::inverse(m_CameraTransform);
 		m_BatchShader->Bind();
+		m_BatchShader->SetMat4("u_ViewProjection", viewprojection);
 		m_BatchVAO->Bind();
 		m_BatchVAO->GetIndexBuffer()->Draw();
 
