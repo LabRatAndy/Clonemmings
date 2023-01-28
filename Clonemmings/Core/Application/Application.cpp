@@ -27,6 +27,8 @@ namespace Clonemmings
 		renererdata.MaxQuads = 1000;
 		renererdata.MaxTextures = 32;
 		m_Renderer = std::make_unique<Renderer>(renererdata);
+		// very temp get camera and transform from ECS system! but not here!!
+		m_Renderer->SetCamera(std::make_shared<SceneCamera>(), glm::mat4(1.0f));
 		INFO("Renderer set up complete");
 	}
 
