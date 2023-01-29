@@ -10,6 +10,7 @@ bin-int/
 *.vcxproj.filters
 *.sln
 *.ini
+*.log
 
 # Exclude
 !Setup/
