@@ -11,7 +11,7 @@ bin-int/
 *.sln
 *.ini
 *.log
-imgui.ini
+
 
 # Exclude
 !Setup/
