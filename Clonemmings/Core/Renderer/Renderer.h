@@ -23,25 +23,41 @@ SOFTWARE.*/
 #include "Core/Renderer/Shader.h"
 #include "Core/Renderer/VertexArray.h"
 #include "Core/Renderer/Texture.h"
+#include "Core/Renderer/SceneCamera.h"
 #include <glm/glm.hpp>
 #include <memory>
+#include <filesystem>
 namespace Clonemmings
 {
+	struct RendererSetupData
+	{
+		size_t MaxQuads = 1000;
+		size_t MaxTextures = 32;
+		std::filesystem::path BatchVertexShaderFilename;
+		std::filesystem::path BatchFragmentShaderFilename;
+		std::filesystem::path TexturedVertexShaderFilename;
+		std::filesystem::path TexturedFragmentShaderFilename;
+		std::filesystem::path ColouredVertexShaderFilename;
+		std::filesystem::path ColouredFragmentShaderFilename;
+	};
 	class Renderer
 	{
 	public:
-		Renderer();
+		Renderer(RendererSetupData setupdata);
 		~Renderer();
+
+		void SetCamera(std::shared_ptr<SceneCamera>camera, const glm::mat4& transform) { m_Camera = camera; m_CameraTransform = transform; }
+		std::shared_ptr<SceneCamera> GetCamera() { return m_Camera; }
 
 		//non batched renderering functions
 		void DrawColouredNonIndexed(const VertexArrayObject& vao, const glm::mat4& modeltransform);
-		void DrawTexturedNonIndexed(const VertexArrayObject& vao, const glm::mat4& modeltransform);
+		void DrawTexturedNonIndexed(const VertexArrayObject& vao, const glm::mat4& modeltransform, Texture& texture);
 		void DrawColouredIndexed(const VertexArrayObject& vao, const glm::mat4& modeltransform);
-		void DrawTexturedIndexed(const VertexArrayObject& vao, const glm::mat4& modeltransform);
+		void DrawTexturedIndexed(const VertexArrayObject& vao, const glm::mat4& modeltransform, Texture& texture);
 
 		//Batched Renderering functions
 		void StartBatch();
-		void SubmitToBatch(const glm::mat4& transform, Texture& texture, glm::vec4& colour, float tilingfactor);
+		void SubmitToBatch(const glm::mat4& transform, std::shared_ptr<Texture> texture, glm::vec4& colour, float tilingfactor);
 		void EndBatch();
 
 		//General renderer functions
@@ -60,5 +76,26 @@ namespace Clonemmings
 		//Renderer Settings
 		bool m_DepthTestOn = false;
 		bool m_BlendingOn = false;
+
+
+		//batch rendering  stuff
+		const size_t m_MaxQuads;
+		const size_t m_MaxVertices = m_MaxQuads * 4;
+		const size_t m_MaxIndices = m_MaxQuads * 6;
+		const size_t m_MaxTextures;
+		glm::vec4 m_QuadVertices[4];
+		glm::vec2 m_TexCoords[4];
+		std::shared_ptr<VertexBufferObject> m_BatchVBO = nullptr;
+		std::shared_ptr<IndexBuffer> m_BatchIBO = nullptr;
+		std::unique_ptr<VertexArrayObject> m_BatchVAO = nullptr;
+		std::vector<std::shared_ptr<Texture>> m_Textures;
+		size_t m_QuadCount = 0;
+		uint32_t m_TextureCount = 0;
+		BatchedVertex* m_CurrentVertex = nullptr;
+		std::shared_ptr<Texture> m_WhiteTexture = nullptr;
+
+		//Camera
+		std::shared_ptr<SceneCamera> m_Camera = nullptr;
+		glm::mat4 m_CameraTransform;
 	};
 }

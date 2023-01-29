@@ -5,6 +5,7 @@
 #include "Core/Events/ApplicationEvent.h"
 #include "Core/Application/Assert.h"
 #include "Core/ImGui/ImGuiLayer.h"
+#include "Core/Renderer/Renderer.h"
 
 #include <memory>
 
@@ -35,6 +36,7 @@ namespace Clonemmings
 		CommandLineArguements GetCommandLineArguments() { return m_CommandLineArgs; }
 		static Application& Get() { return *s_Instance; }
 		ImGuiLayer* GetImGuiLayer() { return m_ImGuiLayer; }
+		Renderer& GetRenderer() { return *m_Renderer; }
 
 	private:
 		LayerStack m_Layers;
@@ -45,6 +47,7 @@ namespace Clonemmings
 		CommandLineArguements m_CommandLineArgs;
 		ImGuiLayer* m_ImGuiLayer;
 		static Application* s_Instance;
+		std::unique_ptr<Renderer> m_Renderer = nullptr;
 
 
 		bool OnWindowClose(WindowCloseEvent& e);
