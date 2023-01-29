@@ -60,7 +60,7 @@ namespace Clonemmings
 			}
 		}
 	}
-	void Scene::OnViewportReszie(uint32_t width, uint32_t height)
+	void Scene::OnViewportResize(uint32_t width, uint32_t height)
 	{
 		m_ViewportWidth = width;
 		m_ViewportHeight = height;
@@ -74,5 +74,46 @@ namespace Clonemmings
 				cameracomponent.Camera.SetViewportSize(width, height);
 			}
 		}
+	}
+	Entity Scene::GetPrimaryCameraEntity()
+	{
+		auto view = m_Registry.view<CameraComponent>();
+		for (auto entity : view)
+		{
+			const auto& camera = view.GetComponent<CameraComponent>(entity);
+			if (camera.Primary)
+			{
+				return { entity, this };
+			}
+		}
+		return {};
+	}
+	template<typename T>
+	void Scene::OnComponentAdded(Entity entity, T& component)
+	{
+		static_assert(false);
+	}
+	template<>
+	void Scene::OnComponentAdded<TransformComponent>(Entity entity, TransformComponent& component)
+	{
+
+	}
+	template<>
+	void Scene::OnComponentAdded<CameraComponent>(Entity entity, CameraComponent& component)
+	{
+		if (m_ViewportWidth > 0 && m_ViewportHeight > 0)
+		{
+			component.Camera.SetViewportSize(m_ViewportWidth, m_ViewportHeight);
+		}
+	}
+	template<>
+	void Scene::OnComponentAdded<SpriterendererComponent>(Entity entity, SpriterendererComponent& component)
+	{
+
+	}
+	template<>
+	void Scene::OnComponentAdded<TagComponent>(Entity entity, TagComponent& component)
+	{
+
 	}
 }
