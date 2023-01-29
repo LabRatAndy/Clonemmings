@@ -26,5 +26,6 @@ namespace Clonemmings
 		void OnComponentAdded(Entity entity, T& component);
 
 		friend class Entity;
+		friend class SceneSerialiser;
 	};
 }
