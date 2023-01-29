@@ -171,8 +171,39 @@ namespace Clonemmings
 					name = tagcomponent["Tag"].as<std::string>();
 				}
 				TRACE("Deserialised Entity with ID = {0}, name = {1}", uuid, name);
+				Entity deserialisedentity = m_Scene->CreateEntity(name);
+				auto transformcomponent = entity["TransformComponent"];
+				if (transformcomponent)
+				{
+					auto& tc = deserialisedentity.GetComponent<TransformComponent>();
+					tc.Translation = transformcomponent["Translation"].as<glm::vec3>();
+					tc.Rotation = transformcomponent["Rotation"].as<glm::vec3>();
+					tc.Scale = transformcomponent["Scale"].as<glm::vec3>();
+				}
+				auto cameracomponent = entity["CameraComponent"];
+				if (cameracomponent)
+				{
+					auto& cc = deserialisedentity.AddComponent<CameraComponent>();
+					auto& cameraprops = cameracomponent["Camera"];
+					cc.Camera.SetProjectionType((SceneCamera::ProjectionType)cameraprops["ProjectionType"].as<int>());
+					cc.Camera.SetVerticalPerspectiveFOV(cameraprops["PerspectiveFOV"].as<float>());
+					cc.Camera.SetPerspectiveNearClip(cameraprops["PerspectiveNear"].as<float>());
+					cc.Camera.SetPerspectiveFarClip(cameraprops["PerspectiveFar"].as<float>());
+					cc.Camera.SetOrthographicSize(cameraprops["OrthographicSize"].as<float>());
+					cc.Camera.SetOrthographicNearClip(cameraprops["OrthographicNear"].as<float>());
+					cc.Camera.SetOrthographicFarClip(cameraprops["OrthographicFar"].as<float>());
+					cc.Primary = cameracomponent["Primary"].as<bool>();
+					cc.FixedAspectRatio = cameracomponent["FixedAspectRatio"].as<bool>();
+				}
+				auto spriterenderercomponent = entity["SpriteRendererComponent"];
+				if (spriterenderercomponent)
+				{
+					auto& src = deserialisedentity.AddComponent<SpriteRendererComponent>();
+					src.Colour = spriterenderercomponent["Colour"].as<glm::vec4>();
+				}
 			}
 		}
+		return true;
 	}
 }
 
