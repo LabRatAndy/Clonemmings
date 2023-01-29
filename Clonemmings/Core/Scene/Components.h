@@ -46,7 +46,7 @@ namespace Clonemmings
 	};
 	struct CameraComponent
 	{
-		std::shared_ptr<SceneCamera> Camera = nullptr;
+		SceneCamera Camera;
 		bool Primary = true;
 		bool FixedAspectRatio = false;
 
