@@ -81,6 +81,6 @@ namespace Clonemmings
 	void IndexBuffer::Draw() const
 	{
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Handle);
-		glDrawElements(GL_ELEMENT_ARRAY_BUFFER, m_Count, m_Type, nullptr);
+		glDrawElements(GL_TRIANGLES, m_Count, m_Type, nullptr);
 	}
 }

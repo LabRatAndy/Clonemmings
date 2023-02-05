@@ -24,10 +24,29 @@ SOFTWARE.*/
 #include <glad/glad.h>
 namespace Clonemmings
 {
+	void OpenGLErrorCallback(unsigned source, unsigned type, unsigned id, unsigned severity, int length, const char* msg, const void* userparam)
+	{
+		switch (severity)
+		{
+		case GL_DEBUG_SEVERITY_HIGH: CRITICAL(msg); return;
+		case GL_DEBUG_SEVERITY_MEDIUM: LOGERROR(msg); return;
+		case GL_DEBUG_SEVERITY_LOW: WARN(msg); return;
+		case GL_DEBUG_SEVERITY_NOTIFICATION: TRACE(msg); return;
+		}
+		ASSERT(false, "Unknown Debug severity level");
+	}
 	Renderer::Renderer(RendererSetupData setupdata) : m_MaxQuads(setupdata.MaxQuads), m_MaxTextures(setupdata.MaxTextures)
 	{
+		//setup debug callback!
+		INFO("-1-Debug callback setup!");
+#ifdef DEBUG
+		glEnable(GL_DEBUG_OUTPUT);
+		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+		glDebugMessageCallback(OpenGLErrorCallback, nullptr);
+		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, NULL, false);
+#endif
 		//batch renderer
-		INFO("Building batch shader");
+		INFO("-2--Building batch shader");
 		m_BatchShader = std::make_unique<Shader>(setupdata.BatchVertexShaderFilename, setupdata.BatchFragmentShaderFilename);
 		m_BatchVBO = std::make_shared<VertexBufferObject>(m_MaxVertices * sizeof(BatchedVertex), VertexType::Batch);
 		m_BatchIBO = std::make_shared<IndexBuffer>((uint32_t) m_MaxIndices);
@@ -48,9 +67,9 @@ namespace Clonemmings
 		m_TexCoords[3] = { 0.0f,1.0f };
 			
 		//setup other shaders
-		INFO("Building texture shader");
+		INFO("-3---Building texture shader");
 		m_TexturedShader = std::make_unique<Shader>(setupdata.TexturedVertexShaderFilename, setupdata.TexturedFragmentShaderFilename);
-		INFO("Building coloured shader");
+		INFO("-4----Building coloured shader");
 		m_ColouredShader = std::make_unique<Shader>(setupdata.ColouredVertexShaderFilename, setupdata.ColouredFragmentShaderFilename);
 	}
 	Renderer::~Renderer()
@@ -117,19 +136,21 @@ namespace Clonemmings
 		glm::mat4 viewprojection = m_Camera->GetProjection() * glm::inverse(m_CameraTransform);
 		m_ColouredShader->Bind();
 		m_ColouredShader->SetMat4("u_ModelTransform", modeltransform);
-		m_ColouredShader->SetMat4("uViewProjection", viewprojection);
+		m_ColouredShader->SetMat4("u_ViewProjection", viewprojection);
 		vao.Bind();
 		ASSERT(vao.GetVertexBuffer(), "No VBO is added to VAO!");
 		vao.GetVertexBuffer()->Draw();
 	}
 	void Renderer::DrawColouredIndexed(const VertexArrayObject& vao, const glm::mat4& modeltransform)
 	{
-		glm::mat4 viewporjection = m_Camera->GetProjection() * glm::inverse(m_CameraTransform);
+		glm::mat4 viewprojection = m_Camera->GetProjection() * glm::inverse(m_CameraTransform);
 		m_ColouredShader->Bind();
 		m_ColouredShader->SetMat4("u_ModelTransform", modeltransform);
-		m_ColouredShader->SetMat4("u_ViewProjection", viewporjection);
+		m_ColouredShader->SetMat4("u_ViewProjection", viewprojection);
 		vao.Bind();
 		ASSERT(vao.GetIndexBuffer(), "No IBO is added to VAO!");
+		vao.GetVertexBuffer()->Bind();
+		vao.GetIndexBuffer()->Bind();
 		vao.GetIndexBuffer()->Draw();
 	}
 	void Renderer::DrawTexturedNonIndexed(const VertexArrayObject& vao, const glm::mat4& modeltransform, Texture& texture)

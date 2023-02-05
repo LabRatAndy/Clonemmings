@@ -13,6 +13,7 @@ namespace Clonemmings
 	static void GLFWErrorCallBack(int error, const char* description)
 	{
 		LOGERROR("GLFW error({0}): {1}", error, description);
+		ASSERT(false, "GLFW ERROR");
 	}
 
 	Window::Window(const std::string& title, uint32_t width, uint32_t height) : m_Title(title), m_Width(width), m_Height(height)

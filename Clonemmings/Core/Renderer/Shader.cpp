@@ -27,7 +27,7 @@ SOFTWARE.*/
 namespace Clonemmings
 {
 	Shader::Shader(const std::filesystem::path& vertexfilename, const std::filesystem::path& fragmentfilename) :
-		m_VertexFilename(vertexfilename), m_FragmentFilename(fragmentfilename), m_VertexSource(std::string("")), m_FragmentSource(std::string(""))
+		m_VertexFilename(vertexfilename), m_FragmentFilename(fragmentfilename), m_VertexSource(std::string()), m_FragmentSource(std::string())
 	{
 		m_VertexSource = LoadShaderFile(m_VertexFilename);
 		m_FragmentSource = LoadShaderFile(m_FragmentFilename);
@@ -45,6 +45,7 @@ namespace Clonemmings
 	void Shader::Bind() const
 	{
 		glUseProgram(m_Handle);
+
 	}
 	void Shader::UnBind() const
 	{

@@ -37,6 +37,7 @@ namespace Clonemmings
 	void VertexArrayObject::Bind() const
 	{
 		glBindVertexArray(m_Handle);
+		GLenum errorcode = glGetError();
 	}
 	void VertexArrayObject::UnBind() const
 	{
