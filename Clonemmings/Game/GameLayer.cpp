@@ -15,19 +15,25 @@ namespace Clonemmings
 		vertices[1].Position = { 0.5,-0.5,0.0 };
 		vertices[2].Position = { 0.5,0.5,0.0 };
 		vertices[3].Position = { -0.5,0.5,0.0 };
-		vertices[0].Colour = { 0.0,1.0,0.0,1.0 };
-		vertices[1].Colour = { 0.0,1.0,0.0,1.0 };
-		vertices[2].Colour = { 0.0,1.0,0.0,1.0 };
-		vertices[3].Colour = { 0.0,1.0,0.0,1.0 };
-		uint32_t* indices = new uint32_t[4];
+		vertices[0].Normal = { 0.0,0.0,0.0 };
+		vertices[1].Normal = { 0.0,0.0,0.0 };
+		vertices[2].Normal = { 0.0,0.0,0.0 };
+		vertices[3].Normal = { 0.0,0.0,0.0 };
+		vertices[0].Colour = { 1.0,1.0,1.0,1.0 };
+		vertices[1].Colour = { 1.0,1.0,1.0,1.0 }; 
+		vertices[2].Colour = { 1.0,1.0,1.0,1.0 };
+		vertices[3].Colour = { 1.0,1.0,1.0,1.0 };
+		uint32_t* indices = new uint32_t[6];
 		indices[0] = 0;
 		indices[1] = 1;
 		indices[2] = 2;
-		indices[3] = 3;
+		indices[3] = 2;
+		indices[4] = 3;
+		indices[5] = 0;
 		m_VAO = std::make_shared<VertexArrayObject>();
 		m_VAO->Bind();
 		m_VBO = std::make_shared<VertexBufferObject>(vertices, 4 * sizeof(ColouredVertex), VertexType::Coloured);
-		m_IBO = std::make_shared<IndexBuffer>(indices, 4);
+		m_IBO = std::make_shared<IndexBuffer>(indices, 6);
 		m_VAO->AddVertexBuffer(m_VBO);
 		m_VAO->SetIndexBuffer(m_IBO);
 		m_VAO->UnBind();
@@ -41,22 +47,6 @@ namespace Clonemmings
 	void GameLayer::OnUpdate(TimeStep ts)
 	{
 		glm::mat4 modelLHS = glm::translate(glm::mat4(1.0), glm::vec3(0.0, 0.0, 0.0));
-		glm::mat4 viewproj = Application::Get().GetRenderer().GetCamera()->GetProjection();
-		TRACE("model transform: {0}", modelLHS);
-		TRACE("View Projection matrix: {0}", viewproj);
-		{
-			m_VBO->Bind();
-			ColouredVertex* vertices = (ColouredVertex*)m_VBO->GetMappedDataPointer();
-			uint32_t vert = 0;
-			while (vert < 4)
-			{
-
-				glm::vec4 result = viewproj * modelLHS * glm::vec4((vertices + vert)->Position, 1.0);
-				TRACE("Vertex: {0}, Position: {1}, Colour: {2}, Transformed Position: {3}", vert, (vertices + vert)->Position, (vertices + vert)->Colour, result);
-				vert++;
-			}
-			m_VBO->UnmapDataPointer();
-		}
 		Application::Get().GetRenderer().DrawColouredIndexed(*m_VAO, modelLHS);	
 	}
 }

@@ -21,7 +21,7 @@ namespace Clonemmings
 		float GetPerspectiveVerticalFOV() const { return m_PerspectiveFOV; }
 		void SetPerspectiveVerticalFOV(float verticalFOV) { m_PerspectiveFOV = verticalFOV; RecalculateProjection(); }
 		float GetPerspectiveNearClip() const { return m_PerspectiveNear; }
-		void GetPerspectiveNearClip(float nearclip) { m_PerspectiveNear = nearclip; RecalculateProjection(); }
+		void SetPerspectiveNearClip(float nearclip) { m_PerspectiveNear = nearclip; RecalculateProjection(); }
 		float GetPerspectiveFarClip() const { return m_PerspectiveFar; }
 		void SetPerspectiveFarClip(float farclip) { m_PerspectiveFar = farclip; RecalculateProjection(); }
 		float GetOrthographicSize() const { return m_OrthographicSize; }

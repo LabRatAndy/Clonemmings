@@ -71,6 +71,13 @@ namespace Clonemmings
 		m_TexturedShader = std::make_unique<Shader>(setupdata.TexturedVertexShaderFilename, setupdata.TexturedFragmentShaderFilename);
 		INFO("-4----Building coloured shader");
 		m_ColouredShader = std::make_unique<Shader>(setupdata.ColouredVertexShaderFilename, setupdata.ColouredFragmentShaderFilename);
+		INFO("-5-----Geting initial default settings");
+		GetInitalDefaults();
+		INFO("Depth test setting: {0}", m_DepthTestOn);
+		INFO("Blending setting: {0}", m_BlendingOn);
+		INFO("Backface Culling setting: {0}", m_BackFaceCull);
+		INFO("Clockwise winding order: {0}", m_ClockwiseWinding);
+		SetWindingOrderAntiClockwise();
 	}
 	Renderer::~Renderer()
 	{
@@ -143,14 +150,12 @@ namespace Clonemmings
 	}
 	void Renderer::DrawColouredIndexed(const VertexArrayObject& vao, const glm::mat4& modeltransform)
 	{
-		glm::mat4 viewprojection = m_Camera->GetProjection() * glm::inverse(m_CameraTransform);
+		glm::mat4 viewprojection = glm::mat4(1.0); //m_Camera->GetProjection() * glm::inverse(m_CameraTransform);
 		m_ColouredShader->Bind();
 		m_ColouredShader->SetMat4("u_ModelTransform", modeltransform);
 		m_ColouredShader->SetMat4("u_ViewProjection", viewprojection);
 		vao.Bind();
 		ASSERT(vao.GetIndexBuffer(), "No IBO is added to VAO!");
-		vao.GetVertexBuffer()->Bind();
-		vao.GetIndexBuffer()->Bind();
 		vao.GetIndexBuffer()->Draw();
 	}
 	void Renderer::DrawTexturedNonIndexed(const VertexArrayObject& vao, const glm::mat4& modeltransform, Texture& texture)
@@ -240,5 +245,45 @@ namespace Clonemmings
 		m_TextureCount = 1;
 		m_QuadCount = 0;
 		m_CurrentVertex = nullptr;
+	}
+	void Renderer::SetBackFaceCull(bool enable)
+	{
+		if (enable && !m_BackFaceCull)
+		{
+			//not already enabled and requested to be on
+			glCullFace(GL_BACK);
+			glEnable(GL_CULL_FACE);
+			m_BackFaceCull = true;
+		}
+		else if (!enable && m_BackFaceCull)
+		{
+			// turned on need to be switched off
+			glDisable(GL_CULL_FACE);
+			m_BackFaceCull = false;
+		}
+	}
+	void Renderer::SetWindingOrderClockwise()
+	{
+		if (m_ClockwiseWinding) return;
+		glFrontFace(GL_CW);
+		m_ClockwiseWinding = true;
+	}
+	void Renderer::SetWindingOrderAntiClockwise()
+	{
+		if (!m_ClockwiseWinding) return;
+		glFrontFace(GL_CCW);
+		m_ClockwiseWinding = false;
+	}
+	void Renderer::GetInitalDefaults()
+	{
+		GLboolean value;
+		glGetBooleanv(GL_BLEND, &value );
+		m_BlendingOn = value;
+		glGetBooleanv(GL_DEPTH_TEST, &value);
+		m_DepthTestOn = value;
+		glGetBooleanv(GL_CULL_FACE, &value);
+		m_BackFaceCull = value;
+		glGetBooleanv(GL_FRONT_FACE, &value);
+		m_ClockwiseWinding = value;
 	}
 }

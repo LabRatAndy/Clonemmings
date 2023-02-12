@@ -14,9 +14,9 @@ namespace Clonemmings
 	{
 
 	}
-	Enitity Scene::CreateEntity(const std::string& name)
+	Entity Scene::CreateEntity(const std::string& name)
 	{
-		Entity entity = { m_Registry.Create(),this };
+		Entity entity = { m_Registry.create(),this };
 		entity.AddComponent<TransformComponent>();
 		auto& tag = entity.AddComponent<TagComponent>();
 		tag.Tag = name.empty() ? "Entity" : name;
@@ -26,10 +26,10 @@ namespace Clonemmings
 	{
 		m_Registry.destroy(entity);
 	}
-	void Scene::OnUpdateRuntime(Timestep ts)
+	void Scene::OnUpdateRuntime(TimeStep ts)
 	{
 		//rendering
-		Camera* maincamera = nullptr;
+		SceneCamera* maincamera = nullptr;
 		glm::mat4 cameratransform;
 		{
 			auto view = m_Registry.view<TransformComponent, CameraComponent>();
@@ -47,23 +47,23 @@ namespace Clonemmings
 		{
 			if (maincamera)
 			{
-				Application::Get()->GetRenderer()->SetCamera(maincamera, cameratransform);
-				Application::Get()->GetRenderer()->StartBatch();
-				auto group = m_Registry.group<TransformComponent>(entt::get<SpriterendererComponent>);
+				Application::Get().GetRenderer().SetCamera(maincamera, cameratransform);
+				Application::Get().GetRenderer().StartBatch();
+				auto group = m_Registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
 				for (auto entity : group)
 				{
 					auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
 
 					//rendering call to go here todo
 				}
-				Application::Get()->GetRenderer()->EndBatch();
+				Application::Get().GetRenderer().EndBatch();
 			}
 		}
 	}
 	void Scene::OnViewportResize(uint32_t width, uint32_t height)
 	{
-		m_ViewportWidth = width;
-		m_ViewportHeight = height;
+		m_Viewportwidth = width;
+		m_Viewportheight = height;
 
 		auto view = m_Registry.view<CameraComponent>();
 		for (auto entity : view)
@@ -80,7 +80,7 @@ namespace Clonemmings
 		auto view = m_Registry.view<CameraComponent>();
 		for (auto entity : view)
 		{
-			const auto& camera = view.GetComponent<CameraComponent>(entity);
+			const auto& camera = view.get<CameraComponent>(entity);
 			if (camera.Primary)
 			{
 				return { entity, this };
@@ -101,13 +101,13 @@ namespace Clonemmings
 	template<>
 	void Scene::OnComponentAdded<CameraComponent>(Entity entity, CameraComponent& component)
 	{
-		if (m_ViewportWidth > 0 && m_ViewportHeight > 0)
+		if (m_Viewportwidth > 0 && m_Viewportheight > 0)
 		{
-			component.Camera.SetViewportSize(m_ViewportWidth, m_ViewportHeight);
+			component.Camera.SetViewportSize(m_Viewportwidth, m_Viewportheight);
 		}
 	}
 	template<>
-	void Scene::OnComponentAdded<SpriterendererComponent>(Entity entity, SpriterendererComponent& component)
+	void Scene::OnComponentAdded<SpriteRendererComponent>(Entity entity, SpriteRendererComponent& component)
 	{
 
 	}

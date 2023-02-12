@@ -30,11 +30,11 @@ namespace Clonemmings
 		renererdata.MaxTextures = 32;
 		m_Renderer = std::make_unique<Renderer>(renererdata);
 		// very temp get camera and transform from ECS system! but not here!! should be in layer!!
-		std::shared_ptr<SceneCamera>camera = std::make_shared<SceneCamera>();
-		camera->SetOrthographic(480, -1.0f, 1.0f);
-		camera->SetViewportSize(640, 480);
+		m_Camera = new SceneCamera();
+		m_Camera->SetOrthographic(480, -1.0f, 1.0f);
+		m_Camera->SetViewportSize(640, 480);
 		glm::mat4 cameratransform = glm::translate(glm::mat4(1.0), glm::vec3(0.0, 0.0, 0.0));
-		m_Renderer->SetCamera(camera, cameratransform);
+		m_Renderer->SetCamera(m_Camera, cameratransform);
 		m_Renderer->SetClearColour(glm::vec4(1.0, 0.0, 0.0, 1.0));
 		m_Renderer->SetViewPort(0, 0, m_Window->GetWidth(), m_Window->GetHeight());
 		INFO("Renderer set up complete");
@@ -45,6 +45,7 @@ namespace Clonemmings
 	Application::~Application()
 	{
 		delete m_Layers;
+		delete m_Camera;
 	}
 	void Application::PushLayer(Layer* layer)
 	{

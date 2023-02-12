@@ -48,6 +48,7 @@ namespace Clonemmings
 		ImGuiLayer* m_ImGuiLayer;
 		static Application* s_Instance;
 		std::unique_ptr<Renderer> m_Renderer = nullptr;
+		SceneCamera* m_Camera = nullptr;
 
 
 		bool OnWindowClose(WindowCloseEvent& e);

@@ -78,11 +78,11 @@ namespace Clonemmings
 		size_t normaloffset = offsetof(ColouredVertex, Normal);
 		size_t colouroffset = offsetof(ColouredVertex, Colour);
 		glEnableVertexAttribArray(0);	//position
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(ColouredVertex), (const void*)&positionoffset);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(ColouredVertex), (const void*)positionoffset);
 		glEnableVertexAttribArray(1);	//normal
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(ColouredVertex), (const void*)&normaloffset);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(ColouredVertex), (const void*)normaloffset);
 		glEnableVertexAttribArray(2);	//colour
-		glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(ColouredVertex), (const void*)&colouroffset);
+		glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(ColouredVertex), (const void*)colouroffset);
 	}
 	void VertexArrayObject::SetTexturedVertexLayout()
 	{
@@ -90,11 +90,11 @@ namespace Clonemmings
 		size_t normaloffset = offsetof(TexturedVertex, Normal);
 		size_t texcoordoffset = offsetof(TexturedVertex, TexCoords);
 		glEnableVertexAttribArray(0);	//position
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), (const void*)&positionoffset);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), (const void*)positionoffset);
 		glEnableVertexAttribArray(1);	//normal
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), (const void*)&normaloffset);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), (const void*)normaloffset);
 		glEnableVertexAttribArray(2);	//Tex coords
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), (const void*)&texcoordoffset);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), (const void*)texcoordoffset);
 	}
 	void VertexArrayObject::SetBatchVertexLayout()
 	{
@@ -105,16 +105,16 @@ namespace Clonemmings
 		size_t texindexoffset = offsetof(BatchedVertex, TexIndex);
 		size_t tilingfactoroffset = offsetof(BatchedVertex, TilingFactor);
 		glEnableVertexAttribArray(0);	//position
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(BatchedVertex), (const void*)&positionoffset);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(BatchedVertex), (const void*)positionoffset);
 		glEnableVertexAttribArray(1);	//normal
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(BatchedVertex), (const void*)&normaloffset);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(BatchedVertex), (const void*)normaloffset);
 		glEnableVertexAttribArray(2);	//TexCoords
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(BatchedVertex), (const void*)&texcoordoffset);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(BatchedVertex), (const void*)texcoordoffset);
 		glEnableVertexAttribArray(3);	//Colour
-		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(BatchedVertex), (const void*)&colouroffset);
+		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(BatchedVertex), (const void*)colouroffset);
 		glEnableVertexAttribArray(4);	//TexIndex
-		glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, sizeof(BatchedVertex), (const void*)&texindexoffset);
+		glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, sizeof(BatchedVertex), (const void*)texindexoffset);
 		glEnableVertexAttribArray(5);	//tiling factor
-		glVertexAttribPointer(5, 1, GL_FLOAT, GL_FALSE, sizeof(BatchedVertex), (const void*)&tilingfactoroffset);
+		glVertexAttribPointer(5, 1, GL_FLOAT, GL_FALSE, sizeof(BatchedVertex), (const void*)tilingfactoroffset);
 	}
  }

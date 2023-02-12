@@ -33,7 +33,7 @@ namespace Clonemmings
 		glCreateBuffers(1, &m_Handle);
 		ASSERT(m_Handle, "Failed to create index buffer");
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Handle);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * (sizeof(uint32_t)), data, GL_DYNAMIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * (sizeof(uint32_t)), data, GL_STATIC_DRAW);
 	}
 	IndexBuffer::IndexBuffer(uint16_t* data, uint16_t count) : m_Count(count), m_Type(GL_UNSIGNED_SHORT)
 	{
@@ -42,7 +42,7 @@ namespace Clonemmings
 		glCreateBuffers(1, &m_Handle);
 		ASSERT(m_Handle, "Failed to create index buffer");
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Handle);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint16_t), data, GL_DYNAMIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint16_t), data, GL_STATIC_DRAW);
 	}
 	IndexBuffer::IndexBuffer(uint32_t count) : m_Count(count), m_Type(GL_UNSIGNED_INT)
 	{
@@ -81,6 +81,6 @@ namespace Clonemmings
 	void IndexBuffer::Draw() const
 	{
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Handle);
-		glDrawElements(GL_TRIANGLES, m_Count, m_Type, nullptr);
+		glDrawElements(GL_TRIANGLES, m_Count, m_Type, NULL);
 	}
 }

@@ -17,7 +17,7 @@ namespace Clonemmings
 		T& AddComponent(Args&&... args)
 		{
 			ASSERT(!HasComponent<T>(), "Entity already has this compoent!");
-			T& component = m_Scene->m_Registary.emplace<T>(m_EntityHandle, std::forward<Args>(args)...);
+			T& component = m_Scene->m_Registry.emplace<T>(m_EntityHandle, std::forward<Args>(args)...);
 			m_Scene->OnComponentAdded<T>(*this, component);
 			return component;
 		}
@@ -25,12 +25,12 @@ namespace Clonemmings
 		T& GetComponent()
 		{
 			ASSERT(!HasComponent<T>(), "Entity does not have component!");
-			return m_Scene->m_Registary.get<T>(m_EntityHandle);
+			return m_Scene->m_Registry.get<T>(m_EntityHandle);
 		}
 		template<typename T>
 		bool HasComponent()
 		{
-			return m_Scene->m_Registary.has<T>(m_EntityHandle);
+			return m_Scene->m_Registry.all_of<T>(m_EntityHandle);
 		}
 		template<typename T>
 		void RemoveComponent()

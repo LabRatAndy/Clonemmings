@@ -46,8 +46,8 @@ namespace Clonemmings
 		Renderer(RendererSetupData setupdata);
 		~Renderer();
 
-		void SetCamera(std::shared_ptr<SceneCamera>camera, const glm::mat4& transform) { m_Camera = camera; m_CameraTransform = transform; }
-		std::shared_ptr<SceneCamera> GetCamera() { return m_Camera; }
+		void SetCamera(SceneCamera*camera, const glm::mat4& transform) { m_Camera = camera; m_CameraTransform = transform; }
+		SceneCamera* GetCamera() { return m_Camera; }
 
 		//non batched renderering functions
 		void DrawColouredNonIndexed(const VertexArrayObject& vao, const glm::mat4& modeltransform);
@@ -66,6 +66,9 @@ namespace Clonemmings
 		void SetViewPort(uint32_t x, uint32_t y, uint32_t width, uint32_t height);
 		void SetDepthTest(bool enable);
 		void SetBlending(bool enable);
+		void SetBackFaceCull(bool enable);
+		void SetWindingOrderClockwise();
+		void SetWindingOrderAntiClockwise();
 
 	private:
 		//shaders
@@ -76,7 +79,10 @@ namespace Clonemmings
 		//Renderer Settings
 		bool m_DepthTestOn = false;
 		bool m_BlendingOn = false;
+		bool m_BackFaceCull = false;
+		bool m_ClockwiseWinding = false;
 
+		void GetInitalDefaults();
 
 		//batch rendering  stuff
 		const size_t m_MaxQuads;
@@ -95,7 +101,7 @@ namespace Clonemmings
 		std::shared_ptr<Texture> m_WhiteTexture = nullptr;
 
 		//Camera
-		std::shared_ptr<SceneCamera> m_Camera = nullptr;
+		SceneCamera* m_Camera = nullptr;
 		glm::mat4 m_CameraTransform;
 	};
 }
