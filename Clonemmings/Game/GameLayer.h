@@ -2,6 +2,7 @@
 #include "Core/Application/Layer.h"
 #include "Core/Scene/Scene.h"
 #include "Core/Renderer/VertexArray.h"
+#include "Core/Renderer/Texture.h"
 
 namespace Clonemmings
 {
@@ -20,5 +21,6 @@ namespace Clonemmings
 		std::shared_ptr<VertexArrayObject> m_VAO = nullptr;
 		std::shared_ptr<VertexBufferObject> m_VBO = nullptr;
 		std::shared_ptr<IndexBuffer> m_IBO = nullptr;
+		std::shared_ptr<Texture> m_Texture = nullptr;
 	};
 }
