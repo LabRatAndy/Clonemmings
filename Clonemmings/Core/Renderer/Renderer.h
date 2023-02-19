@@ -51,9 +51,9 @@ namespace Clonemmings
 
 		//non batched renderering functions
 		void DrawColouredNonIndexed(const VertexArrayObject& vao, const glm::mat4& modeltransform);
-		void DrawTexturedNonIndexed(const VertexArrayObject& vao, const glm::mat4& modeltransform, Texture& texture);
+		void DrawTexturedNonIndexed(const VertexArrayObject& vao, const glm::mat4& modeltransform, std::shared_ptr<Texture> texture);
 		void DrawColouredIndexed(const VertexArrayObject& vao, const glm::mat4& modeltransform);
-		void DrawTexturedIndexed(const VertexArrayObject& vao, const glm::mat4& modeltransform, Texture& texture);
+		void DrawTexturedIndexed(const VertexArrayObject& vao, const glm::mat4& modeltransform, std::shared_ptr<Texture> texture);
 
 		//Batched Renderering functions
 		void StartBatch();
