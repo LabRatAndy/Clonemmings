@@ -6,13 +6,13 @@ layout(location = 2) in vec2 a_TexCoords;
 uniform mat4 u_ModelTransform;
 uniform mat4 u_ViewProjection;
 
-struct VertexOutput
+out VertexOutput
 {
 	vec3 Normal;
 	vec2 TexCoords;
-};
+} v_Output; 
 
-layout(location = 0) out VertexOutput v_Output;
+
 
 void main()
 {

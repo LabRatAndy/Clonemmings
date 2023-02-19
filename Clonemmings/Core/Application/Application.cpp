@@ -1,5 +1,6 @@
 #include "Core/Application/Application.h"
 #include "Core/Log/Log.h"
+#include "Game/GameLayer.h"
 
 #include <GLFW/glfw3.h>
 namespace Clonemmings
@@ -14,6 +15,7 @@ namespace Clonemmings
 		m_Window = std::make_unique<Window>(name, 640, 480);
 		m_Window->SetEventCallbackFunction([this](auto&&...args)->decltype(auto) {return this->Application::OnEvent(std::forward<decltype(args)>(args)...); });
 		INFO("Window set up complete!");
+		m_Layers = new LayerStack();
 		m_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(m_ImGuiLayer);
 		INFO("Setting up Renderer");
@@ -27,23 +29,32 @@ namespace Clonemmings
 		renererdata.MaxQuads = 1000;
 		renererdata.MaxTextures = 32;
 		m_Renderer = std::make_unique<Renderer>(renererdata);
-		// very temp get camera and transform from ECS system! but not here!!
-		m_Renderer->SetCamera(std::make_shared<SceneCamera>(), glm::mat4(1.0f));
+		// very temp get camera and transform from ECS system! but not here!! should be in layer!!
+		m_Camera = new SceneCamera();
+		m_Camera->SetOrthographic(480, -1.0f, 1.0f);
+		m_Camera->SetViewportSize(640, 480);
+		glm::mat4 cameratransform = glm::translate(glm::mat4(1.0), glm::vec3(0.0, 0.0, 0.0));
+		m_Renderer->SetCamera(m_Camera, cameratransform);
+		m_Renderer->SetClearColour(glm::vec4(1.0, 0.0, 0.0, 1.0));
+		m_Renderer->SetViewPort(0, 0, m_Window->GetWidth(), m_Window->GetHeight());
 		INFO("Renderer set up complete");
+		INFO("create Game Layer");
+		PushLayer(new GameLayer("GameLayer"));
 	}
 
 	Application::~Application()
 	{
-
+		delete m_Layers;
+		delete m_Camera;
 	}
 	void Application::PushLayer(Layer* layer)
 	{
-		m_Layers.PushLayer(layer);
+		m_Layers->PushLayer(layer);
 		layer->OnAttach();
 	}
 	void Application::PushOverlay(Layer* overlay)
 	{
-		m_Layers.PushOverlay(overlay);
+		m_Layers->PushOverlay(overlay);
 		overlay->OnAttach();
 	}
 	void Application::Close()
@@ -55,7 +66,7 @@ namespace Clonemmings
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<WindowCloseEvent>([this](auto&&...args)->decltype(auto) {return this->Application::OnWindowClose(std::forward<decltype(args)>(args)...); });
 		dispatcher.Dispatch<WindowResizeEvent>([this](auto&&...args)->decltype(auto) {return this->Application::OnWindowResize(std::forward<decltype(args)>(args)...); });
-		for (auto it = m_Layers.rbegin(); it != m_Layers.rend(); ++it)
+		for (auto it = m_Layers->rbegin(); it != m_Layers->rend(); ++it)
 		{
 			if (e.m_Handled) break;
 			(*it)->OnEvent(e);
@@ -74,7 +85,8 @@ namespace Clonemmings
 			return false;
 		}
 		m_Minimised = false;
-		//call renderer resize function, here!
+		m_Renderer->SetViewPort(0, 0, e.GetWidth(), e.GetHeight());
+
 
 		return false;
 	}
@@ -87,12 +99,13 @@ namespace Clonemmings
 			m_LastFrameTime = time;
 			if (!m_Minimised)
 			{
-				for (Layer* layer : m_Layers)
+				m_Renderer->Clear();
+				for (Layer* layer : *m_Layers)
 				{
 					layer->OnUpdate(ts);
 				}
 				m_ImGuiLayer->Begin();
-				for (Layer* layer : m_Layers)
+				for (Layer* layer : *m_Layers)
 				{
 					layer->OnImGuiRender();
 				}

@@ -2,15 +2,14 @@
 
 layout(location = 0) out vec4 o_Colour;
 
-struct VertexOutput
+in VertexOutput
 {
 	vec3 Normal;
 	vec2 TexCoords;
 	vec4 Colour;
 	float TilingFactor;
-};
+} v_Input;
 
-layout(location = 0) in VertexOutput v_Input;
 layout(location = 4) in flat float v_TexIndex;
 
 uniform sampler2D u_Textures[32];

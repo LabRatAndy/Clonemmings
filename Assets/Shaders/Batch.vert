@@ -9,15 +9,14 @@ layout(location = 5) in float a_TilingFactor;
 
 uniform mat4 u_ViewProjection;
 
-struct VertexOutput
+out VertexOutput
 {
 	vec3 Normal;
 	vec2 TexCoords;
 	vec4 Colour;
 	float TilingFactor;
-};
+} v_Output;
 
-layout(location = 0) out VertexOutput v_Output;
 layout(location = 4) out flat float v_TexIndex;
 
 void main()

@@ -39,7 +39,7 @@ namespace Clonemmings
 		Renderer& GetRenderer() { return *m_Renderer; }
 
 	private:
-		LayerStack m_Layers;
+		LayerStack* m_Layers =  nullptr;
 		std::unique_ptr<Window> m_Window;
 		bool m_Running = true;
 		bool m_Minimised = false;
@@ -48,6 +48,7 @@ namespace Clonemmings
 		ImGuiLayer* m_ImGuiLayer;
 		static Application* s_Instance;
 		std::unique_ptr<Renderer> m_Renderer = nullptr;
+		SceneCamera* m_Camera = nullptr;
 
 
 		bool OnWindowClose(WindowCloseEvent& e);

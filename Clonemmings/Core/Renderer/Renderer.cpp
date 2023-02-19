@@ -24,18 +24,45 @@ SOFTWARE.*/
 #include <glad/glad.h>
 namespace Clonemmings
 {
+	void OpenGLErrorCallback(unsigned source, unsigned type, unsigned id, unsigned severity, int length, const char* msg, const void* userparam)
+	{
+		switch (severity)
+		{
+		case GL_DEBUG_SEVERITY_HIGH: CRITICAL(msg); return;
+		case GL_DEBUG_SEVERITY_MEDIUM: LOGERROR(msg); return;
+		case GL_DEBUG_SEVERITY_LOW: WARN(msg); return;
+		case GL_DEBUG_SEVERITY_NOTIFICATION: TRACE(msg); return;
+		}
+		ASSERT(false, "Unknown Debug severity level");
+	}
 	Renderer::Renderer(RendererSetupData setupdata) : m_MaxQuads(setupdata.MaxQuads), m_MaxTextures(setupdata.MaxTextures)
 	{
+		//setup debug callback!
+		INFO("-1-Debug callback setup!");
+#ifdef DEBUG
+		glEnable(GL_DEBUG_OUTPUT);
+		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+		glDebugMessageCallback(OpenGLErrorCallback, nullptr);
+		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, NULL, false);
+#endif
 		//batch renderer
-		INFO("Building batch shader");
+		INFO("-2--Building batch shader");
 		m_BatchShader = std::make_unique<Shader>(setupdata.BatchVertexShaderFilename, setupdata.BatchFragmentShaderFilename);
+		int32_t* samplers = new int32_t[m_MaxTextures];
+		for (uint32_t i = 0; i < m_MaxTextures; i++)
+		{
+			samplers[i] = i;
+		}
+		m_BatchShader->Bind();
+		m_BatchShader->SetIntArray("u_Textures", samplers, m_MaxTextures);
+		delete[] samplers;
 		m_BatchVBO = std::make_shared<VertexBufferObject>(m_MaxVertices * sizeof(BatchedVertex), VertexType::Batch);
 		m_BatchIBO = std::make_shared<IndexBuffer>((uint32_t) m_MaxIndices);
 		m_BatchVAO = std::make_unique<VertexArrayObject>();
 		m_BatchVAO->Bind();
 		m_BatchVAO->AddVertexBuffer(m_BatchVBO);
 		m_BatchVAO->SetIndexBuffer(m_BatchIBO);
-		m_Textures.resize(setupdata.MaxTextures);
+		m_Textures.resize(m_MaxTextures);
 		m_WhiteTexture = std::make_shared<Texture>(1, 1, glm::vec4(1.0));
 
 		m_QuadVertices[0] = { -0.5f,-0.5f,0.0f,1.0f };
@@ -48,10 +75,19 @@ namespace Clonemmings
 		m_TexCoords[3] = { 0.0f,1.0f };
 			
 		//setup other shaders
-		INFO("Building texture shader");
+		INFO("-3---Building texture shader");
 		m_TexturedShader = std::make_unique<Shader>(setupdata.TexturedVertexShaderFilename, setupdata.TexturedFragmentShaderFilename);
-		INFO("Building coloured shader");
+		INFO("-4----Building coloured shader");
 		m_ColouredShader = std::make_unique<Shader>(setupdata.ColouredVertexShaderFilename, setupdata.ColouredFragmentShaderFilename);
+		INFO("-5-----Geting initial default settings");
+		GetInitalDefaults();
+		INFO("Depth test setting: {0}", m_DepthTestOn);
+		INFO("Blending setting: {0}", m_BlendingOn);
+		INFO("Backface Culling setting: {0}", m_BackFaceCull);
+		INFO("Clockwise winding order: {0}", m_ClockwiseWinding);
+		SetWindingOrderAntiClockwise();
+		SetDepthTest(true);
+		SetBackFaceCull(true);
 	}
 	Renderer::~Renderer()
 	{
@@ -117,41 +153,41 @@ namespace Clonemmings
 		glm::mat4 viewprojection = m_Camera->GetProjection() * glm::inverse(m_CameraTransform);
 		m_ColouredShader->Bind();
 		m_ColouredShader->SetMat4("u_ModelTransform", modeltransform);
-		m_ColouredShader->SetMat4("uViewProjection", viewprojection);
+		m_ColouredShader->SetMat4("u_ViewProjection", viewprojection);
 		vao.Bind();
 		ASSERT(vao.GetVertexBuffer(), "No VBO is added to VAO!");
 		vao.GetVertexBuffer()->Draw();
 	}
 	void Renderer::DrawColouredIndexed(const VertexArrayObject& vao, const glm::mat4& modeltransform)
 	{
-		glm::mat4 viewporjection = m_Camera->GetProjection() * glm::inverse(m_CameraTransform);
+		glm::mat4 viewprojection = m_Camera->GetProjection() * glm::inverse(m_CameraTransform);
 		m_ColouredShader->Bind();
 		m_ColouredShader->SetMat4("u_ModelTransform", modeltransform);
-		m_ColouredShader->SetMat4("u_ViewProjection", viewporjection);
+		m_ColouredShader->SetMat4("u_ViewProjection", viewprojection);
 		vao.Bind();
 		ASSERT(vao.GetIndexBuffer(), "No IBO is added to VAO!");
 		vao.GetIndexBuffer()->Draw();
 	}
-	void Renderer::DrawTexturedNonIndexed(const VertexArrayObject& vao, const glm::mat4& modeltransform, Texture& texture)
+	void Renderer::DrawTexturedNonIndexed(const VertexArrayObject& vao, const glm::mat4& modeltransform, std::shared_ptr<Texture> texture)
 	{
 		glm::mat4 viewprojection = m_Camera->GetProjection() * glm::inverse(m_CameraTransform);
 		m_TexturedShader->Bind();
 		m_TexturedShader->SetMat4("u_ModelTransform", modeltransform);
 		m_TexturedShader->SetMat4("u_ViewProjection", viewprojection);
-		ASSERT(texture.IsLoaded(), "Supplied texture is not loaded");
-		texture.Bind();
+		ASSERT(texture->IsLoaded(), "Supplied texture is not loaded");
+		texture->Bind();
 		ASSERT(vao.GetVertexBuffer(), "No VBO is added to VAO!");
 		vao.Bind();
 		vao.GetVertexBuffer()->Draw();
 	}
-	void Renderer::DrawTexturedIndexed(const VertexArrayObject& vao, const glm::mat4& modeltransform, Texture& texture)
+	void Renderer::DrawTexturedIndexed(const VertexArrayObject& vao, const glm::mat4& modeltransform, std::shared_ptr<Texture> texture)
 	{
 		glm::mat4 viewprojection = m_Camera->GetProjection() * glm::inverse(m_CameraTransform);
 		m_TexturedShader->Bind();
 		m_TexturedShader->SetMat4("u_ModelTransform", modeltransform);
 		m_TexturedShader->SetMat4("u_ViewProjection", viewprojection);
-		ASSERT(texture.IsLoaded(), "Supplied texture is not loaded!");
-		texture.Bind();
+		ASSERT(texture->IsLoaded(), "Supplied texture is not loaded!");
+		texture->Bind();
 		ASSERT(vao.GetIndexBuffer(), "No IBO is added to VAO!");
 		vao.Bind();
 		vao.GetIndexBuffer()->Draw();
@@ -159,8 +195,9 @@ namespace Clonemmings
 	void Renderer::StartBatch()
 	{
 		m_CurrentVertex = (BatchedVertex*)m_BatchVBO->GetMappedDataPointer();
-		ASSERT(m_CurrentVertex, "Error mapping vertex data pointer");
+		ASSERT(m_CurrentVertex, "Error mapping vertex data pointer")
 		m_Textures.clear();
+		m_Textures.resize(m_MaxTextures);
 		m_Textures[0] = m_WhiteTexture;
 		m_TextureCount = 1;
 		m_QuadCount = 0;
@@ -174,20 +211,27 @@ namespace Clonemmings
 		}
 
 		float textureindex = -1.0f;
-		for (uint32_t i = 1; i < m_MaxTextures; i++)
+		if (texture)
 		{
-			if (*m_Textures[i] == *texture)
+			for (uint32_t i = 1; i < m_MaxTextures; i++)
 			{
-				textureindex = (float)i;
-				break;
+				if (m_Textures[i] && *m_Textures[i] == *texture)
+				{
+					textureindex = (float)i;
+					break;
+				}
+			}
+			if (textureindex < 0.9f)
+			{
+				//new texture
+				m_Textures[m_TextureCount] = texture;
+				textureindex = (float)m_TextureCount;
+				m_TextureCount++;
 			}
 		}
-		if (textureindex < 0.9f)
+		else
 		{
-			//new texture
-			m_Textures[m_TextureCount] = texture;
-			textureindex = (float)m_TextureCount;
-			m_TextureCount++;
+			textureindex = 0.0f;
 		}
 		for (uint32_t i = 0; i < 4; i++)
 		{
@@ -203,7 +247,8 @@ namespace Clonemmings
 	void Renderer::EndBatch()
 	{
 		m_BatchVBO->UnmapDataPointer();
-		for (uint32_t i = 0; i < m_TextureCount - 1; i++)
+		m_CurrentVertex = nullptr;
+		for (uint32_t i = 0; i < m_TextureCount; i++)
 		{
 			m_Textures[i]->Bind(i);
 		}
@@ -212,12 +257,45 @@ namespace Clonemmings
 		m_BatchShader->SetMat4("u_ViewProjection", viewprojection);
 		m_BatchVAO->Bind();
 		m_BatchVAO->GetIndexBuffer()->Draw();
-
-		//reset
-		m_Textures.clear();
-		m_Textures[0] = m_WhiteTexture;
-		m_TextureCount = 1;
-		m_QuadCount = 0;
-		m_CurrentVertex = nullptr;
+	}
+	void Renderer::SetBackFaceCull(bool enable)
+	{
+		if (enable && !m_BackFaceCull)
+		{
+			//not already enabled and requested to be on
+			glCullFace(GL_BACK);
+			glEnable(GL_CULL_FACE);
+			m_BackFaceCull = true;
+		}
+		else if (!enable && m_BackFaceCull)
+		{
+			// turned on need to be switched off
+			glDisable(GL_CULL_FACE);
+			m_BackFaceCull = false;
+		}
+	}
+	void Renderer::SetWindingOrderClockwise()
+	{
+		if (m_ClockwiseWinding) return;
+		glFrontFace(GL_CW);
+		m_ClockwiseWinding = true;
+	}
+	void Renderer::SetWindingOrderAntiClockwise()
+	{
+		if (!m_ClockwiseWinding) return;
+		glFrontFace(GL_CCW);
+		m_ClockwiseWinding = false;
+	}
+	void Renderer::GetInitalDefaults()
+	{
+		GLboolean value;
+		glGetBooleanv(GL_BLEND, &value );
+		m_BlendingOn = value;
+		glGetBooleanv(GL_DEPTH_TEST, &value);
+		m_DepthTestOn = value;
+		glGetBooleanv(GL_CULL_FACE, &value);
+		m_BackFaceCull = value;
+		glGetBooleanv(GL_FRONT_FACE, &value);
+		m_ClockwiseWinding = value;
 	}
 }

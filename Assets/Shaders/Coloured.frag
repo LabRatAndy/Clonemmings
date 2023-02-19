@@ -1,15 +1,15 @@
 #version 450 core
 layout(location = 0) out vec4 o_Colour;
 
-struct VertexOutput
+in VertexOutput
 {
 	vec3 Normal;
 	vec4 Colour;
-};
+} v_Input;
 
-layout(location = 0) in VertexOutput v_Input;
 
 void main()
 {
 	o_Colour = v_Input.Colour;
+	//o_Colour = vec4(1.0,0.0,1.0,1.0);
 }

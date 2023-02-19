@@ -1,13 +1,12 @@
 #version 450 core
 layout(location = 0) out vec4 o_Colour;
 
-struct VertexOutput
+in VertexOutput
 {
 	vec3 Normal;
 	vec2 TexCoords;
-};
+} v_Input;
 
-layout(location = 0) in VertexOutput v_Input;
 
 uniform sampler2D u_Texture;
 

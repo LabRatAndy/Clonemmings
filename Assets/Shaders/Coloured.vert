@@ -7,12 +7,12 @@ layout(location = 2) in vec4 a_Colour;
 uniform mat4 u_ModelTransform;
 uniform mat4 u_ViewProjection;
 
-struct VertexOutput
+out VertexOutput
 {
 	vec3 Normal;
 	vec4 Colour;
-};
-layout(Location = 0) out VertexOutput v_Output;
+} v_Output;
+
 
 void main()
 {

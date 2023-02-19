@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/Renderer/Texture.h"
-
+#include "Core/Renderer/SceneCamera.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
@@ -9,7 +9,6 @@
 
 namespace Clonemmings
 {
-	class SceneCamera;
 	struct TagComponent
 	{
 		std::string Tag;
@@ -34,15 +33,15 @@ namespace Clonemmings
 			return glm::translate(glm::mat4(1.0), Translation) * rotation * glm::scale(glm::mat4(1.0), Scale);
 		}
 	};
-	struct SpriterendererComponent
+	struct SpriteRendererComponent
 	{
 		glm::vec4 Colour = { 1.0,1.0,1.0,1.0 };
 		std::shared_ptr<Texture> Tex = nullptr;
 		float TilingFactor = 1.0f;
 
-		SpriterendererComponent() = default;
-		SpriterendererComponent(const SpriterendererComponent&) = default;
-		SpriterendererComponent(glm::vec4 colour) : Colour(colour) {}
+		SpriteRendererComponent() = default;
+		SpriteRendererComponent(const SpriteRendererComponent&) = default;
+		SpriteRendererComponent(glm::vec4 colour) : Colour(colour) {}
 	};
 	struct CameraComponent
 	{

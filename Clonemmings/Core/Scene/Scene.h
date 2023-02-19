@@ -11,14 +11,14 @@ namespace Clonemmings
 		Scene();
 		~Scene();
 
-		void CreateEntity(const std::string& name = std::string());
+		Entity CreateEntity(const std::string& name = std::string());
 		void DestroyEntity(Entity entity);
-		void OnUpdate(TimeStep ts);
+		void OnUpdateRuntime(TimeStep ts);
 		void OnViewportResize(uint32_t width, uint32_t height);
-		Entity GetPrimaryCameraEnitiy();
+		Entity GetPrimaryCameraEntity();
 
 	private:
-		entt::registry m_Registary;
+		entt::registry m_Registry;
 		uint32_t m_Viewportwidth = 0;
 		uint32_t m_Viewportheight = 0;
 

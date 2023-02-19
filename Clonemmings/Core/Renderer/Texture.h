@@ -28,7 +28,7 @@ namespace Clonemmings
 	{
 	public:
 		Texture(const std::filesystem::path& filename);
-		Texture(uint32_t width, uint32_t height, glm::vec4& colour);
+		Texture(uint32_t width, uint32_t height, const glm::vec4& colour);
 		~Texture();
 
 		uint32_t GetWidth() const { return m_Width; }

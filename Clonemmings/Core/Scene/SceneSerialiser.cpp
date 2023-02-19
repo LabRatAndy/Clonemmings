@@ -100,21 +100,21 @@ namespace Clonemmings
 			out << YAML::BeginMap;
 			out << YAML::Key << "ProjectionType" << YAML::Value << (int)camera.GetProjectionType();
 			out << YAML::Key << "OrthographicSize" << YAML::Value << camera.GetOrthographicSize();
-			out << YAML::Key << "OrthographicNear" << YAML::Value << camera.GetOrthographicNear();
-			out << YAML::Key << "OrthographicFar" << YAML::Value << camera.GetOrthographicFar();
-			out << YAML::Key << "PerspectiveFOV" << YAML::Value << camera.GetPerspectiveFOV();
-			out << YAML::Key << "PerspectiveNear" << YAML::Value << camera.GetPerspectiveNear();
-			out << YAML::Key << "PerspectiveFar" << YAML::Value << camera.GetPerspectiveFar();
+			out << YAML::Key << "OrthographicNear" << YAML::Value << camera.GetOthographicNearClip();
+			out << YAML::Key << "OrthographicFar" << YAML::Value << camera.GetOrthographicFarClip();
+			out << YAML::Key << "PerspectiveFOV" << YAML::Value << camera.GetPerspectiveVerticalFOV();
+			out << YAML::Key << "PerspectiveNear" << YAML::Value << camera.GetPerspectiveNearClip();
+			out << YAML::Key << "PerspectiveFar" << YAML::Value << camera.GetPerspectiveFarClip();
 			out << YAML::EndMap;
 			out << YAML::Key << "Primary" << YAML::Value << cameracomponent.Primary;
 			out << YAML::Key << "FixedAspectRatio" << YAML::Value << cameracomponent.FixedAspectRatio;
 			out << YAML::EndMap;
 		}
-		if (entity.HasComponent<SpriterendererComponent>())
+		if (entity.HasComponent<SpriteRendererComponent>())
 		{
 			out << YAML::Key << "SpriteRendererComponent";
 			out << YAML::BeginMap;
-			auto& src = entity.GetComponent<SpriterendererComponent>();
+			auto& src = entity.GetComponent<SpriteRendererComponent>();
 			out << YAML::Key << "Colour" << YAML::Value << src.Colour;
 			out << YAML::EndMap;
 		}
@@ -132,7 +132,7 @@ namespace Clonemmings
 		out << YAML::BeginMap;
 		out << YAML::Key << "Scene" << YAML::Value << "Untitled";
 		out << YAML::Key << "Entities" << YAML::Value << YAML::BeginSeq;
-		m_Scene->m_Registary.each([&](auto entityid)
+		m_Scene->m_Registry.each([&](auto entityid)
 			{
 				Entity entity = { entityid,m_Scene.get() };
 				if (!entity) return;
@@ -186,7 +186,7 @@ namespace Clonemmings
 					auto& cc = deserialisedentity.AddComponent<CameraComponent>();
 					auto& cameraprops = cameracomponent["Camera"];
 					cc.Camera.SetProjectionType((SceneCamera::ProjectionType)cameraprops["ProjectionType"].as<int>());
-					cc.Camera.SetVerticalPerspectiveFOV(cameraprops["PerspectiveFOV"].as<float>());
+					cc.Camera.SetPerspectiveVerticalFOV(cameraprops["PerspectiveFOV"].as<float>());
 					cc.Camera.SetPerspectiveNearClip(cameraprops["PerspectiveNear"].as<float>());
 					cc.Camera.SetPerspectiveFarClip(cameraprops["PerspectiveFar"].as<float>());
 					cc.Camera.SetOrthographicSize(cameraprops["OrthographicSize"].as<float>());
