@@ -254,7 +254,7 @@ namespace Clonemmings
 		}
 		glm::mat4 viewprojection = m_Camera->GetProjection() * glm::inverse(m_CameraTransform);
 		m_BatchShader->Bind();
-		m_BatchShader->SetMat4("u_ViewProjection", glm::mat4(1.0));
+		m_BatchShader->SetMat4("u_ViewProjection", viewprojection);
 		m_BatchVAO->Bind();
 		m_BatchVAO->GetIndexBuffer()->Draw();
 	}
