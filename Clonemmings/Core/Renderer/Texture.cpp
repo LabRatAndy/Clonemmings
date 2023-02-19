@@ -29,7 +29,7 @@ namespace Clonemmings
 	Texture::Texture(const std::filesystem::path& filename) :m_Filename(filename)
 	{
 		ASSERT(std::filesystem::exists(m_Filename), "Texture file does not exist!");
-		int width, height, channels;
+		int width = 0, height = 0, channels = 0;
 		GLenum internalformat;
 		GLenum dataformat;
 		stbi_set_flip_vertically_on_load(1);
@@ -63,7 +63,7 @@ namespace Clonemmings
 			m_IsLoaded = true;
 		}
 	}
-	Texture::Texture(uint32_t width, uint32_t height, glm::vec4& colour): m_Width(width), m_Height(height), m_Filename("")
+	Texture::Texture(uint32_t width, uint32_t height, const glm::vec4& colour): m_Width(width), m_Height(height), m_Filename("")
 	{
 		glCreateTextures(GL_TEXTURE_2D, 1, &m_Handle);
 		glTextureStorage2D(m_Handle, 1, GL_RGBA8, m_Width, m_Height);
@@ -72,18 +72,22 @@ namespace Clonemmings
 		glTextureParameteri(m_Handle, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTextureParameteri(m_Handle, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		uint8_t* data = new uint8_t[(uint64_t)m_Width * (uint64_t)m_Height * 4];
-		uint8_t red = ((uint8_t)colour.r) * 256;
-		uint8_t green = ((uint8_t)colour.g) * 256;
-		uint8_t blue = ((uint8_t)colour.b) * 256;
-		uint8_t alpha = ((uint8_t)colour.a) * 256;
-		for (uint32_t x = 0; x < m_Width; x++)
+		uint8_t red = ((uint8_t)colour.r) * 255;
+		uint8_t green = ((uint8_t)colour.g) * 255;
+		uint8_t blue = ((uint8_t)colour.b) * 255;
+		uint8_t alpha = ((uint8_t)colour.a) * 255;
+		for (uint32_t y = 0; y < m_Height; y++)
 		{
-			for (uint32_t y = 0; y < m_Height; y++)
+			for (uint32_t x = 0; x < m_Width; x++)
 			{
-				data[x + y + 0] = red;
-				data[x + y + 1] = green;
-				data[x + y + 2] = blue;
-				data[x + y + 3] = alpha;
+				size_t redindex = (y * m_Width * 4) + (x * 4) + 0;
+				size_t greenindex = (y * m_Width * 4) + (x * 4) + 1;
+				size_t blueindex = (y * m_Width * 4) + (x * 4) + 2;
+				size_t alphaindex = (y * m_Width * 4) + (x * 4) + 3;
+				data[redindex] = red;
+				data[greenindex] = green;
+				data[blueindex] = blue;
+				data[alphaindex] = alpha;
 			}
 		}
 		glTextureSubImage2D(m_Handle, 0, 0, 0, m_Width, m_Height, GL_RGBA, GL_UNSIGNED_BYTE, data);
