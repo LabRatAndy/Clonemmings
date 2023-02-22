@@ -6,7 +6,7 @@ namespace Clonemmings
 	class FrameBuffer
 	{
 	public:
-		FrameBuffer(FramebufferSpecification& spec);
+		FrameBuffer(const FramebufferSpecification& spec);
 		~FrameBuffer();
 		void Invalidate();
 		void Bind() const;
