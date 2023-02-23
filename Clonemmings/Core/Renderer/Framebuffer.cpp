@@ -148,7 +148,7 @@ namespace Clonemmings
 				break;
 			}
 		}
-		if (m_ColourAttachments.size() > 1)
+		if (m_ColourAttachments.size() >= 1)
 		{
 			ASSERT(m_ColourAttachments.size() <= 4);
 			GLenum buffers[4] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
@@ -193,6 +193,7 @@ namespace Clonemmings
 		glReadBuffer(GL_COLOR_ATTACHMENT0 + attachmentindex);
 		int pixeldata;
 		glReadPixels(x, y, 1, 1, GL_RED_INTEGER, GL_INT, &pixeldata);
+		return pixeldata;
 	}
 	void FrameBuffer::ClearAttachment(uint32_t index, int value)
 	{
