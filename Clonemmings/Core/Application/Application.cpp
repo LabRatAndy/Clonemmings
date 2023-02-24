@@ -33,7 +33,7 @@ namespace Clonemmings
 		m_Camera = new SceneCamera();
 		m_Camera->SetOrthographic(480, -1.0f, 1.0f);
 		m_Camera->SetViewportSize(640, 480);
-		glm::mat4 cameratransform = glm::translate(glm::mat4(1.0), glm::vec3(0.0, 0.0, 0.0));
+		glm::mat4 cameratransform = glm::translate(glm::mat4(1.0), glm::vec3(0.0, 0.0, -1.0));
 		m_Renderer->SetCamera(m_Camera, cameratransform);
 		m_Renderer->SetClearColour(glm::vec4(1.0, 0.0, 0.0, 1.0));
 		m_Renderer->SetViewPort(0, 0, m_Window->GetWidth(), m_Window->GetHeight());
