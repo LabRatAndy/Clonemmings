@@ -1,6 +1,8 @@
 #pragma once
 #include "core/Scene/Scene.h"
 #include "Core/Application/Assert.h"
+#include "Core/Scene/Components.h"
+#include "Core/Application/UUID.h"
 
 #include "entt.hpp"
 
@@ -42,6 +44,9 @@ namespace Clonemmings
 		operator bool() const { return m_EntityHandle != entt::null; }
 		operator entt::entity() const { return m_EntityHandle; }
 		operator uint32_t() const { return (uint32_t)m_EntityHandle; }
+
+		UUID GetUUID() { return GetComponent<IDComponent>().ID; }
+		const std::string& GetName() { return GetComponent<TagComponent>().Tag; }
 
 		bool operator==(const Entity& other) const
 		{
