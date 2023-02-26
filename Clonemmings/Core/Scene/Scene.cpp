@@ -18,19 +18,47 @@ namespace Clonemmings
 	}
 	Scene::~Scene()
 	{
-
+		delete m_PhysicsWorld;
 	}
 	Entity Scene::CreateEntity(const std::string& name)
 	{
+		return CreateEntityWithUUID(UUID(), name);
+	}
+	Entity Scene::CreateEntityWithUUID(UUID uuid, const std::string& name)
+	{
 		Entity entity = { m_Registry.create(),this };
+		entity.AddComponent<IDComponent>(uuid);
 		entity.AddComponent<TransformComponent>();
 		auto& tag = entity.AddComponent<TagComponent>();
 		tag.Tag = name.empty() ? "Entity" : name;
+		m_EntityMap[uuid] = entity;
 		return entity;
 	}
 	void Scene::DestroyEntity(Entity entity)
 	{
+		m_EntityMap.erase(entity.GetUUID());
 		m_Registry.destroy(entity);
+	}
+	Entity Scene::GetEntityByName(std::string_view name)
+	{
+		auto view = m_Registry.view<TagComponent>();
+		for (auto entity : view)
+		{
+			const TagComponent& tag = view.get<TagComponent>(entity);
+			if (tag.Tag == name)
+			{
+				return Entity{ entity,this };
+			}
+			return {};
+		}
+	}
+	Entity Scene::GetEntityByUUID(UUID uuid)
+	{
+		if (m_EntityMap.find(uuid) != m_EntityMap.end())
+		{
+			return { m_EntityMap.at(uuid),this };
+		}
+		return {};
 	}
 	void Scene::OnUpdateRuntime(TimeStep ts)
 	{

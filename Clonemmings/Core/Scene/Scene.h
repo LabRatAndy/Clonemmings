@@ -14,13 +14,19 @@ namespace Clonemmings
 		~Scene();
 
 		Entity CreateEntity(const std::string& name = std::string());
+		Entity CreateEntityWithUUID(UUID uuid, const std::string& name = std::string());
 		void DestroyEntity(Entity entity);
 		void OnUpdateRuntime(TimeStep ts);
 		void OnViewportResize(uint32_t width, uint32_t height);
 		Entity GetPrimaryCameraEntity();
+		Entity GetEntityByName(std::string_view name);
+		Entity GetEntityByUUID(UUID uuid);
 
 		void StartScene();
 		void StopScene();
+		bool IsRunning() const { return m_IsRunning; }
+		bool IsPaused() const { return m_IsPaused; }
+		void SetPaused(bool paused) { m_IsPaused = paused; }
 
 
 	private:
@@ -30,6 +36,8 @@ namespace Clonemmings
 		b2World* m_PhysicsWorld = nullptr;
 		bool m_IsRunning = false;
 		bool m_IsPaused = false;
+
+		std::unordered_map<UUID, Entity> m_EntityMap;
 
 		template<typename T>
 		void OnComponentAdded(Entity entity, T& component);
