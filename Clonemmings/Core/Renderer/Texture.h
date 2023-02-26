@@ -33,6 +33,7 @@ namespace Clonemmings
 
 		uint32_t GetWidth() const { return m_Width; }
 		uint32_t GetHeight() const { return m_Height; }
+		const std::string& GetPath() const { return m_Filename.string(); }
 		bool IsLoaded() const { return m_IsLoaded; }
 
 		void Bind(uint32_t slot = 0) const;

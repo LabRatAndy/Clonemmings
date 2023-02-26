@@ -94,6 +94,7 @@ namespace Clonemmings
 	{
 		out << YAML::Flow;
 		out << YAML::BeginSeq << value.x << value.y << YAML::EndSeq;
+		return out;
 	}
 	YAML::Emitter& operator<<(YAML::Emitter& out, const glm::vec3& value)
 	{
@@ -176,6 +177,11 @@ namespace Clonemmings
 			out << YAML::BeginMap;
 			auto& src = entity.GetComponent<SpriteRendererComponent>();
 			out << YAML::Key << "Colour" << YAML::Value << src.Colour;
+			if (src.Tex)
+			{
+				out << YAML::Key << "TexturePath" << YAML::Value << src.Tex->GetPath();
+			}
+			out << YAML::Key << "TilingFactor" << YAML::Value << src.TilingFactor;
 			out << YAML::EndMap;
 		}
 		if (entity.HasComponent<RigidBody2DComponent>())
@@ -266,7 +272,7 @@ namespace Clonemmings
 					name = tagcomponent["Tag"].as<std::string>();
 				}
 				TRACE("Deserialised Entity with ID = {0}, name = {1}", uuid, name);
-				Entity deserialisedentity = m_Scene->CreateEntityWithUUID(name, uuid);
+				Entity deserialisedentity = m_Scene->CreateEntityWithUUID(uuid, name);
 				auto transformcomponent = entity["TransformComponent"];
 				if (transformcomponent)
 				{
