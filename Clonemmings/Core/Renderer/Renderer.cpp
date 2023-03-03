@@ -202,7 +202,7 @@ namespace Clonemmings
 		m_TextureCount = 1;
 		m_QuadCount = 0;
 	}
-	void Renderer::SubmitToBatch(const glm::mat4& transform, std::shared_ptr<Texture> texture, glm::vec4& colour, float tilingfactor)
+	void Renderer::SubmitToBatch(const glm::mat4& transform, std::shared_ptr<Texture> texture, const glm::vec4& colour, float tilingfactor)
 	{
 		if (m_QuadCount >= m_MaxQuads || m_TextureCount >= m_MaxTextures)
 		{
@@ -297,5 +297,18 @@ namespace Clonemmings
 		m_BackFaceCull = value;
 		glGetBooleanv(GL_FRONT_FACE, &value);
 		m_ClockwiseWinding = value;
+	}
+	void Renderer::DrawBatchedQuad(const glm::vec3& position, const glm::vec2& size, std::shared_ptr<Texture>texture, const glm::vec4& colour, float tilingfactor,
+		int entityID)
+	{
+		glm::mat4 transform = glm::translate(glm::mat4(1.0), position) * glm::scale(glm::mat4(1.0), glm::vec3(size, 1.0));
+		SubmitToBatch(transform, texture, colour, tilingfactor);
+	}
+	void Renderer::DrawBatchedRotatedQuad(const glm::vec3& position, const glm::vec2& size, std::shared_ptr<Texture> texture, const glm::vec4& colour, float rotation,
+		float tilingfactor, int entityID)
+	{
+		glm::mat4 transform = glm::translate(glm::mat4(1.0), position) * glm::rotate(glm::mat4(1.0), glm::radians(rotation), glm::vec3(0, 0, 1)) 
+			* glm::scale(glm::mat4(1.0), glm::vec3(size, 1.0));
+		SubmitToBatch(transform, texture, colour, tilingfactor);
 	}
 }

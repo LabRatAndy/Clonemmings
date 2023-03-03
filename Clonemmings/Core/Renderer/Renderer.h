@@ -57,7 +57,10 @@ namespace Clonemmings
 
 		//Batched Renderering functions
 		void StartBatch();
-		void SubmitToBatch(const glm::mat4& transform, std::shared_ptr<Texture> texture, glm::vec4& colour, float tilingfactor);
+		void DrawBatchedQuad(const glm::vec3& position, const glm::vec2& size, std::shared_ptr<Texture> texture, const glm::vec4& colour, float tilingfactor = 1.0f,
+			int entityID = -1);
+		void DrawBatchedRotatedQuad(const glm::vec3& position, const glm::vec2& size, std::shared_ptr<Texture> texture, const glm::vec4& colour, float roatation = 0.0f,
+			float tilingfactor = 1.0f, int entityID = -1);
 		void EndBatch();
 
 		//General renderer functions
@@ -100,6 +103,7 @@ namespace Clonemmings
 		BatchedVertex* m_CurrentVertex = nullptr;
 		std::shared_ptr<Texture> m_WhiteTexture = nullptr;
 
+		void SubmitToBatch(const glm::mat4& transform, std::shared_ptr<Texture> texture, const glm::vec4& colour, float tilingfactor);
 		//Camera
 		SceneCamera* m_Camera = nullptr;
 		glm::mat4 m_CameraTransform;
