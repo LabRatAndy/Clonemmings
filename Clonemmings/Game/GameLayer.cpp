@@ -102,12 +102,11 @@ namespace Clonemmings
 	{
 		//bind the frame buffer before rendering
 		m_Framebuffer->Bind();
-		Application::Get().GetRenderer().SetClearColour({ 1.0, 1.0, 1.0, 1.0 });
 		Application::Get().GetRenderer().Clear();
 		Application::Get().GetRenderer().StartBatch();
-		glm::mat4 modelLHS = glm::translate(glm::mat4(1.0), glm::vec3(-5.0, 10.0, 0.0)) * glm::scale(glm::mat4(1.0), glm::vec3(0.01, 10.0, 1.0));
+		glm::mat4 modelLHS = glm::translate(glm::mat4(1.0), glm::vec3(-5.0, 10.0, 0.0)) * glm::scale(glm::mat4(1.0), glm::vec3(10.0, 10.0, 1.0));
 		Application::Get().GetRenderer().SubmitToBatch(modelLHS, nullptr, glm::vec4(0.0, 1.0, 1.0, 1.0), 1.0);
-		modelLHS = glm::translate(glm::mat4(1.0), glm::vec3(5.0, 0.0, 0.0));
+		modelLHS = glm::translate(glm::mat4(1.0), glm::vec3(50.0, 0.0, 0.0)) * glm::scale(glm::mat4(1.0), glm::vec3(50.0, 50.0, 1.0));
 		Application::Get().GetRenderer().SubmitToBatch(modelLHS, m_Texture, glm::vec4(1.0), 1.0);
 		Application::Get().GetRenderer().EndBatch();
 		m_Framebuffer->Unbind();

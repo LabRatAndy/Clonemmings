@@ -235,7 +235,7 @@ namespace Clonemmings
 		}
 		for (uint32_t i = 0; i < 4; i++)
 		{
-			m_CurrentVertex->Position = m_QuadVertices[i] * transform;
+			m_CurrentVertex->Position = transform * m_QuadVertices[i];
 			m_CurrentVertex->TilingFactor = tilingfactor;
 			m_CurrentVertex->Colour = colour;
 			m_CurrentVertex->TexCoords = m_TexCoords[i];
@@ -252,7 +252,7 @@ namespace Clonemmings
 		{
 			m_Textures[i]->Bind(i);
 		}
-		glm::mat4 viewprojection = glm::mat4(1.0f); //m_Camera->GetProjection() * glm::inverse(m_CameraTransform);
+		glm::mat4 viewprojection = m_Camera->GetProjection() * glm::inverse(m_CameraTransform);
 		m_BatchShader->Bind();
 		m_BatchShader->SetMat4("u_ViewProjection", viewprojection);
 		m_BatchVAO->Bind();
