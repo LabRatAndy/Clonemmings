@@ -77,24 +77,30 @@ namespace Clonemmings
 		size_t positionoffset = offsetof(ColouredVertex, Position);
 		size_t normaloffset = offsetof(ColouredVertex, Normal);
 		size_t colouroffset = offsetof(ColouredVertex, Colour);
+		size_t entityidoffset = offsetof(ColouredVertex, EntityID);
 		glEnableVertexAttribArray(0);	//position
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(ColouredVertex), (const void*)positionoffset);
 		glEnableVertexAttribArray(1);	//normal
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(ColouredVertex), (const void*)normaloffset);
 		glEnableVertexAttribArray(2);	//colour
 		glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(ColouredVertex), (const void*)colouroffset);
+		glEnableVertexAttribArray(3);	// Entity ID
+		glVertexAttribPointer(3, 1, GL_INT, GL_FALSE, sizeof(ColouredVertex), (const void*)entityidoffset);
 	}
 	void VertexArrayObject::SetTexturedVertexLayout()
 	{
 		size_t positionoffset = offsetof(TexturedVertex, Position);
 		size_t normaloffset = offsetof(TexturedVertex, Normal);
 		size_t texcoordoffset = offsetof(TexturedVertex, TexCoords);
+		size_t entityidoffset = offsetof(TexturedVertex, EntityID);
 		glEnableVertexAttribArray(0);	//position
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), (const void*)positionoffset);
 		glEnableVertexAttribArray(1);	//normal
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), (const void*)normaloffset);
 		glEnableVertexAttribArray(2);	//Tex coords
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), (const void*)texcoordoffset);
+		glEnableVertexAttribArray(3);	//Entity ID
+		glVertexAttribPointer(3, 1, GL_INT, GL_FALSE, sizeof(TexturedVertex), (const void*)entityidoffset);
 	}
 	void VertexArrayObject::SetBatchVertexLayout()
 	{
@@ -104,6 +110,7 @@ namespace Clonemmings
 		size_t colouroffset = offsetof(BatchedVertex, Colour);
 		size_t texindexoffset = offsetof(BatchedVertex, TexIndex);
 		size_t tilingfactoroffset = offsetof(BatchedVertex, TilingFactor);
+		size_t entityidoffset = offsetof(BatchedVertex, EntityID);
 		glEnableVertexAttribArray(0);	//position
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(BatchedVertex), (const void*)positionoffset);
 		glEnableVertexAttribArray(1);	//normal
@@ -116,5 +123,7 @@ namespace Clonemmings
 		glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, sizeof(BatchedVertex), (const void*)texindexoffset);
 		glEnableVertexAttribArray(5);	//tiling factor
 		glVertexAttribPointer(5, 1, GL_FLOAT, GL_FALSE, sizeof(BatchedVertex), (const void*)tilingfactoroffset);
+		glEnableVertexAttribArray(6);	//Entity ID
+		glVertexAttribPointer(6, 1, GL_INT, GL_FALSE, sizeof(BatchedVertex), (const void*)entityidoffset);
 	}
  }

@@ -103,7 +103,7 @@ namespace Clonemmings
 		BatchedVertex* m_CurrentVertex = nullptr;
 		std::shared_ptr<Texture> m_WhiteTexture = nullptr;
 
-		void SubmitToBatch(const glm::mat4& transform, std::shared_ptr<Texture> texture, const glm::vec4& colour, float tilingfactor);
+		void SubmitToBatch(const glm::mat4& transform, std::shared_ptr<Texture> texture, const glm::vec4& colour, float tilingfactor, int entityID);
 		//Camera
 		SceneCamera* m_Camera = nullptr;
 		glm::mat4 m_CameraTransform;
