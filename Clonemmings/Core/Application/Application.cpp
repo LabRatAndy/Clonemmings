@@ -39,7 +39,10 @@ namespace Clonemmings
 		m_Renderer->SetViewPort(0, 0, m_Window->GetWidth(), m_Window->GetHeight());
 		INFO("Renderer set up complete");
 		INFO("create Game Layer");
-		PushLayer(new GameLayer("GameLayer"));
+		GameLayer* gamelayer = new GameLayer("GameLayer");
+		std::shared_ptr<Scene> scene = std::make_shared<Scene>();
+		gamelayer->SetScene(scene);
+		PushLayer(gamelayer);
 	}
 
 	Application::~Application()

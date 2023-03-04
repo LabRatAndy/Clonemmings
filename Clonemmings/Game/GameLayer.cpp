@@ -1,6 +1,7 @@
 #include "Game/GameLayer.h"
 #include "Core/Application/Application.h"
 #include "Core/Renderer/Renderer.h"
+#include "Core/Scene/Entity.h"
 
 #include <imgui.h>
 namespace Clonemmings
@@ -11,81 +12,7 @@ namespace Clonemmings
 	}
 	void GameLayer::OnAttach()
 	{
-#if 0
-		ColouredVertex* vertices = new ColouredVertex[6];
-		vertices[0].Position = { -0.5,-0.5,0.0 };
-		vertices[1].Position = { 0.5,-0.5,0.0 };
-		vertices[2].Position = { 0.5,0.5,0.0 };
-		vertices[3].Position = { 0.5,0.5,0.0 };
-		vertices[4].Position = { -0.5,0.5,0.0 };
-		vertices[5].Position = { -0.5,-0.5,0.0 };
-		vertices[0].Normal = { 0.0,0.0,0.0 };
-		vertices[1].Normal = { 0.0,0.0,0.0 };
-		vertices[2].Normal = { 0.0,0.0,0.0 };
-		vertices[3].Normal = { 0.0,0.0,0.0 };
-		vertices[4].Normal = { 0.0,0.0,0.0 };
-		vertices[5].Normal = { 0.0,0.0,0.0 };
-		vertices[0].Colour = { 1.0,1.0,1.0,1.0 };
-		vertices[1].Colour = { 1.0,1.0,1.0,1.0 }; 
-		vertices[2].Colour = { 1.0,1.0,1.0,1.0 };
-		vertices[3].Colour = { 1.0,1.0,1.0,1.0 };
-		vertices[4].Colour = { 1.0,1.0,1.0,1.0 };
-		vertices[5].Colour = { 1.0,1.0,1.0,1.0 };
-		uint32_t* indices = new uint32_t[6];
-		indices[0] = 0;
-		indices[1] = 1;
-		indices[2] = 2;
-		indices[3] = 2;
-		indices[4] = 3;
-		indices[5] = 0;
-		m_VAO = std::make_shared<VertexArrayObject>();
-		m_VAO->Bind();
-		m_VBO = std::make_shared<VertexBufferObject>(vertices, 6 * sizeof(ColouredVertex), VertexType::Coloured);
-		m_IBO = std::make_shared<IndexBuffer>(indices, 6);
-		m_VAO->AddVertexBuffer(m_VBO);
-		m_VAO->SetIndexBuffer(m_IBO);
-		m_VAO->UnBind();
-		delete[] vertices;
-		delete[] indices;
-#elif 0
-		TexturedVertex* vertices = new TexturedVertex[4];
-		vertices[0].Position = { -0.5,-0.5,0.0 };
-		vertices[1].Position = { 0.5,-0.5,0.0 };
-		vertices[2].Position = { 0.5,0.5,0.0 };
-		vertices[3].Position = { -0.5,0.5,0.0 };
-		vertices[0].Normal = { 0.0,0.0,0.0 };
-		vertices[1].Normal = { 0.0,0.0,0.0 };
-		vertices[2].Normal = { 0.0,0.0,0.0 };
-		vertices[3].Normal = { 0.0,0.0,0.0 };
-		vertices[0].TexCoords = { 0.0,0.0 };
-		vertices[1].TexCoords = { 1.0,0.0 };
-		vertices[2].TexCoords = { 1.0,1.0 };
-		vertices[3].TexCoords = { 0.0,1.0 };
-		uint32_t* indices = new uint32_t[6];
-		indices[0] = 0;
-		indices[1] = 1;
-		indices[2] = 2;
-		indices[3] = 2;
-		indices[4] = 3;
-		indices[5] = 0;
-		m_VAO = std::make_shared<VertexArrayObject>();
-		m_VAO->Bind();
-		m_VBO = std::make_shared<VertexBufferObject>(vertices, 4 * sizeof(TexturedVertex), VertexType::Textured);
-		m_IBO = std::make_shared<IndexBuffer>(indices, 6);
-		m_VAO->AddVertexBuffer(m_VBO);
-		m_VAO->SetIndexBuffer(m_IBO);
-		m_VAO->UnBind();
-		delete[] vertices;
-		delete[] indices;
-		glm::vec4 colour;
-		colour.r = 0.0;
-		colour.g = 1.0;
-		colour.b = 0.0;
-		colour.a = 1.0;
-		m_Texture = std::make_shared<Texture>(4, 4, glm::vec4(0.0, 1.0, 0.0, 1.0));
-#else
-		m_Texture = std::make_shared<Texture>("Assets/Textures/test.png");
-#endif
+
 		//framebuffer set up for dockspace viewport
 		FramebufferSpecification spec;
 		spec.Attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::Depth };
@@ -102,11 +29,7 @@ namespace Clonemmings
 	{
 		//bind the frame buffer before rendering
 		m_Framebuffer->Bind();
-		Application::Get().GetRenderer().Clear();
-		Application::Get().GetRenderer().StartBatch();
-		Application::Get().GetRenderer().DrawBatchedQuad(glm::vec3(-5.0, 10.0, 0.0), glm::vec2(100.0, 250.0), nullptr, glm::vec4(0.0, 1.0, 1.0, 1.0));
-		Application::Get().GetRenderer().DrawBatchedQuad(glm::vec3(150.0, 0.0, 0.0), glm::vec2(50.0, 50.0), m_Texture, glm::vec4(1.0));
-		Application::Get().GetRenderer().EndBatch();
+		m_ActiveScene->OnUpdateRuntime(ts);
 		m_Framebuffer->Unbind();
 	}
 	void GameLayer::OnImGuiRender()
@@ -189,5 +112,61 @@ namespace Clonemmings
 
 		//end dockspace
 		ImGui::End();
+	}
+	void GameLayer::SetScene(std::shared_ptr<Scene> scene)
+	{
+		m_ActiveScene = scene;
+		//temp code for testing
+		{
+			Entity entity = m_ActiveScene->CreateEntity("Blue Rectangle");
+			auto& transform = entity.GetComponent<TransformComponent>();
+			transform.Translation.x = -5.0;
+			transform.Translation.y = 10.0;
+			transform.Translation.z = 0.0;
+			transform.Rotation.x = 0.0;
+			transform.Rotation.y = 0.0;
+			transform.Rotation.z = 0.0;
+			transform.Scale.x = 100.0;
+			transform.Scale.y = 250.0;
+			transform.Scale.z = 1.0;
+			auto& src = entity.AddComponent<SpriteRendererComponent>(glm::vec4(0.0, 1.0, 1.0, 1.0));
+			src.TilingFactor = 1;
+			src.Tex = nullptr;
+		}
+		{
+			Entity entity = m_ActiveScene->CreateEntity("Textured square");
+			auto& transform = entity.GetComponent<TransformComponent>();
+			transform.Translation.x = 150.0;
+			transform.Translation.y = 0.0;
+			transform.Translation.z = 0.0;
+			transform.Rotation.x = 0.0;
+			transform.Rotation.y = 0.0;
+			transform.Rotation.z = 0.0;
+			transform.Scale.x = 50.0;
+			transform.Scale.y = 50.0;
+			transform.Scale.z = 1.0;
+			auto& src = entity.AddComponent<SpriteRendererComponent>();
+			src.Colour = glm::vec4(1.0);
+			src.TilingFactor = 1;
+			src.Tex = std::make_shared<Texture>("Assets/Textures/test.png");
+ 		}
+		{
+			Entity entity = m_ActiveScene->CreateEntity("Camera");
+			auto& transform = entity.GetComponent<TransformComponent>();
+			transform.Translation.x = 0.0;
+			transform.Translation.y = 0.0;
+			transform.Translation.z = -1.0;
+			transform.Rotation.x = 0.0;
+			transform.Rotation.y = 0.0;
+			transform.Rotation.z = 0.0;
+			transform.Scale.x = 1.0;
+			transform.Scale.y = 1.0;
+			transform.Scale.z = 1.0;
+			auto& camera = entity.AddComponent<CameraComponent>();
+			camera.Camera = *(Application::Get().GetRenderer().GetCamera());
+			camera.FixedAspectRatio = false;
+			camera.Primary = true;
+		}
+		
 	}
 }

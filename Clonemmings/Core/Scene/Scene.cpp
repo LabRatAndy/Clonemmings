@@ -111,8 +111,8 @@ namespace Clonemmings
 				for (auto entity : group)
 				{
 					auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
-
-					//rendering call to go here todo
+					glm::vec2 size = { transform.Scale.x,transform.Scale.y };
+					Application::Get().GetRenderer().DrawBatchedQuad(transform.Translation, size, sprite.Tex, sprite.Colour, sprite.TilingFactor, (int)entity);
 				}
 				Application::Get().GetRenderer().EndBatch();
 			}

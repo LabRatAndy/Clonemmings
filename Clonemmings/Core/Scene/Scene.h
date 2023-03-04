@@ -35,7 +35,7 @@ namespace Clonemmings
 		uint32_t m_Viewportheight = 0;
 		b2World* m_PhysicsWorld = nullptr;
 		bool m_IsRunning = false;
-		bool m_IsPaused = false;
+		bool m_IsPaused = true;
 
 		std::unordered_map<UUID, Entity> m_EntityMap;
 

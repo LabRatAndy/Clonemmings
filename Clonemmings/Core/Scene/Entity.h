@@ -26,13 +26,15 @@ namespace Clonemmings
 		template<typename T>
 		T& GetComponent()
 		{
-			ASSERT(!HasComponent<T>(), "Entity does not have component!");
+			ASSERT(HasComponent<T>(), "Entity does not have component!");
 			return m_Scene->m_Registry.get<T>(m_EntityHandle);
 		}
 		template<typename T>
 		bool HasComponent()
 		{
-			return m_Scene->m_Registry.all_of<T>(m_EntityHandle);
+			bool retval = m_Scene->m_Registry.any_of<T>(m_EntityHandle);
+			TRACE("Has component returns {0}", retval);
+			return retval;
 		}
 		template<typename T>
 		void RemoveComponent()
