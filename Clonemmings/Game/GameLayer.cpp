@@ -2,7 +2,7 @@
 #include "Core/Application/Application.h"
 #include "Core/Renderer/Renderer.h"
 #include "Core/Scene/Entity.h"
-
+#include "Core/Scene/SceneSerialiser.h"
 #include <imgui.h>
 namespace Clonemmings
 {
@@ -29,6 +29,8 @@ namespace Clonemmings
 	{
 		//bind the frame buffer before rendering
 		m_Framebuffer->Bind();
+		//Note don't remove the clear command from here as it needs to be here to draw the scene correctly. Not sure of the reason why but possibly due to framebuffer use.
+		Application::Get().GetRenderer().Clear();
 		m_ActiveScene->OnUpdateRuntime(ts);
 		m_Framebuffer->Unbind();
 	}
@@ -89,6 +91,12 @@ namespace Clonemmings
 			if (ImGui::BeginMenu("File"))
 			{
 				if (ImGui::MenuItem("Close")) Application::Get().Close();
+				ImGui::Separator();
+#ifndef DIST	//todo flesh out scene loading and saving routine etc. this basic implementation will allow me to save the current hard coded test scene and reload it again.
+				if (ImGui::MenuItem("Save Scene")) SaveScene("Assets/Levels/test.lvl");
+				ImGui::Separator();
+#endif
+				if (ImGui::MenuItem("Load Scene")) LoadScene("Assets/Levels/test.lvl");
 				ImGui::EndMenu();
 			}
 			ImGui::EndMenuBar();
@@ -167,6 +175,16 @@ namespace Clonemmings
 			camera.FixedAspectRatio = false;
 			camera.Primary = true;
 		}
-		
+	}
+	void GameLayer::SaveScene(const std::string& filename)
+	{
+		if (!m_ActiveScene) return;
+		SceneSerialiser serialiser(m_ActiveScene);
+		serialiser.Serialise(filename);
+	}
+	void GameLayer::LoadScene(const std::string& filename)
+	{
+		SceneSerialiser deserialiser(m_ActiveScene);
+		ASSERT(deserialiser.Deserialise(filename), "failed to deserialise scene");
 	}
 }

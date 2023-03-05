@@ -19,6 +19,7 @@ namespace Clonemmings
 		virtual void OnImGuiRender() override;
 
 		void SetScene(std::shared_ptr<Scene> scene);
+		void LoadScene(const std::string& filename);
 
 	private:
 		std::shared_ptr<Scene> m_ActiveScene = nullptr;
@@ -29,5 +30,8 @@ namespace Clonemmings
 
 		std::shared_ptr<FrameBuffer> m_Framebuffer = nullptr;
 		glm::vec2 m_ViewportSize;
+
+		//only really for testing and initial saving of demo scenes etc
+		void SaveScene(const std::string& filename);
 	};
 }
