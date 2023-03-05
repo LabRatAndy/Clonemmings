@@ -32,9 +32,7 @@ namespace Clonemmings
 		template<typename T>
 		bool HasComponent()
 		{
-			bool retval = m_Scene->m_Registry.any_of<T>(m_EntityHandle);
-			TRACE("Has component returns {0}", retval);
-			return retval;
+			return m_Scene->m_Registry.any_of<T>(m_EntityHandle);
 		}
 		template<typename T>
 		void RemoveComponent()
