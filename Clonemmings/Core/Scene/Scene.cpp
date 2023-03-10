@@ -3,7 +3,13 @@
 #include "Core/Scene/Entity.h"
 #include "Core/Renderer/Renderer.h"
 #include "Core/Application/Application.h"
+#include "Core/Application/Physics2D.h"
 
+#include <box2d/b2_body.h>
+#include <box2d/b2_world.h>
+#include <box2d/b2_fixture.h>
+#include <box2d/b2_polygon_shape.h>
+#include <box2d/b2_circle_shape.h>
 namespace Clonemmings
 {
 	Scene::Scene()
@@ -12,22 +18,74 @@ namespace Clonemmings
 	}
 	Scene::~Scene()
 	{
-
+		delete m_PhysicsWorld;
 	}
 	Entity Scene::CreateEntity(const std::string& name)
 	{
+		return CreateEntityWithUUID(UUID(), name);
+	}
+	Entity Scene::CreateEntityWithUUID(UUID uuid, const std::string& name)
+	{
 		Entity entity = { m_Registry.create(),this };
+		entity.AddComponent<IDComponent>(uuid);
 		entity.AddComponent<TransformComponent>();
 		auto& tag = entity.AddComponent<TagComponent>();
 		tag.Tag = name.empty() ? "Entity" : name;
+		m_EntityMap[uuid] = entity;
 		return entity;
 	}
 	void Scene::DestroyEntity(Entity entity)
 	{
+		m_EntityMap.erase(entity.GetUUID());
 		m_Registry.destroy(entity);
+	}
+	Entity Scene::GetEntityByName(std::string_view name)
+	{
+		auto view = m_Registry.view<TagComponent>();
+		for (auto entity : view)
+		{
+			const TagComponent& tag = view.get<TagComponent>(entity);
+			if (tag.Tag == name)
+			{
+				return Entity{ entity,this };
+			}
+			return {};
+		}
+	}
+	Entity Scene::GetEntityByUUID(UUID uuid)
+	{
+		if (m_EntityMap.find(uuid) != m_EntityMap.end())
+		{
+			return { m_EntityMap.at(uuid),this };
+		}
+		return {};
 	}
 	void Scene::OnUpdateRuntime(TimeStep ts)
 	{
+		if (!m_IsPaused && m_IsRunning)
+		{
+			//Physics
+			{
+				const int32_t velocityiterations = 6;
+				const int32_t positioniterations = 2;
+				m_PhysicsWorld->Step(ts, velocityiterations, positioniterations);
+				//retrive transforms from Box2D
+				auto view = m_Registry.view<RigidBody2DComponent>();
+				for (auto e : view)
+				{
+					Entity entity = { e,this };
+					auto& transform = entity.GetComponent<TransformComponent>();
+					auto& rb2d = entity.GetComponent<RigidBody2DComponent>();
+					b2Body* body = (b2Body*)rb2d.RuntimeBody;
+					const auto& position = body->GetPosition();
+					transform.Translation.x = position.x;
+					transform.Translation.y = position.y;
+					transform.Rotation.z = body->GetAngle();
+				}
+			}
+		}
+		
+
 		//rendering
 		SceneCamera* maincamera = nullptr;
 		glm::mat4 cameratransform;
@@ -53,8 +111,8 @@ namespace Clonemmings
 				for (auto entity : group)
 				{
 					auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
-
-					//rendering call to go here todo
+					glm::vec2 size = { transform.Scale.x,transform.Scale.y };
+					Application::Get().GetRenderer().DrawBatchedQuad(transform.Translation, size, sprite.Tex, sprite.Colour, sprite.TilingFactor, (int)entity);
 				}
 				Application::Get().GetRenderer().EndBatch();
 			}
@@ -88,6 +146,68 @@ namespace Clonemmings
 		}
 		return {};
 	}
+	void Scene::OnPhysicsStart()
+	{
+		m_PhysicsWorld = new b2World({ 0.0f,-9.8f });
+		
+		auto view = m_Registry.view<RigidBody2DComponent>();
+		for (auto e : view)
+		{
+			Entity entity = { e,this };
+			auto& transform = entity.GetComponent<TransformComponent>();
+			auto& rb2d = entity.GetComponent<RigidBody2DComponent>();
+			b2BodyDef bodydef;
+			bodydef.type = Utills::Rigidbody2DTypeToBox2DBody(rb2d.Type);
+			bodydef.position.Set(transform.Translation.x, transform.Translation.y);
+			bodydef.angle = transform.Rotation.z;
+			b2Body* body = m_PhysicsWorld->CreateBody(&bodydef);
+			body->SetFixedRotation(rb2d.FixedRotation);
+			rb2d.RuntimeBody = body;
+
+			if (entity.HasComponent<BoxCollider2DComponent>())
+			{
+				auto& bc2d = entity.GetComponent<BoxCollider2DComponent>();
+				b2PolygonShape boxshape;
+				boxshape.SetAsBox(bc2d.Size.x * transform.Scale.x, bc2d.Size.y * transform.Scale.y);
+				b2FixtureDef fixturedef;
+				fixturedef.shape = &boxshape;
+				fixturedef.density = bc2d.Density;
+				fixturedef.friction = bc2d.Friction;
+				fixturedef.restitution = bc2d.Restitution;
+				fixturedef.restitutionThreshold = bc2d.RestitutionThreshold;
+				body->CreateFixture(&fixturedef);
+			}
+			if (entity.HasComponent<CircleCollider2DComponent>())
+			{
+				auto& cc2d = entity.GetComponent<CircleCollider2DComponent>();
+				b2CircleShape circleshape;
+				circleshape.m_p.Set(cc2d.Offset.x, cc2d.Offset.y);
+				circleshape.m_radius = transform.Scale.x * cc2d.Radius;
+				b2FixtureDef fixturedef;
+				fixturedef.shape = &circleshape;
+				fixturedef.density = cc2d.Density;
+				fixturedef.friction = cc2d.Friction;
+				fixturedef.restitution = cc2d.Restitution;
+				fixturedef.restitutionThreshold = cc2d.RestitutionThreshold;
+				body->CreateFixture(&fixturedef);
+			}
+		}
+	}
+	void Scene::OnPhysicsStop()
+	{
+		delete m_PhysicsWorld;
+		m_PhysicsWorld = nullptr;
+	}
+	void Scene::StartScene()
+	{
+		m_IsRunning = true;
+		OnPhysicsStart();
+	}
+	void Scene::StopScene()
+	{
+		m_IsRunning = false;
+		OnPhysicsStop();
+	}
 	template<typename T>
 	void Scene::OnComponentAdded(Entity entity, T& component)
 	{
@@ -113,6 +233,26 @@ namespace Clonemmings
 	}
 	template<>
 	void Scene::OnComponentAdded<TagComponent>(Entity entity, TagComponent& component)
+	{
+
+	}
+	template<>
+	void Scene::OnComponentAdded<IDComponent>(Entity entity, IDComponent& component)
+	{
+
+	}
+	template<>
+	void Scene::OnComponentAdded<RigidBody2DComponent>(Entity entity, RigidBody2DComponent& component)
+	{
+
+	}
+	template<>
+	void Scene::OnComponentAdded<BoxCollider2DComponent>(Entity entity, BoxCollider2DComponent& component)
+	{
+
+	}
+	template<>
+	void Scene::OnComponentAdded<CircleCollider2DComponent>(Entity entity, CircleCollider2DComponent& component)
 	{
 
 	}

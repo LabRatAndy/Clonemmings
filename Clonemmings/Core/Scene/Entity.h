@@ -1,6 +1,8 @@
 #pragma once
 #include "core/Scene/Scene.h"
 #include "Core/Application/Assert.h"
+#include "Core/Scene/Components.h"
+#include "Core/Application/UUID.h"
 
 #include "entt.hpp"
 
@@ -24,13 +26,13 @@ namespace Clonemmings
 		template<typename T>
 		T& GetComponent()
 		{
-			ASSERT(!HasComponent<T>(), "Entity does not have component!");
+			ASSERT(HasComponent<T>(), "Entity does not have component!");
 			return m_Scene->m_Registry.get<T>(m_EntityHandle);
 		}
 		template<typename T>
 		bool HasComponent()
 		{
-			return m_Scene->m_Registry.all_of<T>(m_EntityHandle);
+			return m_Scene->m_Registry.any_of<T>(m_EntityHandle);
 		}
 		template<typename T>
 		void RemoveComponent()
@@ -42,6 +44,9 @@ namespace Clonemmings
 		operator bool() const { return m_EntityHandle != entt::null; }
 		operator entt::entity() const { return m_EntityHandle; }
 		operator uint32_t() const { return (uint32_t)m_EntityHandle; }
+
+		UUID GetUUID() { return GetComponent<IDComponent>().ID; }
+		const std::string& GetName() { return GetComponent<TagComponent>().Tag; }
 
 		bool operator==(const Entity& other) const
 		{

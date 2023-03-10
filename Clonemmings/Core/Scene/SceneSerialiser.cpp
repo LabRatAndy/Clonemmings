@@ -1,13 +1,35 @@
 #include "Core/Scene/SceneSerialiser.h"
 #include "Core/Scene/Entity.h"
 #include "Core/Scene/Components.h"
+#include "Core/Application/UUID.h"
 
 #include <yaml-cpp/yaml.h>
 
 #include <fstream>
+#include <ostream>
+#include <filesystem>
 
 namespace YAML
 {
+	template<>
+	struct convert<glm::vec2>
+	{
+		static Node encode(const glm::vec2& rhs)
+		{
+			Node node;
+			node.push_back(rhs.x);
+			node.push_back(rhs.y);
+			node.SetStyle(EmitterStyle::Flow);
+			return node;
+		}
+		static bool decode(const Node& node, glm::vec2& rhs)
+		{
+			if (!node.IsSequence() || node.size() != 2) return false;
+			rhs.x = node[0].as<float>();
+			rhs.y = node[1].as<float>();
+			return true;
+		}
+	};
 	template<>
 	struct convert<glm::vec3>
 	{
@@ -52,9 +74,30 @@ namespace YAML
 			return true;
 		}
 	};
+	template<>
+	struct convert<Clonemmings::UUID>
+	{
+		static Node encode(const Clonemmings::UUID& uuid)
+		{
+			Node node;
+			node.push_back((uint64_t)uuid);
+			return node;
+		}
+		static bool decode(const Node& node, Clonemmings::UUID uuid)
+		{
+			uuid = node.as<uint64_t>();
+			return true;
+		}
+	};
 }
 namespace Clonemmings
 {
+	YAML::Emitter& operator<<(YAML::Emitter& out, const glm::vec2& value)
+	{
+		out << YAML::Flow;
+		out << YAML::BeginSeq << value.x << value.y << YAML::EndSeq;
+		return out;
+	}
 	YAML::Emitter& operator<<(YAML::Emitter& out, const glm::vec3& value)
 	{
 		out << YAML::Flow;
@@ -67,10 +110,41 @@ namespace Clonemmings
 		out << YAML::BeginSeq << value.x << value.y << value.z << value.w << YAML::EndSeq;
 		return out;
 	}
+	static void CheckAndCreateDirectory(const std::string& filepath)
+	{
+		std::filesystem::path path(filepath);
+		std::filesystem::path directory = path.parent_path();
+		//check if directory  is a  dir and if it exists
+		if (!std::filesystem::is_directory(directory))
+		{
+			// if not, need to create the dir 
+			std::filesystem::create_directory(directory);
+		}
+	}
+	static std::string RigidBody2DTypeToString(RigidBody2DComponent::BodyType bodytype)
+	{
+		switch (bodytype)
+		{
+		case RigidBody2DComponent::BodyType::Static: return "Static";
+		case RigidBody2DComponent::BodyType::Dynamic: return "Dynamic";
+		case RigidBody2DComponent::BodyType::Kinematic: return "Kinematic";
+		}
+		ASSERT(false, "Unknown body type");
+		return {};
+	}
+	static RigidBody2DComponent::BodyType RigidBody2DTypeFromString(const std::string& bodytypestring)
+	{
+		if (bodytypestring == "Static") return RigidBody2DComponent::BodyType::Static;
+		if (bodytypestring == "Dynamic") return RigidBody2DComponent::BodyType::Dynamic;
+		if (bodytypestring == "Kinematic") return RigidBody2DComponent::BodyType::Kinematic;
+		ASSERT(false, "Unknown body type string");
+		return RigidBody2DComponent::BodyType::Static;
+	}
 	static void SerialiseEntity(YAML::Emitter& out, Entity entity)
 	{
+		ASSERT(entity.HasComponent<IDComponent>())
 		out << YAML::BeginMap;
-		out << YAML::Key << "Entity" << YAML::Value << "1234567890123456"; //change to entity UUID  here!
+		out << YAML::Key << "Entity" << YAML::Value << entity.GetUUID();
 
 		if (entity.HasComponent<TagComponent>())
 		{
@@ -116,6 +190,46 @@ namespace Clonemmings
 			out << YAML::BeginMap;
 			auto& src = entity.GetComponent<SpriteRendererComponent>();
 			out << YAML::Key << "Colour" << YAML::Value << src.Colour;
+			if (src.Tex)
+			{
+				out << YAML::Key << "TexturePath" << YAML::Value << src.Tex->GetPath();
+			}
+			out << YAML::Key << "TilingFactor" << YAML::Value << src.TilingFactor;
+			out << YAML::EndMap;
+		}
+		if (entity.HasComponent<RigidBody2DComponent>())
+		{
+			out << YAML::Key << "RigidBody2DComponent";
+			out << YAML::BeginMap;
+			auto& rb2d = entity.GetComponent<RigidBody2DComponent>();
+			out << YAML::Key << "BodyType" << YAML::Value << RigidBody2DTypeToString(rb2d.Type);
+			out << YAML::Key << "FixedRotation" << YAML::Value << rb2d.FixedRotation;
+			out << YAML::EndMap;
+		}
+		if (entity.HasComponent<BoxCollider2DComponent>())
+		{
+			out << YAML::Key << "BoxCollider2DComponent";
+			out << YAML::BeginMap;
+			auto& bc2d = entity.GetComponent<BoxCollider2DComponent>();
+			out << YAML::Key << "Offset" << YAML::Value << bc2d.Offset;
+			out << YAML::Key << "Size" << YAML::Value << bc2d.Size;
+			out << YAML::Key << "Density" << YAML::Value << bc2d.Density;
+			out << YAML::Key << "Friction" << YAML::Value << bc2d.Friction;
+			out << YAML::Key << "Restitution" << YAML::Value << bc2d.Restitution;
+			out << YAML::Key << "Restutution Threshold" << YAML::Value << bc2d.RestitutionThreshold;
+			out << YAML::EndMap;
+		}
+		if (entity.HasComponent<CircleCollider2DComponent>())
+		{
+			out << YAML::Key << "CircleCollider2DComponent";
+			out << YAML::BeginMap;
+			auto& cc2d = entity.GetComponent<CircleCollider2DComponent>();
+			out << YAML::Key << "Offset" << YAML::Value << cc2d.Offset;
+			out << YAML::Key << "Radius" << YAML::Value << cc2d.Radius;
+			out << YAML::Key << "Density" << YAML::Value << cc2d.Density;
+			out << YAML::Key << "Friction" << YAML::Value << cc2d.Friction;
+			out << YAML::Key << "Restitution" << YAML::Value << cc2d.Restitution;
+			out << YAML::Key << "Restitution Threshold" << YAML::Value << cc2d.RestitutionThreshold;
 			out << YAML::EndMap;
 		}
 		out << YAML::EndMap;
@@ -140,8 +254,13 @@ namespace Clonemmings
 			});
 		out << YAML::EndSeq;
 		out << YAML::EndMap;
-		std::ofstream fout(filename);
-		fout << out.c_str();
+		CheckAndCreateDirectory(filename);
+		std::ofstream fout(filename.c_str(), std::ios::out | std::ios::trunc);
+		if (fout.is_open())
+		{
+			fout << out.c_str();
+		}
+		fout.close();
 	}
 	bool SceneSerialiser::Deserialise(const std::string& filename)
 	{
@@ -171,7 +290,7 @@ namespace Clonemmings
 					name = tagcomponent["Tag"].as<std::string>();
 				}
 				TRACE("Deserialised Entity with ID = {0}, name = {1}", uuid, name);
-				Entity deserialisedentity = m_Scene->CreateEntity(name);
+				Entity deserialisedentity = m_Scene->CreateEntityWithUUID(uuid, name);
 				auto transformcomponent = entity["TransformComponent"];
 				if (transformcomponent)
 				{
@@ -179,6 +298,9 @@ namespace Clonemmings
 					tc.Translation = transformcomponent["Translation"].as<glm::vec3>();
 					tc.Rotation = transformcomponent["Rotation"].as<glm::vec3>();
 					tc.Scale = transformcomponent["Scale"].as<glm::vec3>();
+					TRACE("Deserialised transform componenent: Translation: X  {0}, Y {1}, Z {2}", tc.Translation.x, tc.Translation.y, tc.Translation.z);
+					TRACE("Deserialised transform componenent: Rotation: X  {0}, Y {1}, Z {2}", tc.Rotation.x, tc.Rotation.y, tc.Rotation.z);
+					TRACE("Deserialised transform componenent: Scale: X  {0}, Y {1}, Z {2}", tc.Scale.x, tc.Scale.y, tc.Scale.z);
 				}
 				auto cameracomponent = entity["CameraComponent"];
 				if (cameracomponent)
@@ -186,20 +308,70 @@ namespace Clonemmings
 					auto& cc = deserialisedentity.AddComponent<CameraComponent>();
 					auto& cameraprops = cameracomponent["Camera"];
 					cc.Camera.SetProjectionType((SceneCamera::ProjectionType)cameraprops["ProjectionType"].as<int>());
+					TRACE("Camera component projection type: {0}", (int)cc.Camera.GetProjectionType());
 					cc.Camera.SetPerspectiveVerticalFOV(cameraprops["PerspectiveFOV"].as<float>());
+					TRACE("Camera component perspective FOV: {0}", cc.Camera.GetPerspectiveVerticalFOV());
 					cc.Camera.SetPerspectiveNearClip(cameraprops["PerspectiveNear"].as<float>());
+					TRACE("Camera component perspective near: {0}", cc.Camera.GetPerspectiveNearClip());
 					cc.Camera.SetPerspectiveFarClip(cameraprops["PerspectiveFar"].as<float>());
+					TRACE("Camera component perspective far: {0}", cc.Camera.GetPerspectiveFarClip());
 					cc.Camera.SetOrthographicSize(cameraprops["OrthographicSize"].as<float>());
+					TRACE("Camera component orthographic size: {0}", cc.Camera.GetOrthographicSize());
 					cc.Camera.SetOrthographicNearClip(cameraprops["OrthographicNear"].as<float>());
+					TRACE("Camera component orthographic near: {0}", cc.Camera.GetOthographicNearClip());
 					cc.Camera.SetOrthographicFarClip(cameraprops["OrthographicFar"].as<float>());
+					TRACE("Camera component orthographic far: {0}", cc.Camera.GetOrthographicFarClip());
 					cc.Primary = cameracomponent["Primary"].as<bool>();
+					TRACE("Camera component primary: {0}", cc.Primary);
 					cc.FixedAspectRatio = cameracomponent["FixedAspectRatio"].as<bool>();
+					TRACE("Camera component fixed aspect ratio: {0}", cc.FixedAspectRatio);
 				}
 				auto spriterenderercomponent = entity["SpriteRendererComponent"];
 				if (spriterenderercomponent)
 				{
 					auto& src = deserialisedentity.AddComponent<SpriteRendererComponent>();
 					src.Colour = spriterenderercomponent["Colour"].as<glm::vec4>();
+					TRACE("SRC colour: Red {0}, Green {1}, Blue {2}, Alpha {3}", src.Colour.r, src.Colour.g, src.Colour.b, src.Colour.a);
+					if (spriterenderercomponent["TexturePath"])
+					{
+						std::string texturepath = spriterenderercomponent["TexturePath"].as<std::string>();
+						TRACE("SRC texture : {0}", texturepath);
+						src.Tex = std::make_shared<Texture>(texturepath);
+					}
+					if (spriterenderercomponent["TilingFactor"])
+					{
+						src.TilingFactor = spriterenderercomponent["TilingFactor"].as<float>();
+						TRACE("SRC tiling factor:", src.TilingFactor);
+					}
+				}
+				auto rigidbody2Dcomponent = entity["RigidBody2DComponent"];
+				if (rigidbody2Dcomponent)
+				{
+					auto& rb2d = deserialisedentity.AddComponent<RigidBody2DComponent>();
+					rb2d.Type = RigidBody2DTypeFromString(rigidbody2Dcomponent["BodyType"].as<std::string>());
+					rb2d.FixedRotation = rigidbody2Dcomponent["FixedRotation"].as<bool>();
+				}
+				auto boxcollider2Dcomponent = entity["BoxCollider2DComponent"];
+				if (boxcollider2Dcomponent)
+				{
+					auto& bc2d = deserialisedentity.AddComponent<BoxCollider2DComponent>();
+					bc2d.Offset = boxcollider2Dcomponent["Offset"].as<glm::vec2>();
+					bc2d.Size = boxcollider2Dcomponent["Size"].as<glm::vec2>();
+					bc2d.Density = boxcollider2Dcomponent["Density"].as<float>();
+					bc2d.Friction = boxcollider2Dcomponent["Friction"].as<float>();
+					bc2d.Restitution = boxcollider2Dcomponent["Restitution"].as<float>();
+					bc2d.RestitutionThreshold = boxcollider2Dcomponent["Restitution Threshold"].as<float>();
+				}
+				auto circlecollider2Dcomponent = entity["CircleCollider2DComponent"];
+				if (circlecollider2Dcomponent)
+				{
+					auto& cc2d = deserialisedentity.AddComponent<CircleCollider2DComponent>();
+					cc2d.Offset = circlecollider2Dcomponent["Offset"].as<glm::vec2>();
+					cc2d.Radius = circlecollider2Dcomponent["Radius"].as<float>();
+					cc2d.Density = circlecollider2Dcomponent["Density"].as<float>();
+					cc2d.Friction = circlecollider2Dcomponent["Friction"].as<float>();
+					cc2d.Restitution = circlecollider2Dcomponent["Restitution"].as<float>();
+					cc2d.RestitutionThreshold = circlecollider2Dcomponent["Restitution Threshold"].as<float>();
 				}
 			}
 		}

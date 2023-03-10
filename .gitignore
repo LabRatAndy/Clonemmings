@@ -12,6 +12,7 @@ bin-int/
 *.ini
 *.log
 *.trace
+*.lvl
 
 
 # Exclude

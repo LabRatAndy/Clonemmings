@@ -11,6 +11,7 @@ in VertexOutput
 } v_Input;
 
 layout(location = 4) in flat float v_TexIndex;
+layout(location = 5) in flat int v_EntityID;
 
 uniform sampler2D u_Textures[32];
 

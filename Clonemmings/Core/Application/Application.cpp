@@ -33,13 +33,16 @@ namespace Clonemmings
 		m_Camera = new SceneCamera();
 		m_Camera->SetOrthographic(480, -1.0f, 1.0f);
 		m_Camera->SetViewportSize(640, 480);
-		glm::mat4 cameratransform = glm::translate(glm::mat4(1.0), glm::vec3(0.0, 0.0, 0.0));
+		glm::mat4 cameratransform = glm::translate(glm::mat4(1.0), glm::vec3(0.0, 0.0, -1.0));
 		m_Renderer->SetCamera(m_Camera, cameratransform);
 		m_Renderer->SetClearColour(glm::vec4(1.0, 0.0, 0.0, 1.0));
 		m_Renderer->SetViewPort(0, 0, m_Window->GetWidth(), m_Window->GetHeight());
 		INFO("Renderer set up complete");
 		INFO("create Game Layer");
-		PushLayer(new GameLayer("GameLayer"));
+		GameLayer* gamelayer = new GameLayer("GameLayer");
+		std::shared_ptr<Scene> scene = std::make_shared<Scene>();
+		gamelayer->SetScene(scene);
+		PushLayer(gamelayer);
 	}
 
 	Application::~Application()

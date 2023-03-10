@@ -29,6 +29,7 @@ namespace Clonemmings
 	Texture::Texture(const std::filesystem::path& filename) :m_Filename(filename)
 	{
 		ASSERT(std::filesystem::exists(m_Filename), "Texture file does not exist!");
+		m_FilenameStr = std::string(m_Filename.string().c_str());
 		int width = 0, height = 0, channels = 0;
 		GLenum internalformat;
 		GLenum dataformat;

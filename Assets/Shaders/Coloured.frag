@@ -7,6 +7,7 @@ in VertexOutput
 	vec4 Colour;
 } v_Input;
 
+layout(location = 2) in flat int v_EntityID;
 
 void main()
 {

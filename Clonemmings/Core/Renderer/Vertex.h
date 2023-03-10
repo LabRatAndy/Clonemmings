@@ -29,12 +29,14 @@ namespace Clonemmings
 		glm::vec3 Position;
 		glm::vec3 Normal;
 		glm::vec4 Colour;
+		int EntityID;
 	};
 	struct TexturedVertex
 	{
 		glm::vec3 Position;
 		glm::vec3 Normal;
 		glm::vec2 TexCoords;
+		int EntityID;
 	};
 	struct BatchedVertex
 	{
@@ -44,6 +46,7 @@ namespace Clonemmings
 		glm::vec4 Colour;
 		float TexIndex;
 		float TilingFactor;
+		int EntityID;
 	};
 	enum class VertexType
 	{
