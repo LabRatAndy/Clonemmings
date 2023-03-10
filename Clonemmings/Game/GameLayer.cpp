@@ -112,6 +112,7 @@ namespace Clonemmings
 				if (ImGui::MenuItem("Reset Scene"))
 				{
 					m_ActiveScene = m_ResetScene;
+					m_ResetScene = Scene::Copy(m_ActiveScene);
 				}
 				ImGui::EndMenu();
 			}
@@ -140,6 +141,7 @@ namespace Clonemmings
 	void GameLayer::SetScene(std::shared_ptr<Scene> scene)
 	{
 		m_ActiveScene = scene;
+		m_ResetScene = Scene::Copy(m_ActiveScene);
 #if 0
 		//temp code for testing
 		{
@@ -213,5 +215,6 @@ namespace Clonemmings
 		SceneSerialiser deserialiser(loadedscene);
 		ASSERT(deserialiser.Deserialise(filename), "failed to deserialise scene");
 		m_ActiveScene = loadedscene;
+		m_ResetScene = Scene::Copy(m_ActiveScene);
 	}
 }
