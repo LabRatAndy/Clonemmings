@@ -23,6 +23,7 @@ namespace Clonemmings
 
 	private:
 		std::shared_ptr<Scene> m_ActiveScene = nullptr;
+		std::shared_ptr<Scene> m_ResetScene = nullptr;
 		std::shared_ptr<VertexArrayObject> m_VAO = nullptr;
 		std::shared_ptr<VertexBufferObject> m_VBO = nullptr;
 		std::shared_ptr<IndexBuffer> m_IBO = nullptr;

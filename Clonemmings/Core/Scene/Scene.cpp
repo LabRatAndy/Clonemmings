@@ -62,7 +62,7 @@ namespace Clonemmings
 	}
 	void Scene::OnUpdateRuntime(TimeStep ts)
 	{
-		if (!m_IsPaused)
+		if (!m_IsPaused && m_IsRunning)
 		{
 			//Physics
 			{

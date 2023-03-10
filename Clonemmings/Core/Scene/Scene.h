@@ -29,6 +29,7 @@ namespace Clonemmings
 		void SetPaused(bool paused) { m_IsPaused = paused; }
 
 
+
 	private:
 		entt::registry m_Registry;
 		uint32_t m_Viewportwidth = 0;

@@ -93,10 +93,25 @@ namespace Clonemmings
 				if (ImGui::MenuItem("Close")) Application::Get().Close();
 				ImGui::Separator();
 #ifndef DIST	//todo flesh out scene loading and saving routine etc. this basic implementation will allow me to save the current hard coded test scene and reload it again.
-				if (ImGui::MenuItem("Save Scene")) SaveScene("Assets/Levels/test.lvl");
+				if (ImGui::MenuItem("Save Scene")) SaveScene("Assets/Levels/test1.lvl");
 				ImGui::Separator();
 #endif
-				if (ImGui::MenuItem("Load Scene")) LoadScene("Assets/Levels/test.lvl");
+				if (ImGui::MenuItem("Load Scene")) LoadScene("Assets/Levels/test1.lvl");
+				ImGui::EndMenu();
+			}
+			if (ImGui::BeginMenu("RunScene"))
+			{
+				if (ImGui::MenuItem("Start Scene")) m_ActiveScene->StartScene();
+				ImGui::Separator();
+				if (ImGui::MenuItem("Stop Scene")) m_ActiveScene->StopScene();
+				ImGui::Separator();
+				if (ImGui::MenuItem("Pause Scene")) m_ActiveScene->SetPaused(true);
+				ImGui::Separator();
+				if (ImGui::MenuItem("Unpause Scene")) m_ActiveScene->SetPaused(false);
+				if (ImGui::MenuItem("Reset Scene"))
+				{
+					m_ActiveScene = m_ResetScene;
+				}
 				ImGui::EndMenu();
 			}
 			ImGui::EndMenuBar();
@@ -128,24 +143,27 @@ namespace Clonemmings
 		{
 			Entity entity = m_ActiveScene->CreateEntity("Blue Rectangle");
 			auto& transform = entity.GetComponent<TransformComponent>();
-			transform.Translation.x = -5.0;
-			transform.Translation.y = 10.0;
+			transform.Translation.x = -100.0;
+			transform.Translation.y = -100.0;
 			transform.Translation.z = 0.0;
 			transform.Rotation.x = 0.0;
 			transform.Rotation.y = 0.0;
 			transform.Rotation.z = 0.0;
-			transform.Scale.x = 100.0;
-			transform.Scale.y = 250.0;
+			transform.Scale.x = 400.0;
+			transform.Scale.y = 50.0;
 			transform.Scale.z = 1.0;
 			auto& src = entity.AddComponent<SpriteRendererComponent>(glm::vec4(0.0, 1.0, 1.0, 1.0));
 			src.TilingFactor = 1;
 			src.Tex = nullptr;
+			auto& bc2d = entity.AddComponent<BoxCollider2DComponent>();
+			auto& rb2d = entity.AddComponent<RigidBody2DComponent>();
+			rb2d.Type = RigidBody2DComponent::BodyType::Static;
 		}
 		{
 			Entity entity = m_ActiveScene->CreateEntity("Textured square");
 			auto& transform = entity.GetComponent<TransformComponent>();
-			transform.Translation.x = 150.0;
-			transform.Translation.y = 0.0;
+			transform.Translation.x = 0.0;
+			transform.Translation.y = 200.0;
 			transform.Translation.z = 0.0;
 			transform.Rotation.x = 0.0;
 			transform.Rotation.y = 0.0;
@@ -157,6 +175,9 @@ namespace Clonemmings
 			src.Colour = glm::vec4(1.0);
 			src.TilingFactor = 1;
 			src.Tex = std::make_shared<Texture>("Assets/Textures/test.png");
+			auto& bc2d = entity.AddComponent<BoxCollider2DComponent>();
+			auto& rb2d = entity.AddComponent<RigidBody2DComponent>();
+			rb2d.Type = RigidBody2DComponent::BodyType::Dynamic;
  		}
 		{
 			Entity entity = m_ActiveScene->CreateEntity("Camera");
@@ -184,7 +205,10 @@ namespace Clonemmings
 	}
 	void GameLayer::LoadScene(const std::string& filename)
 	{
-		SceneSerialiser deserialiser(m_ActiveScene);
+		std::shared_ptr<Scene> loadedscene = std::make_shared<Scene>();
+		loadedscene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+		SceneSerialiser deserialiser(loadedscene);
 		ASSERT(deserialiser.Deserialise(filename), "failed to deserialise scene");
+		m_ActiveScene = loadedscene;
 	}
 }
