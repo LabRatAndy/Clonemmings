@@ -203,7 +203,7 @@ namespace Clonemmings
 			out << YAML::BeginMap;
 			auto& rb2d = entity.GetComponent<RigidBody2DComponent>();
 			out << YAML::Key << "BodyType" << YAML::Value << RigidBody2DTypeToString(rb2d.Type);
-			out << YAML::Key << "FixedRoatation" << YAML::Value << rb2d.FixedRotation;
+			out << YAML::Key << "FixedRotation" << YAML::Value << rb2d.FixedRotation;
 			out << YAML::EndMap;
 		}
 		if (entity.HasComponent<BoxCollider2DComponent>())
@@ -348,7 +348,7 @@ namespace Clonemmings
 				if (rigidbody2Dcomponent)
 				{
 					auto& rb2d = deserialisedentity.AddComponent<RigidBody2DComponent>();
-					rb2d.Type = RigidBody2DTypeFromString(rigidbody2Dcomponent["Type"].as<std::string>());
+					rb2d.Type = RigidBody2DTypeFromString(rigidbody2Dcomponent["BodyType"].as<std::string>());
 					rb2d.FixedRotation = rigidbody2Dcomponent["FixedRotation"].as<bool>();
 				}
 				auto boxcollider2Dcomponent = entity["BoxCollider2DComponent"];
@@ -360,7 +360,7 @@ namespace Clonemmings
 					bc2d.Density = boxcollider2Dcomponent["Density"].as<float>();
 					bc2d.Friction = boxcollider2Dcomponent["Friction"].as<float>();
 					bc2d.Restitution = boxcollider2Dcomponent["Restitution"].as<float>();
-					bc2d.RestitutionThreshold = boxcollider2Dcomponent["RestitutionThreshold"].as<float>();
+					bc2d.RestitutionThreshold = boxcollider2Dcomponent["Restitution Threshold"].as<float>();
 				}
 				auto circlecollider2Dcomponent = entity["CircleCollider2DComponent"];
 				if (circlecollider2Dcomponent)
@@ -371,7 +371,7 @@ namespace Clonemmings
 					cc2d.Density = circlecollider2Dcomponent["Density"].as<float>();
 					cc2d.Friction = circlecollider2Dcomponent["Friction"].as<float>();
 					cc2d.Restitution = circlecollider2Dcomponent["Restitution"].as<float>();
-					cc2d.RestitutionThreshold = circlecollider2Dcomponent["RestitutionThreshold"].as<float>();
+					cc2d.RestitutionThreshold = circlecollider2Dcomponent["Restitution Threshold"].as<float>();
 				}
 			}
 		}

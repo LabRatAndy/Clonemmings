@@ -108,6 +108,7 @@ namespace Clonemmings
 				if (ImGui::MenuItem("Pause Scene")) m_ActiveScene->SetPaused(true);
 				ImGui::Separator();
 				if (ImGui::MenuItem("Unpause Scene")) m_ActiveScene->SetPaused(false);
+				ImGui::Separator();
 				if (ImGui::MenuItem("Reset Scene"))
 				{
 					m_ActiveScene = m_ResetScene;
@@ -139,6 +140,7 @@ namespace Clonemmings
 	void GameLayer::SetScene(std::shared_ptr<Scene> scene)
 	{
 		m_ActiveScene = scene;
+#if 0
 		//temp code for testing
 		{
 			Entity entity = m_ActiveScene->CreateEntity("Blue Rectangle");
@@ -196,6 +198,7 @@ namespace Clonemmings
 			camera.FixedAspectRatio = false;
 			camera.Primary = true;
 		}
+#endif
 	}
 	void GameLayer::SaveScene(const std::string& filename)
 	{
