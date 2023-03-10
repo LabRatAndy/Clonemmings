@@ -7,6 +7,7 @@
 
 #include <fstream>
 #include <ostream>
+#include <filesystem>
 
 namespace YAML
 {
@@ -108,6 +109,17 @@ namespace Clonemmings
 		out << YAML::Flow;
 		out << YAML::BeginSeq << value.x << value.y << value.z << value.w << YAML::EndSeq;
 		return out;
+	}
+	static void CheckAndCreateDirectory(const std::string& filepath)
+	{
+		std::filesystem::path path(filepath);
+		std::filesystem::path directory = path.parent_path();
+		//check if directory  is a  dir and if it exists
+		if (!std::filesystem::is_directory(directory))
+		{
+			// if not, need to create the dir 
+			std::filesystem::create_directory(directory);
+		}
 	}
 	static std::string RigidBody2DTypeToString(RigidBody2DComponent::BodyType bodytype)
 	{
@@ -242,6 +254,7 @@ namespace Clonemmings
 			});
 		out << YAML::EndSeq;
 		out << YAML::EndMap;
+		CheckAndCreateDirectory(filename);
 		std::ofstream fout(filename.c_str(), std::ios::out | std::ios::trunc);
 		if (fout.is_open())
 		{
