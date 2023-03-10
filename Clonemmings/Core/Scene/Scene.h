@@ -13,6 +13,8 @@ namespace Clonemmings
 		Scene();
 		~Scene();
 
+		static std::shared_ptr<Scene> Copy(std::shared_ptr<Scene> otherscene);
+
 		Entity CreateEntity(const std::string& name = std::string());
 		Entity CreateEntityWithUUID(UUID uuid, const std::string& name = std::string());
 		void DestroyEntity(Entity entity);
@@ -21,6 +23,7 @@ namespace Clonemmings
 		Entity GetPrimaryCameraEntity();
 		Entity GetEntityByName(std::string_view name);
 		Entity GetEntityByUUID(UUID uuid);
+		Entity DuplicateEntity(Entity entity);
 
 		void StartScene();
 		void StopScene();

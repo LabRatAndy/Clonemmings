@@ -12,6 +12,41 @@
 #include <box2d/b2_circle_shape.h>
 namespace Clonemmings
 {
+	template<typename... component>
+	static void CopyComponent(entt::registry& dst, entt::registry& src, const std::unordered_map<UUID, entt::entity>& enttmap)
+	{
+		([&]()
+			{
+				auto view = src.view<component>();
+				for (auto srcentity : view)
+				{
+					entt::entity dstentity = enttmap.at(src.get<IDComponent>(srcentity).ID);
+					auto& srccomponent = src.get<component>(srcentity);
+					dst.emplace_or_replace<component>(dstentity, srccomponent);
+				}
+			}(), ...);
+	}
+	template<typename... components>
+	static void CopyComponent(ComponentGroup<components ...>, entt::registry& dst, entt::registry& src, const std::unordered_map<UUID, entt::entity>& enttmap)
+	{
+		CopyComponent<components...>(dst, src, enttmap);
+	}
+	template<typename... component>
+	static void CopyComponentIfExists(Entity dst, Entity src)
+	{
+		([&]()
+			{
+				if (src.HasComponent<component>())
+				{
+					dst.AddOrReplaceComponent<component>(src.GetComponent<component>());
+				}
+			}(), ...);
+	}
+	template<typename... component>
+	static void CopyComponentIfExists(ComponentGroup<component ...>, Entity dst, Entity src)
+	{
+		CopyComponentIfExists<component...>(dst, src);
+	}
 	Scene::Scene()
 	{
 
@@ -207,6 +242,38 @@ namespace Clonemmings
 	{
 		m_IsRunning = false;
 		OnPhysicsStop();
+	}
+	std::shared_ptr<Scene> Scene::Copy(std::shared_ptr<Scene> other)
+	{
+		std::shared_ptr<Scene> newscene = std::make_shared<Scene>();
+		newscene->m_Viewportheight = other->m_Viewportheight;
+		newscene->m_Viewportwidth = other->m_Viewportwidth;
+
+		auto& srcreg = other->m_Registry;
+		auto& dstreg = newscene->m_Registry;
+		std::unordered_map<UUID, entt::entity> enttmap;
+
+		//copying entities to new scene along with uuid and tags
+		auto srcentities = srcreg.view<IDComponent>();
+		for (auto e : srcentities)
+		{
+			UUID uuid = srcreg.get<IDComponent>(e).ID;
+			const std::string& name = srcreg.get<TagComponent>(e).Tag;
+			Entity entity = newscene->CreateEntityWithUUID(uuid, name);
+			enttmap[uuid] = (entt::entity)entity;
+		}
+
+		//copy rest of the components
+		CopyComponent(AllComponents{}, dstreg, srcreg, enttmap);
+
+		return newscene;
+	}
+	Entity Scene::DuplicateEntity(Entity entity)
+	{
+		std::string name = entity.GetName();
+		Entity newentity = CreateEntity(name);
+		CopyComponentIfExists(AllComponents{}, newentity, entity);
+		return newentity;
 	}
 	template<typename T>
 	void Scene::OnComponentAdded(Entity entity, T& component)
