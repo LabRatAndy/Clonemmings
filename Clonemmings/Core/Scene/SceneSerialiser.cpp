@@ -6,6 +6,7 @@
 #include <yaml-cpp/yaml.h>
 
 #include <fstream>
+#include <ostream>
 
 namespace YAML
 {
@@ -241,8 +242,12 @@ namespace Clonemmings
 			});
 		out << YAML::EndSeq;
 		out << YAML::EndMap;
-		std::ofstream fout(filename);
-		fout << out.c_str();
+		std::ofstream fout(filename.c_str(), std::ios::out | std::ios::trunc);
+		if (fout.is_open())
+		{
+			fout << out.c_str();
+		}
+		fout.close();
 	}
 	bool SceneSerialiser::Deserialise(const std::string& filename)
 	{
@@ -280,6 +285,9 @@ namespace Clonemmings
 					tc.Translation = transformcomponent["Translation"].as<glm::vec3>();
 					tc.Rotation = transformcomponent["Rotation"].as<glm::vec3>();
 					tc.Scale = transformcomponent["Scale"].as<glm::vec3>();
+					TRACE("Deserialised transform componenent: Translation: X  {0}, Y {1}, Z {2}", tc.Translation.x, tc.Translation.y, tc.Translation.z);
+					TRACE("Deserialised transform componenent: Rotation: X  {0}, Y {1}, Z {2}", tc.Rotation.x, tc.Rotation.y, tc.Rotation.z);
+					TRACE("Deserialised transform componenent: Scale: X  {0}, Y {1}, Z {2}", tc.Scale.x, tc.Scale.y, tc.Scale.z);
 				}
 				auto cameracomponent = entity["CameraComponent"];
 				if (cameracomponent)
@@ -287,28 +295,40 @@ namespace Clonemmings
 					auto& cc = deserialisedentity.AddComponent<CameraComponent>();
 					auto& cameraprops = cameracomponent["Camera"];
 					cc.Camera.SetProjectionType((SceneCamera::ProjectionType)cameraprops["ProjectionType"].as<int>());
+					TRACE("Camera component projection type: {0}", (int)cc.Camera.GetProjectionType());
 					cc.Camera.SetPerspectiveVerticalFOV(cameraprops["PerspectiveFOV"].as<float>());
+					TRACE("Camera component perspective FOV: {0}", cc.Camera.GetPerspectiveVerticalFOV());
 					cc.Camera.SetPerspectiveNearClip(cameraprops["PerspectiveNear"].as<float>());
+					TRACE("Camera component perspective near: {0}", cc.Camera.GetPerspectiveNearClip());
 					cc.Camera.SetPerspectiveFarClip(cameraprops["PerspectiveFar"].as<float>());
+					TRACE("Camera component perspective far: {0}", cc.Camera.GetPerspectiveFarClip());
 					cc.Camera.SetOrthographicSize(cameraprops["OrthographicSize"].as<float>());
+					TRACE("Camera component orthographic size: {0}", cc.Camera.GetOrthographicSize());
 					cc.Camera.SetOrthographicNearClip(cameraprops["OrthographicNear"].as<float>());
+					TRACE("Camera component orthographic near: {0}", cc.Camera.GetOthographicNearClip());
 					cc.Camera.SetOrthographicFarClip(cameraprops["OrthographicFar"].as<float>());
+					TRACE("Camera component orthographic far: {0}", cc.Camera.GetOrthographicFarClip());
 					cc.Primary = cameracomponent["Primary"].as<bool>();
+					TRACE("Camera component primary: {0}", cc.Primary);
 					cc.FixedAspectRatio = cameracomponent["FixedAspectRatio"].as<bool>();
+					TRACE("Camera component fixed aspect ratio: {0}", cc.FixedAspectRatio);
 				}
 				auto spriterenderercomponent = entity["SpriteRendererComponent"];
 				if (spriterenderercomponent)
 				{
 					auto& src = deserialisedentity.AddComponent<SpriteRendererComponent>();
 					src.Colour = spriterenderercomponent["Colour"].as<glm::vec4>();
-					if (spriterenderercomponent["Texture"])
+					TRACE("SRC colour: Red {0}, Green {1}, Blue {2}, Alpha {3}", src.Colour.r, src.Colour.g, src.Colour.b, src.Colour.a);
+					if (spriterenderercomponent["TexturePath"])
 					{
 						std::string texturepath = spriterenderercomponent["TexturePath"].as<std::string>();
+						TRACE("SRC texture : {0}", texturepath);
 						src.Tex = std::make_shared<Texture>(texturepath);
 					}
 					if (spriterenderercomponent["TilingFactor"])
 					{
 						src.TilingFactor = spriterenderercomponent["TilingFactor"].as<float>();
+						TRACE("SRC tiling factor:", src.TilingFactor);
 					}
 				}
 				auto rigidbody2Dcomponent = entity["RigidBody2DComponent"];
