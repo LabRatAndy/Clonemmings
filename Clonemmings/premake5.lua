@@ -17,27 +17,29 @@ project "Clonemmings"
 
 	includedirs
 	{
-		"../Dependencies/GLFW/include",
-		"../Dependencies/glm",
-		"../Dependencies/Glad/include/glad",
-		"../Dependencies/Glad/include",
-		"../Dependencies/stb_image",
-		"../Dependencies/Box2D/include",
-		"../Dependencies/entt",
-		"../Dependencies/ImGui",
-		"../Dependencies/spdlog/include",
-		"../Dependencies/yaml-cpp/include",
+		"%{wks.location}/Dependencies/GLFW/include",
+		"%{wks.location}/Dependencies/glm",
+		"%{wks.location}/Dependencies/Glad/include/glad",
+		"%{wks.location}/Dependencies/Glad/include",
+		"%{wks.location}/Dependencies/stb_image",
+		"%{wks.location}/Dependencies/Box2D/include",
+		"%{wks.location}/Dependencies/entt",
+		"%{wks.location}/Dependencies/ImGui",
+		"%{wks.location}/Dependencies/spdlog/include",
+		"%{wks.location}/Dependencies/yaml-cpp/include",
+		"%{wks.location}/Dependencies/mono/include",
 		".",
 	}
 
 
 	links
 	{
-		"../Dependencies/GLFW/bin/".. outputdir.."/GLFW/GLFW.lib",
-		"../Dependencies/Glad/bin/".. outputdir.."/Glad/GLAD.lib",
-		"../Dependencies/Box2D/bin/".. outputdir.."/Box2D/Box2D.lib",
-		"../Dependencies/yaml-cpp/bin/".. outputdir.."/yaml-cpp/yaml-cpp.lib",
-		"../Dependencies/ImGui/bin/".. outputdir.."/ImGui/ImGui.lib",
+		"%{wks.location}/Dependencies/GLFW/bin/".. outputdir.."/GLFW/GLFW.lib",
+		"%{wks.location}/Dependencies/Glad/bin/".. outputdir.."/Glad/GLAD.lib",
+		"%{wks.location}/Dependencies/Box2D/bin/".. outputdir.."/Box2D/Box2D.lib",
+		"%{wks.location}/Dependencies/yaml-cpp/bin/".. outputdir.."/yaml-cpp/yaml-cpp.lib",
+		"%{wks.location}/Dependencies/ImGui/bin/".. outputdir.."/ImGui/ImGui.lib",
+		"%{wks.location}/Dependencies/mono/Libs/%{cfg.buildcfg}/libmono-static-sgen.lib",
 		"opengl32.lib"
 	}
 	defines 
