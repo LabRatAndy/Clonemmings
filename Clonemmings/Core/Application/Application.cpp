@@ -100,6 +100,7 @@ namespace Clonemmings
 			float time = (float)glfwGetTime();
 			TimeStep ts = time - m_LastFrameTime;
 			m_LastFrameTime = time;
+			ExecuteMainThreadQueue();
 			if (!m_Minimised)
 			{
 				m_Renderer->Clear();
@@ -116,5 +117,19 @@ namespace Clonemmings
 			}
 			m_Window->OnUpdate();
 		}
+	}
+	void Application::SubmitToMainThread(const std::function<void()>& function)
+	{
+		std::scoped_lock<std::mutex> lock(m_MainThreadQueueMutex);
+		m_MainThreadQueue.emplace_back(function);
+	}
+	void Application::ExecuteMainThreadQueue()
+	{
+		std::scoped_lock<std::mutex> lock(m_MainThreadQueueMutex);
+		for (auto& func : m_MainThreadQueue)
+		{
+			func();
+		}
+		m_MainThreadQueue.clear();
 	}
 }
