@@ -28,6 +28,7 @@ project "Clonemmings"
 		"%{wks.location}/Dependencies/spdlog/include",
 		"%{wks.location}/Dependencies/yaml-cpp/include",
 		"%{wks.location}/Dependencies/mono/include",
+		"%{wks.location}/Dependencies/filewatch",
 		".",
 	}
 
@@ -49,7 +50,16 @@ project "Clonemmings"
 		"YAML_CPP_STATIC_DEFINE"
 	}
 	filter "system:windows"
-		systemversion "latest"
+		 systemversion "latest"
+		 
+		links
+		{
+			"Ws2_32.lib",
+			"Winmm.lib",
+			"Version.lib",
+			"Bcrypt.lib"
+		}
+
 	
 	filter "configurations:Debug"
 		runtime "Debug"
