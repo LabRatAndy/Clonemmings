@@ -2,6 +2,7 @@
 #include "Core/Scene/Entity.h"
 #include "Core/Scene/Components.h"
 #include "Core/Application/UUID.h"
+#include "Core/Scripting/ScriptEngine.h"
 
 #include <yaml-cpp/yaml.h>
 
@@ -92,6 +93,19 @@ namespace YAML
 }
 namespace Clonemmings
 {
+#define WRITE_SCRIPT_FIELD(FieldType, Type)		\
+			case ScriptFieldType::FieldType:	\
+				out<<scriptfield.GetValue<Type>();	\
+				break
+
+#define READ_SCRIPT_FIELD(FieldType, Type)		\
+			case ScriptFieldType::FieldType:	\
+			{									\
+				Type data = scriptfield["Data"].as<Type>();		\
+				fieldinstance.SetValue(data);					\
+				break;											\
+			}													\
+
 	YAML::Emitter& operator<<(YAML::Emitter& out, const glm::vec2& value)
 	{
 		out << YAML::Flow;
@@ -230,6 +244,56 @@ namespace Clonemmings
 			out << YAML::Key << "Friction" << YAML::Value << cc2d.Friction;
 			out << YAML::Key << "Restitution" << YAML::Value << cc2d.Restitution;
 			out << YAML::Key << "Restitution Threshold" << YAML::Value << cc2d.RestitutionThreshold;
+			out << YAML::EndMap;
+		}
+		if (entity.HasComponent<ScriptComponent>())
+		{
+			auto& sc = entity.GetComponent<ScriptComponent>();
+			out << YAML::Key << "ScriptComponent";
+			out << YAML::BeginMap;
+			out << YAML::Key << "ClassName" << YAML::Value << sc.ClassName;
+			//save fields
+			std::shared_ptr<ScriptClass> entityclass = ScriptEngine::GetEntityClass(sc.ClassName);
+			const auto& fields = entityclass->GetFields();
+			if (fields.size() > 0)
+			{
+				out << YAML::Key << "ScriptFields" << YAML::Value;
+				auto& entityfields = ScriptEngine::GetScriptFieldMap(entity);
+				out << YAML::BeginSeq;
+				for (const auto& [name, field] : fields)
+				{
+					if (entityfields.find(name) == entityfields.end())
+					{
+						continue;
+					}
+					out << YAML::BeginMap;
+					out << YAML::Key << "Name" << YAML::Value << name;
+					out << YAML::Key << "Type" << YAML::Value << Utills::ScriptFieldTypeToString(field.Type);
+					out << YAML::Key << "Data" << YAML::Value;
+					ScriptFieldInstance& scriptfield = entityfields.at(name);
+					switch (field.Type)
+					{
+						WRITE_SCRIPT_FIELD(Float, float);
+						WRITE_SCRIPT_FIELD(Double, double);
+						WRITE_SCRIPT_FIELD(Bool, bool);
+						WRITE_SCRIPT_FIELD(Char, char);
+						WRITE_SCRIPT_FIELD(Byte, int8_t);
+						WRITE_SCRIPT_FIELD(Short, int16_t);
+						WRITE_SCRIPT_FIELD(Int, int32_t);
+						WRITE_SCRIPT_FIELD(Long, int64_t);
+						WRITE_SCRIPT_FIELD(UByte, uint8_t);
+						WRITE_SCRIPT_FIELD(UShort, uint16_t);
+						WRITE_SCRIPT_FIELD(UInt, uint32_t);
+						WRITE_SCRIPT_FIELD(ULong, uint64_t);
+						WRITE_SCRIPT_FIELD(Vector2, glm::vec2);
+						WRITE_SCRIPT_FIELD(Vector3, glm::vec3);
+						WRITE_SCRIPT_FIELD(Vector4, glm::vec4);
+						WRITE_SCRIPT_FIELD(Entity, UUID);						
+					}
+					out << YAML::EndMap;
+				}
+				out << YAML::EndSeq;
+			}
 			out << YAML::EndMap;
 		}
 		out << YAML::EndMap;
@@ -372,6 +436,54 @@ namespace Clonemmings
 					cc2d.Friction = circlecollider2Dcomponent["Friction"].as<float>();
 					cc2d.Restitution = circlecollider2Dcomponent["Restitution"].as<float>();
 					cc2d.RestitutionThreshold = circlecollider2Dcomponent["Restitution Threshold"].as<float>();
+				}
+				auto scriptcomponent = entity["Scriptcomponent"];
+				if (scriptcomponent)
+				{
+					auto& sc = deserialisedentity.AddComponent<ScriptComponent>();
+					sc.ClassName = scriptcomponent["ClassName"].as<std::string>();
+					auto scriptfields = scriptcomponent["ScriptFields"];
+					if (scriptfields)
+					{
+						std::shared_ptr<ScriptClass> entityclass = ScriptEngine::GetEntityClass(sc.ClassName);
+						if (entityclass)
+						{
+							const auto& fields = entityclass->GetFields();
+							auto& entityfields = ScriptEngine::GetScriptFieldMap(deserialisedentity);
+							for (auto scriptfield : scriptfields)
+							{
+								std::string name = scriptfield["Name"].as<std::string>();
+								std::string typestring = scriptfield["Type"].as<std::string>();
+								ScriptFieldType type = Utills::ScriptFieldTypeFromString(typestring);
+								ScriptFieldInstance& fieldinstance = entityfields[name];
+								ASSERT(fields.find(name) != fields.end());
+								if (fields.find(name) == fields.end())
+								{
+									continue;
+								}
+								fieldinstance.Field = fields.at(name);
+								switch (type)
+								{
+									READ_SCRIPT_FIELD(Float, float);
+									READ_SCRIPT_FIELD(Double, double);
+									READ_SCRIPT_FIELD(Bool, bool);
+									READ_SCRIPT_FIELD(Byte, int8_t);
+									READ_SCRIPT_FIELD(Short, int16_t);
+									READ_SCRIPT_FIELD(Int, int32_t);
+									READ_SCRIPT_FIELD(Long, int64_t);
+									READ_SCRIPT_FIELD(UByte, uint8_t);
+									READ_SCRIPT_FIELD(UShort, uint16_t);
+									READ_SCRIPT_FIELD(UInt, uint32_t);
+									READ_SCRIPT_FIELD(ULong, uint64_t);
+									READ_SCRIPT_FIELD(Vector2, glm::vec2);
+									READ_SCRIPT_FIELD(Vector3, glm::vec3);
+									READ_SCRIPT_FIELD(Vector4, glm::vec4);
+									READ_SCRIPT_FIELD(Entity, UUID);
+
+								}
+							}
+						}
+					}
 				}
 			}
 		}

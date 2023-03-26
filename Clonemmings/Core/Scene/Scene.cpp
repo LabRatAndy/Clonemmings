@@ -4,6 +4,7 @@
 #include "Core/Renderer/Renderer.h"
 #include "Core/Application/Application.h"
 #include "Core/Application/Physics2D.h"
+#include "Core/Scripting/ScriptEngine.h"
 
 #include <box2d/b2_body.h>
 #include <box2d/b2_world.h>
@@ -116,6 +117,15 @@ namespace Clonemmings
 					transform.Translation.x = position.x;
 					transform.Translation.y = position.y;
 					transform.Rotation.z = body->GetAngle();
+				}
+			}
+			//scripting
+			{
+				auto view = m_Registry.view<ScriptComponent>();
+				for (auto e : view)
+				{
+					Entity entity = { e,this };
+					ScriptEngine::OnUpdateEntity(entity, ts);
 				}
 			}
 		}
@@ -237,11 +247,19 @@ namespace Clonemmings
 	{
 		m_IsRunning = true;
 		OnPhysicsStart();
+		ScriptEngine::OnRuntimeStart(this);
+		auto view = m_Registry.view<ScriptComponent>();
+		for (auto e : view)
+		{
+			Entity entity = { e,this };
+			ScriptEngine::OnCreateEntity(entity);
+		}
 	}
 	void Scene::StopScene()
 	{
 		m_IsRunning = false;
 		OnPhysicsStop();
+		ScriptEngine::OnRuntimeStop();
 	}
 	std::shared_ptr<Scene> Scene::Copy(std::shared_ptr<Scene> other)
 	{
@@ -320,6 +338,11 @@ namespace Clonemmings
 	}
 	template<>
 	void Scene::OnComponentAdded<CircleCollider2DComponent>(Entity entity, CircleCollider2DComponent& component)
+	{
+
+	}
+	template<>
+	void Scene::OnComponentAdded<ScriptComponent>(Entity entity, ScriptComponent& component)
 	{
 
 	}

@@ -1,0 +1,202 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
+    <ProjectGuid>{01134DF2-6DC8-C5E7-F6BC-BFBE6271BCEB}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Clonemmings</RootNamespace>
+    <AssemblyName>Clonemmings</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
+    <PlatformTarget>x64</PlatformTarget>
+    <DebugType>portable</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <Optimize>false</Optimize>
+    <OutputPath>..\Assets\Scripts\</OutputPath>
+    <BaseIntermediateOutputPath>..\Assets\Scripts\Debug\Clonemmings\</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
+    <DefineConstants>GLFW_INCLUDE_NONE;_CRT_SECURE_NO_WARNINGS;YAML_CPP_STATIC_DEFINE;DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
+    <PlatformTarget>x64</PlatformTarget>
+    <DebugType>portable</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <Optimize>true</Optimize>
+    <OutputPath>..\Assets\Scripts\</OutputPath>
+    <BaseIntermediateOutputPath>..\Assets\Scripts\Release\Clonemmings\</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
+    <DefineConstants>GLFW_INCLUDE_NONE;_CRT_SECURE_NO_WARNINGS;YAML_CPP_STATIC_DEFINE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Dist|x64' ">
+    <PlatformTarget>x64</PlatformTarget>
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+    <Optimize>true</Optimize>
+    <OutputPath>..\Assets\Scripts\</OutputPath>
+    <BaseIntermediateOutputPath>..\Assets\Scripts\Dist\Clonemmings\</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
+    <DefineConstants>GLFW_INCLUDE_NONE;_CRT_SECURE_NO_WARNINGS;YAML_CPP_STATIC_DEFINE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
+    <Reference Include="GLFW.lib">
+      <HintPath>..\Dependencies\GLFW\bin\Debug-windows-x86_64\GLFW\GLFW.lib.dll</HintPath>
+    </Reference>
+    <Reference Include="GLAD.lib">
+      <HintPath>..\Dependencies\Glad\bin\Debug-windows-x86_64\Glad\GLAD.lib.dll</HintPath>
+    </Reference>
+    <Reference Include="Box2D.lib">
+      <HintPath>..\Dependencies\Box2D\bin\Debug-windows-x86_64\Box2D\Box2D.lib.dll</HintPath>
+    </Reference>
+    <Reference Include="yaml-cpp.lib">
+      <HintPath>..\Dependencies\yaml-cpp\bin\Debug-windows-x86_64\yaml-cpp\yaml-cpp.lib.dll</HintPath>
+    </Reference>
+    <Reference Include="ImGui.lib">
+      <HintPath>..\Dependencies\ImGui\bin\Debug-windows-x86_64\ImGui\ImGui.lib.dll</HintPath>
+    </Reference>
+    <Reference Include="libmono-static-sgen.lib">
+      <HintPath>..\Dependencies\mono\Libs\Debug\libmono-static-sgen.lib.dll</HintPath>
+    </Reference>
+    <Reference Include="opengl32.lib" />
+    <Reference Include="Ws2_32.lib" />
+    <Reference Include="Winmm.lib" />
+    <Reference Include="Version.lib" />
+    <Reference Include="Bcrypt.lib" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
+    <Reference Include="GLFW.lib">
+      <HintPath>..\Dependencies\GLFW\bin\Release-windows-x86_64\GLFW\GLFW.lib.dll</HintPath>
+    </Reference>
+    <Reference Include="GLAD.lib">
+      <HintPath>..\Dependencies\Glad\bin\Release-windows-x86_64\Glad\GLAD.lib.dll</HintPath>
+    </Reference>
+    <Reference Include="Box2D.lib">
+      <HintPath>..\Dependencies\Box2D\bin\Release-windows-x86_64\Box2D\Box2D.lib.dll</HintPath>
+    </Reference>
+    <Reference Include="yaml-cpp.lib">
+      <HintPath>..\Dependencies\yaml-cpp\bin\Release-windows-x86_64\yaml-cpp\yaml-cpp.lib.dll</HintPath>
+    </Reference>
+    <Reference Include="ImGui.lib">
+      <HintPath>..\Dependencies\ImGui\bin\Release-windows-x86_64\ImGui\ImGui.lib.dll</HintPath>
+    </Reference>
+    <Reference Include="libmono-static-sgen.lib">
+      <HintPath>..\Dependencies\mono\Libs\Release\libmono-static-sgen.lib.dll</HintPath>
+    </Reference>
+    <Reference Include="opengl32.lib" />
+    <Reference Include="Ws2_32.lib" />
+    <Reference Include="Winmm.lib" />
+    <Reference Include="Version.lib" />
+    <Reference Include="Bcrypt.lib" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'Dist|x64' ">
+    <Reference Include="GLFW.lib">
+      <HintPath>..\Dependencies\GLFW\bin\Dist-windows-x86_64\GLFW\GLFW.lib.dll</HintPath>
+    </Reference>
+    <Reference Include="GLAD.lib">
+      <HintPath>..\Dependencies\Glad\bin\Dist-windows-x86_64\Glad\GLAD.lib.dll</HintPath>
+    </Reference>
+    <Reference Include="Box2D.lib">
+      <HintPath>..\Dependencies\Box2D\bin\Dist-windows-x86_64\Box2D\Box2D.lib.dll</HintPath>
+    </Reference>
+    <Reference Include="yaml-cpp.lib">
+      <HintPath>..\Dependencies\yaml-cpp\bin\Dist-windows-x86_64\yaml-cpp\yaml-cpp.lib.dll</HintPath>
+    </Reference>
+    <Reference Include="ImGui.lib">
+      <HintPath>..\Dependencies\ImGui\bin\Dist-windows-x86_64\ImGui\ImGui.lib.dll</HintPath>
+    </Reference>
+    <Reference Include="libmono-static-sgen.lib">
+      <HintPath>..\Dependencies\mono\Libs\Dist\libmono-static-sgen.lib.dll</HintPath>
+    </Reference>
+    <Reference Include="opengl32.lib" />
+    <Reference Include="Ws2_32.lib" />
+    <Reference Include="Winmm.lib" />
+    <Reference Include="Version.lib" />
+    <Reference Include="Bcrypt.lib" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Core\Application\Application.cpp" />
+    <None Include="Core\Application\Application.h" />
+    <None Include="Core\Application\Assert.h" />
+    <None Include="Core\Application\Camera.h" />
+    <None Include="Core\Application\Entrypoint.cpp" />
+    <None Include="Core\Application\Input.cpp" />
+    <None Include="Core\Application\Input.h" />
+    <None Include="Core\Application\KeyMouseCodes.h" />
+    <None Include="Core\Application\Layer.h" />
+    <None Include="Core\Application\LayerStack.cpp" />
+    <None Include="Core\Application\LayerStack.h" />
+    <None Include="Core\Application\Physics2D.h" />
+    <None Include="Core\Application\TimeStep.h" />
+    <None Include="Core\Application\UUID.cpp" />
+    <None Include="Core\Application\UUID.h" />
+    <None Include="Core\Application\Utills.cpp" />
+    <None Include="Core\Application\Utills.h" />
+    <None Include="Core\Application\Window.h" />
+    <None Include="Core\Application\Wndow.cpp" />
+    <None Include="Core\Events\ApplicationEvent.h" />
+    <None Include="Core\Events\Event.h" />
+    <None Include="Core\Events\KeyEvent.h" />
+    <None Include="Core\Events\MouseEvent.h" />
+    <None Include="Core\ImGui\ImGuiBuild.cpp" />
+    <None Include="Core\ImGui\ImGuiLayer.cpp" />
+    <None Include="Core\ImGui\ImGuiLayer.h" />
+    <None Include="Core\Log\Log.cpp" />
+    <None Include="Core\Log\Log.h" />
+    <None Include="Core\Renderer\Framebuffer.cpp" />
+    <None Include="Core\Renderer\Framebuffer.h" />
+    <None Include="Core\Renderer\FramebufferSpecification.h" />
+    <None Include="Core\Renderer\IndexBuffer.cpp" />
+    <None Include="Core\Renderer\IndexBuffer.h" />
+    <None Include="Core\Renderer\Renderer.cpp" />
+    <None Include="Core\Renderer\Renderer.h" />
+    <None Include="Core\Renderer\SceneCamera.cpp" />
+    <None Include="Core\Renderer\SceneCamera.h" />
+    <None Include="Core\Renderer\Shader.cpp" />
+    <None Include="Core\Renderer\Shader.h" />
+    <None Include="Core\Renderer\Texture.cpp" />
+    <None Include="Core\Renderer\Texture.h" />
+    <None Include="Core\Renderer\Vertex.h" />
+    <None Include="Core\Renderer\VertexArray.cpp" />
+    <None Include="Core\Renderer\VertexArray.h" />
+    <None Include="Core\Renderer\VertexBuffer.cpp" />
+    <None Include="Core\Renderer\VertexBuffer.h" />
+    <None Include="Core\Scene\Components.h" />
+    <None Include="Core\Scene\Entity.cpp" />
+    <None Include="Core\Scene\Entity.h" />
+    <None Include="Core\Scene\Scene.cpp" />
+    <None Include="Core\Scene\Scene.h" />
+    <None Include="Core\Scene\SceneSerialiser.cpp" />
+    <None Include="Core\Scene\SceneSerialiser.h" />
+    <None Include="Core\Scripting\ScriptEngine.cpp" />
+    <None Include="Core\Scripting\ScriptEngine.h" />
+    <None Include="Core\Scripting\ScriptGlue.cpp" />
+    <None Include="Core\Scripting\ScriptGlue.h" />
+    <None Include="Game\GameLayer.cpp" />
+    <None Include="Game\GameLayer.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="Core\ScriptCore\Script-Core.csproj">
+      <Project>{303F5F3E-9CF4-D733-25E9-D10A919DCE37}</Project>
+      <Name>Script-Core</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -37,6 +37,7 @@ namespace Clonemmings
 		static Application& Get() { return *s_Instance; }
 		ImGuiLayer* GetImGuiLayer() { return m_ImGuiLayer; }
 		Renderer& GetRenderer() { return *m_Renderer; }
+		void SubmitToMainThread(const std::function<void()>& function);
 
 	private:
 		LayerStack* m_Layers =  nullptr;
@@ -49,9 +50,11 @@ namespace Clonemmings
 		static Application* s_Instance;
 		std::unique_ptr<Renderer> m_Renderer = nullptr;
 		SceneCamera* m_Camera = nullptr;
-
+		std::vector<std::function<void()>> m_MainThreadQueue;
+		std::mutex m_MainThreadQueueMutex;
 
 		bool OnWindowClose(WindowCloseEvent& e);
 		bool OnWindowResize(WindowResizeEvent& e);
+		void ExecuteMainThreadQueue();
 	};
 }
