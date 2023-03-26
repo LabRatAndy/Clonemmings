@@ -141,7 +141,7 @@ namespace Clonemmings
 				std::string_view typeName = typeid(component).name();
 				size_t pos = typeName.find_last_of(':');
 				std::string_view structname = typeName.substr(pos + 1);
-				std::string managedtypename = fmt::format("Clonemmings.{}", structname);
+				std::string managedtypename = fmt::format("Core.{}", structname);
 				MonoType* managedtype = mono_reflection_type_from_name(managedtypename.data(), ScriptEngine::GetCoreAssemblyImage());
 				if (!managedtype)
 				{

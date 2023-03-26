@@ -1,6 +1,7 @@
 #include "Core/Application/Application.h"
 #include "Core/Log/Log.h"
 #include "Game/GameLayer.h"
+#include "Core/Scripting/ScriptEngine.h"
 
 #include <GLFW/glfw3.h>
 namespace Clonemmings
@@ -12,7 +13,7 @@ namespace Clonemmings
 		ASSERT(!s_Instance, "Application already exists!");
 		s_Instance = this;
 		INFO("Setting up the application window");
-		m_Window = std::make_unique<Window>(name, 640, 480);
+		m_Window = std::make_unique<Window>(name, 1600, 900);
 		m_Window->SetEventCallbackFunction([this](auto&&...args)->decltype(auto) {return this->Application::OnEvent(std::forward<decltype(args)>(args)...); });
 		INFO("Window set up complete!");
 		m_Layers = new LayerStack();
@@ -31,13 +32,15 @@ namespace Clonemmings
 		m_Renderer = std::make_unique<Renderer>(renererdata);
 		// very temp get camera and transform from ECS system! but not here!! should be in layer!!
 		m_Camera = new SceneCamera();
-		m_Camera->SetOrthographic(480, -1.0f, 1.0f);
-		m_Camera->SetViewportSize(640, 480);
+		m_Camera->SetOrthographic(900, -1.0f, 1.0f);
+		m_Camera->SetViewportSize(1600, 900);
 		glm::mat4 cameratransform = glm::translate(glm::mat4(1.0), glm::vec3(0.0, 0.0, -1.0));
 		m_Renderer->SetCamera(m_Camera, cameratransform);
 		m_Renderer->SetClearColour(glm::vec4(1.0, 0.0, 0.0, 1.0));
 		m_Renderer->SetViewPort(0, 0, m_Window->GetWidth(), m_Window->GetHeight());
 		INFO("Renderer set up complete");
+		INFO("Start up the script engine");
+		ScriptEngine::Init();
 		INFO("create Game Layer");
 		GameLayer* gamelayer = new GameLayer("GameLayer");
 		std::shared_ptr<Scene> scene = std::make_shared<Scene>();
@@ -62,6 +65,7 @@ namespace Clonemmings
 	}
 	void Application::Close()
 	{
+		ScriptEngine::Shutdown();
 		m_Running = false;
 	}
 	void Application::OnEvent(Event& e)

@@ -141,7 +141,7 @@ namespace Clonemmings
 			LOGERROR("[ScriptEngine] could not load Script core assembly");
 			return;
 		}
-		status = LoadAssembly("Assets/Scripts/Clonemmings.dll");
+		status = LoadAppAssembly("Assets/Scripts/Clonemmings.dll");
 		if (!status)
 		{
 			LOGERROR("[ScriptEngine] could not load Clonemmings Script assembly");
