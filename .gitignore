@@ -3,6 +3,7 @@
 .git/
 bin/
 bin-int/
+Scripting/Assets
 
 # Files
 *.vcxproj
@@ -13,7 +14,8 @@ bin-int/
 *.log
 *.trace
 *.lvl
-
+*.pdb
+*.csproj
 
 # Exclude
 !Setup/
