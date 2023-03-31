@@ -1,7 +1,7 @@
 #pragma once
 #include "core/Scene/Scene.h"
 #include "Core/Application/Assert.h"
-#include "Core/Scene/Components.h"
+#include "Core/Scene/CoreComponents.h"
 #include "Core/Application/UUID.h"
 
 #include "entt.hpp"

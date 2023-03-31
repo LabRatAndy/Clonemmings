@@ -1,5 +1,5 @@
 #include "Core/Scene/Scene.h"
-#include "Core/Scene/Components.h"
+#include "Core/Scene/CoreComponents.h"
 #include "Core/Scene/Entity.h"
 #include "Core/Renderer/Renderer.h"
 #include "Core/Application/Application.h"
@@ -343,6 +343,21 @@ namespace Clonemmings
 	}
 	template<>
 	void Scene::OnComponentAdded<ScriptComponent>(Entity entity, ScriptComponent& component)
+	{
+
+	}
+	template<>
+	void Scene::OnComponentAdded<ClonemmingComponent>(Entity entity, ClonemmingComponent& component)
+	{
+
+	}
+	template<>
+	void Scene::OnComponentAdded<ClonemmingStartComponent>(Entity entity, ClonemmingStartComponent& component)
+	{
+
+	}
+	template<>
+	void Scene::OnComponentAdded<ClonemmingExitComponent>(Entity entity, ClonemmingExitComponent& component)
 	{
 
 	}

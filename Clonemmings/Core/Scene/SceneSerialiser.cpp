@@ -1,6 +1,6 @@
 #include "Core/Scene/SceneSerialiser.h"
 #include "Core/Scene/Entity.h"
-#include "Core/Scene/Components.h"
+#include "Core/Scene/CoreComponents.h"
 #include "Core/Application/UUID.h"
 #include "Core/Scripting/ScriptEngine.h"
 
@@ -362,9 +362,18 @@ namespace Clonemmings
 					tc.Translation = transformcomponent["Translation"].as<glm::vec3>();
 					tc.Rotation = transformcomponent["Rotation"].as<glm::vec3>();
 					tc.Scale = transformcomponent["Scale"].as<glm::vec3>();
+					/*float x = tc.Translation.x;
+					float y = tc.Translation.y;
+					float sx = tc.Scale.x;
+					float sy = tc.Scale.y;
+					tc.Translation.x = x * 10.0f;
+					tc.Translation.y = y * 10.0f;
+					tc.Scale.x = sx * 10.0f;
+					tc.Scale.y = sy * 10.0f;*/
 					TRACE("Deserialised transform componenent: Translation: X  {0}, Y {1}, Z {2}", tc.Translation.x, tc.Translation.y, tc.Translation.z);
 					TRACE("Deserialised transform componenent: Rotation: X  {0}, Y {1}, Z {2}", tc.Rotation.x, tc.Rotation.y, tc.Rotation.z);
 					TRACE("Deserialised transform componenent: Scale: X  {0}, Y {1}, Z {2}", tc.Scale.x, tc.Scale.y, tc.Scale.z);
+
 				}
 				auto cameracomponent = entity["CameraComponent"];
 				if (cameracomponent)

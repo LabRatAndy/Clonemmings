@@ -3,6 +3,7 @@
 #include "Core/Renderer/Texture.h"
 #include "Core/Renderer/SceneCamera.h"
 #include "Core/Application/UUID.h"
+#include "Game/GameComponents.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
@@ -122,5 +123,5 @@ namespace Clonemmings
 
 	};
 	using  AllComponents = ComponentGroup<TransformComponent, SpriteRendererComponent, CameraComponent, RigidBody2DComponent, BoxCollider2DComponent,
-		CircleCollider2DComponent, ScriptComponent>;
+		CircleCollider2DComponent, ScriptComponent, ClonemmingComponent, ClonemmingStartComponent, ClonemmingExitComponent>;
 }
