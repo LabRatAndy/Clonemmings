@@ -193,6 +193,8 @@ namespace Clonemmings
 			out << YAML::Key << "PerspectiveFOV" << YAML::Value << camera.GetPerspectiveVerticalFOV();
 			out << YAML::Key << "PerspectiveNear" << YAML::Value << camera.GetPerspectiveNearClip();
 			out << YAML::Key << "PerspectiveFar" << YAML::Value << camera.GetPerspectiveFarClip();
+			out << YAML::Key << "LevelHeight" << YAML::Value << camera.GetLevelHeight();
+			out << YAML::Key << "LevelWidth" << YAML::Value << camera.GetLevelWidth();
 			out << YAML::EndMap;
 			out << YAML::Key << "Primary" << YAML::Value << cameracomponent.Primary;
 			out << YAML::Key << "FixedAspectRatio" << YAML::Value << cameracomponent.FixedAspectRatio;
@@ -394,6 +396,16 @@ namespace Clonemmings
 					TRACE("Camera component orthographic near: {0}", cc.Camera.GetOthographicNearClip());
 					cc.Camera.SetOrthographicFarClip(cameraprops["OrthographicFar"].as<float>());
 					TRACE("Camera component orthographic far: {0}", cc.Camera.GetOrthographicFarClip());
+					if (cameraprops["LevelHeight"])
+					{
+						cc.Camera.SetLevelHeight(cameraprops["LevelHeight"].as<float>());
+						TRACE("Camera Component Level height: {0}", cc.Camera.GetLevelHeight());
+					}
+					if (cameraprops["LevelWidth"])
+					{
+						cc.Camera.SetLevelWidth(cameraprops["LevelWidth"].as<float>());
+						TRACE("Camera Component Level width: {0}", cc.Camera.GetLevelWidth());
+					}
 					cc.Primary = cameracomponent["Primary"].as<bool>();
 					TRACE("Camera component primary: {0}", cc.Primary);
 					cc.FixedAspectRatio = cameracomponent["FixedAspectRatio"].as<bool>();

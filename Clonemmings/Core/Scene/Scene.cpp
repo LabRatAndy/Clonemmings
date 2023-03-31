@@ -174,7 +174,7 @@ namespace Clonemmings
 			auto& cameracomponent = view.get<CameraComponent>(entity);
 			if (!cameracomponent.FixedAspectRatio)
 			{
-				cameracomponent.Camera.SetViewportSize(width, height);
+				cameracomponent.Camera.SetViewportSize(width, height, false);
 			}
 		}
 	}
@@ -308,7 +308,7 @@ namespace Clonemmings
 	{
 		if (m_Viewportwidth > 0 && m_Viewportheight > 0)
 		{
-			component.Camera.SetViewportSize(m_Viewportwidth, m_Viewportheight);
+			component.Camera.SetViewportSize(m_Viewportwidth, m_Viewportheight, false);
 		}
 	}
 	template<>

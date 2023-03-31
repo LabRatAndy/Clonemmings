@@ -128,7 +128,7 @@ namespace Clonemmings
 			m_Framebuffer->Resize((uint32_t)viewportpanelsize.x, (uint32_t)viewportpanelsize.y);
 			m_ViewportSize = { viewportpanelsize.x,viewportpanelsize.y };
 			Application::Get().GetRenderer().GetCamera()->SetOrthographicSize(viewportpanelsize.y);
-			Application::Get().GetRenderer().GetCamera()->SetViewportSize((uint32_t)viewportpanelsize.x, (uint32_t)viewportpanelsize.y);
+			Application::Get().GetRenderer().GetCamera()->SetViewportSize((uint32_t)viewportpanelsize.x, (uint32_t)viewportpanelsize.y, false);
 		}
 		uint32_t texturehandle = m_Framebuffer->GetColourAttachmentHandle(0);
 		ImGui::Image((void*)texturehandle, ImVec2{ m_ViewportSize.x,m_ViewportSize.y }, ImVec2{ 0,1 }, ImVec2{ 1,0 });

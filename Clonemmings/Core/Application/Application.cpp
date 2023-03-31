@@ -32,8 +32,8 @@ namespace Clonemmings
 		m_Renderer = std::make_unique<Renderer>(renererdata);
 		// very temp get camera and transform from ECS system! but not here!! should be in layer!!
 		m_Camera = new SceneCamera();
-		m_Camera->SetOrthographic(m_Window->GetHeight(), -1.0f, 1.0f);
-		m_Camera->SetViewportSize(m_Window->GetWidth(), m_Window->GetHeight());
+		m_Camera->SetOrthographic(m_Window->GetHeight(), -1.0f, 1.0f, false);
+		m_Camera->SetViewportSize(m_Window->GetWidth(), m_Window->GetHeight(), false);
 		glm::mat4 cameratransform = glm::translate(glm::mat4(1.0), glm::vec3(0.0, 0.0, -0.5));
 		m_Renderer->SetCamera(m_Camera, cameratransform);
 		m_Renderer->SetClearColour(glm::vec4(0.0, 0.0, 0.0, 1.0));
