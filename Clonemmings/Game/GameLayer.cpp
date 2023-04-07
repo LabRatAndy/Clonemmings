@@ -3,6 +3,8 @@
 #include "Core/Renderer/Renderer.h"
 #include "Core/Scene/Entity.h"
 #include "Core/Scene/SceneSerialiser.h"
+#include "Core/Application/FileDialog.h"
+#include "Core/Scene/CoreComponents.h"
 #include <imgui.h>
 namespace Clonemmings
 {
@@ -93,10 +95,24 @@ namespace Clonemmings
 				if (ImGui::MenuItem("Close")) Application::Get().Close();
 				ImGui::Separator();
 #ifndef DIST	//todo flesh out scene loading and saving routine etc. this basic implementation will allow me to save the current hard coded test scene and reload it again.
-				if (ImGui::MenuItem("Save Scene")) SaveScene("Assets/Levels/test1.lvl");
+				if (ImGui::MenuItem("Save Scene"))
+				{
+					std::string filename = FileDialog::SaveFile("lvl");
+					if (!filename.empty())
+					{
+						SaveScene(filename);
+					}
+				}
 				ImGui::Separator();
 #endif
-				if (ImGui::MenuItem("Load Scene")) LoadScene("Assets/Levels/test1.lvl");
+				if (ImGui::MenuItem("Load Scene"))
+				{
+					std::string filename = FileDialog::OpenFile("lvl");
+					if (!filename.empty())
+					{
+						LoadScene(filename);
+					}
+				}
 				ImGui::EndMenu();
 			}
 			if (ImGui::BeginMenu("RunScene"))
@@ -215,6 +231,63 @@ namespace Clonemmings
 		SceneSerialiser deserialiser(loadedscene);
 		ASSERT(deserialiser.Deserialise(filename), "failed to deserialise scene");
 		m_ActiveScene = loadedscene;
+#if done
+		{
+			//floor
+			auto entity = m_ActiveScene->GetEntityByUUID(10729042005327288283);
+			auto rb2d = entity.AddComponent<RigidBody2DComponent>();
+			rb2d.FixedRotation = false;
+			rb2d.Type = RigidBody2DComponent::BodyType::Static;
+		}
+		{
+			//left side
+			auto entity = m_ActiveScene->GetEntityByUUID(15550001477896860377);
+			auto rb2d = entity.AddComponent<RigidBody2DComponent>();
+			rb2d.FixedRotation = false;
+			rb2d.Type = RigidBody2DComponent::BodyType::Static;
+		}
+		{
+			//Right side
+			auto entity = m_ActiveScene->GetEntityByUUID(11470402996329204725);
+			auto rb2d = entity.AddComponent<RigidBody2DComponent>();
+			rb2d.FixedRotation = false;
+			rb2d.Type = RigidBody2DComponent::BodyType::Static;
+		}
+		{
+			//ledge 1
+			auto entity = m_ActiveScene->GetEntityByUUID(16071090857428972422);
+			auto rb2d = entity.AddComponent<RigidBody2DComponent>();
+			rb2d.FixedRotation = false;
+			rb2d.Type = RigidBody2DComponent::BodyType::Static;
+		}
+		{
+			//ledge 2
+			auto entity = m_ActiveScene->GetEntityByUUID(1322686980937890548);
+			auto rb2d = entity.AddComponent<RigidBody2DComponent>();
+			rb2d.FixedRotation = false;
+			rb2d.Type = RigidBody2DComponent::BodyType::Static;
+		}
+		{
+			//clonemming
+			auto& entity = m_ActiveScene->GetEntityByUUID(14113292102905541749);
+			entity.AddComponent<ClonemmingComponent>();
+			auto& sc = entity.AddComponent<ScriptComponent>();
+			sc.ClassName = "Clonemmings.Clonemming";
+		}
+		{
+			auto& entity = m_ActiveScene->GetEntityByUUID(14853091333380765479);
+			entity.AddComponent<ClonemmingStartComponent>();
+			auto& sc = entity.AddComponent<ScriptComponent>();
+			sc.ClassName = "Clonemmings.ClonemmingSpawnPoint";
+		}
+		{
+			auto& entity = m_ActiveScene->GetEntityByUUID(9136904962338667385);
+			entity.AddComponent<ClonemmingExitComponent>();
+			auto& sc = entity.AddComponent<ScriptComponent>();
+			sc.ClassName = "Clonemmings.ClonemmingExitPoint";
+		}
+
+#endif
 		m_ResetScene = Scene::Copy(m_ActiveScene);
 	}
 }
