@@ -154,6 +154,31 @@ namespace Clonemmings
 		ASSERT(false, "Unknown body type string");
 		return RigidBody2DComponent::BodyType::Static;
 	}
+	static  std::string ClonemmingStatusToString(ClonemmingComponent::ClonemingStatus status)
+	{
+		switch (status)
+		{
+			case ClonemmingComponent::ClonemingStatus::Walker: return "Walker";
+			case ClonemmingComponent::ClonemingStatus::Blocker: return "Blocker";
+			case ClonemmingComponent::ClonemingStatus::Dead: return "Dead";
+			case ClonemmingComponent::ClonemingStatus::Digger: return "Digger";
+			case ClonemmingComponent::ClonemingStatus::Floater: return "Floater";
+			case ClonemmingComponent::ClonemingStatus::Miner: return "Miner";
+		}
+		ASSERT(false, "Unknown clonemming status");
+		return {};
+	}
+	static ClonemmingComponent::ClonemingStatus ClonemmingStatusFromString(const std::string& statusstring)
+	{
+		if (statusstring == "Walker") return ClonemmingComponent::ClonemingStatus::Walker;
+		if (statusstring == "Blocker") return ClonemmingComponent::ClonemingStatus::Blocker;
+		if (statusstring == "Dead") return ClonemmingComponent::ClonemingStatus::Dead;
+		if (statusstring == "Digger") return ClonemmingComponent::ClonemingStatus::Digger;
+		if (statusstring == "Floater") return ClonemmingComponent::ClonemingStatus::Floater;
+		if (statusstring == "Miner") return ClonemmingComponent::ClonemingStatus::Miner;
+		ASSERT(false, "Unknown clonemming status string");
+		return ClonemmingComponent::ClonemingStatus::Walker;
+	}
 	static void SerialiseEntity(YAML::Emitter& out, Entity entity)
 	{
 		ASSERT(entity.HasComponent<IDComponent>())
@@ -232,7 +257,7 @@ namespace Clonemmings
 			out << YAML::Key << "Density" << YAML::Value << bc2d.Density;
 			out << YAML::Key << "Friction" << YAML::Value << bc2d.Friction;
 			out << YAML::Key << "Restitution" << YAML::Value << bc2d.Restitution;
-			out << YAML::Key << "Restutution Threshold" << YAML::Value << bc2d.RestitutionThreshold;
+			out << YAML::Key << "Restitution Threshold" << YAML::Value << bc2d.RestitutionThreshold;
 			out << YAML::EndMap;
 		}
 		if (entity.HasComponent<CircleCollider2DComponent>())
@@ -246,6 +271,31 @@ namespace Clonemmings
 			out << YAML::Key << "Friction" << YAML::Value << cc2d.Friction;
 			out << YAML::Key << "Restitution" << YAML::Value << cc2d.Restitution;
 			out << YAML::Key << "Restitution Threshold" << YAML::Value << cc2d.RestitutionThreshold;
+			out << YAML::EndMap;
+		}
+		if (entity.HasComponent<ClonemmingComponent>())
+		{
+			auto& cc = entity.GetComponent<ClonemmingComponent>();
+			out << YAML::Key << "ClonemmingComponent";
+			out << YAML::BeginMap;
+			out << YAML::Key << "Clonemming Status" << YAML::Value << ClonemmingStatusToString(cc.Status);
+			out << YAML::EndMap;
+		}
+		if (entity.HasComponent<ClonemmingStartComponent>())
+		{
+			auto& csc = entity.GetComponent<ClonemmingStartComponent>();
+			out << YAML::Key << "ClonemmingStartComponent";
+			out << YAML::BeginMap;
+			out << YAML::Key << "NumberOfClonemmings" << YAML::Value << csc.NumberOfClonemmings;
+			out << YAML::Key << "ClonemmingReleaseRate" << YAML::Value << csc.ClonemmingReleaseRate;
+			out << YAML::EndMap;
+		}
+		if (entity.HasComponent<ClonemmingExitComponent>())
+		{
+			auto& cec = entity.GetComponent<ClonemmingExitComponent>();
+			out << YAML::Key << "ClonemmingExitComponent";
+			out << YAML::BeginMap;
+			out << YAML::Key << "NumberOfClonemmings" << YAML::Value << cec.NumberOfClonemmings;
 			out << YAML::EndMap;
 		}
 		if (entity.HasComponent<ScriptComponent>())
@@ -457,6 +507,29 @@ namespace Clonemmings
 					cc2d.Friction = circlecollider2Dcomponent["Friction"].as<float>();
 					cc2d.Restitution = circlecollider2Dcomponent["Restitution"].as<float>();
 					cc2d.RestitutionThreshold = circlecollider2Dcomponent["Restitution Threshold"].as<float>();
+				}
+				auto clonemmingcomponent = entity["ClonemmingComponent"];
+				if (clonemmingcomponent)
+				{
+					auto& cc = deserialisedentity.AddComponent<ClonemmingComponent>();
+					TRACE("Clonemming Component status: {}", clonemmingcomponent["Clonemming Status"].as<std::string>());
+					cc.Status = ClonemmingStatusFromString(clonemmingcomponent["Clonemming Status"].as<std::string>());
+				}
+				auto clonemmingstartcomponent = entity["ClonemmingStartComponent"];
+				if (clonemmingstartcomponent)
+				{
+					auto& csc = deserialisedentity.AddComponent<ClonemmingStartComponent>();
+					csc.NumberOfClonemmings = clonemmingstartcomponent["NumberOfClonemmings"].as<uint32_t>();
+					csc.ClonemmingReleaseRate = clonemmingstartcomponent["ClonemmingReleaseRate"].as<uint32_t>();
+					TRACE("Clonemming start point, number of clonemmings: {}", csc.NumberOfClonemmings);
+					TRACE("Clonemming Startpoint, Release Rate: {}", csc.ClonemmingReleaseRate);
+				}
+				auto clonemmingexitcomponent = entity["ClonemmingExitComponent"];
+				if (clonemmingexitcomponent)
+				{
+					auto& cec = deserialisedentity.AddComponent<ClonemmingExitComponent>();
+					cec.NumberOfClonemmings = clonemmingexitcomponent["NumberOfClonemmings"].as<uint32_t>();
+					TRACE("Clonemming exit point, number of clonemmings: {}", cec.NumberOfClonemmings);
 				}
 				auto scriptcomponent = entity["Scriptcomponent"];
 				if (scriptcomponent)
