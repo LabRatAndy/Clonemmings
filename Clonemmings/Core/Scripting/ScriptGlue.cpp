@@ -62,7 +62,7 @@ namespace Clonemmings
 		}
 		return entity.GetUUID();
 	}
-	static void Transform_GetTranslation(UUID uuid, glm::vec3* outresult)
+	static void TransformComponent_GetTranslation(UUID uuid, glm::vec3* outresult)
 	{
 		Scene* scene = ScriptEngine::GetSceneContext();
 		ASSERT(scene);
@@ -70,13 +70,45 @@ namespace Clonemmings
 		ASSERT(entity);
 		*outresult = entity.GetComponent<TransformComponent>().Translation;
 	}
-	static void Transform_SetTranslation(UUID uuid, glm::vec3* translation)
+	static void TransformComponent_SetTranslation(UUID uuid, glm::vec3* translation)
 	{
 		Scene* scene = ScriptEngine::GetSceneContext();
 		ASSERT(scene);
 		Entity entity = scene->GetEntityByUUID(uuid);
 		ASSERT(entity);
 		entity.GetComponent<TransformComponent>().Translation = *translation;
+	}
+	static void TransformComponent_GetRotation(UUID uuid, glm::vec3* outresult)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		ASSERT(entity);
+		*outresult = entity.GetComponent<TransformComponent>().Rotation;
+	}
+	static void TransformComponent_SetRotation(UUID uuid, glm::vec3* rotation)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		ASSERT(entity);
+		entity.GetComponent<TransformComponent>().Rotation = *rotation;
+	}
+	static void TransformComponent_GetScale(UUID uuid, glm::vec3* outresult)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		ASSERT(entity);
+		*outresult = entity.GetComponent<TransformComponent>().Scale;
+	}
+	static void TransformComponent_SetScale(UUID uuid, glm::vec3* scale)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		ASSERT(entity);
+		entity.GetComponent<TransformComponent>().Scale = *scale;
 	}
 	static void RigidBody2D_ApplyLinearImpulse(UUID uuid, glm::vec2* impulse, glm::vec2* point, bool wake)
 	{
@@ -133,6 +165,70 @@ namespace Clonemmings
 	{
 		return Input::IsKeyPressed(keycode);
 	}
+	static ClonemmingComponent::ClonemingStatus ClonemmingComponent_GetStatus(UUID uuid)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		ASSERT(entity);
+		return entity.GetComponent<ClonemmingComponent>().Status;
+	}
+	static void ClonemmingComponent_SetStatus(UUID uuid, ClonemmingComponent::ClonemingStatus status)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		ASSERT(entity);
+		entity.GetComponent<ClonemmingComponent>().Status = status;
+	}
+	static uint32_t ClonemmingStartComponent_GetNumberOfClonemmings(UUID uuid)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		ASSERT(entity);
+		return entity.GetComponent<ClonemmingStartComponent>().NumberOfClonemmings;
+	}
+	static void ClonemmingStartComponent_SetNumberOfClonemmings(UUID uuid, uint32_t numberofclonemmings)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		ASSERT(entity);
+		entity.GetComponent<ClonemmingStartComponent>().NumberOfClonemmings = numberofclonemmings;
+	}
+	static uint32_t ClonemmingStartComponent_GetClonemmingReleaseRate(UUID uuid)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		ASSERT(entity);
+		return entity.GetComponent<ClonemmingStartComponent>().ClonemmingReleaseRate;
+	}
+	static void ClonemmingStartComponent_SetClonemmingReleaseRate(UUID uuid, uint32_t releaserate)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		ASSERT(entity);
+		entity.GetComponent<ClonemmingStartComponent>().ClonemmingReleaseRate = releaserate;
+	}
+	static uint32_t ClonemmingExitComponent_GetNumberOfClonemmings(UUID uuid)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		ASSERT(entity);
+		return entity.GetComponent<ClonemmingExitComponent>().NumberOfClonemmings;
+	}
+	static void ClonemmingExitComponent_SetNumberOfClonemmings(UUID uuid, uint32_t numberofclonemming)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		ASSERT(entity);
+		entity.GetComponent<ClonemmingExitComponent>().NumberOfClonemmings = numberofclonemming;
+	}
 	template<typename... component>
 	static void RegisterComponent()
 	{
@@ -145,8 +241,13 @@ namespace Clonemmings
 				MonoType* managedtype = mono_reflection_type_from_name(managedtypename.data(), ScriptEngine::GetCoreAssemblyImage());
 				if (!managedtype)
 				{
-					LOGERROR("Could not find component type: {}", managedtypename);
-					return;
+					managedtypename = fmt::format("Clonemming.{}", structname);
+					managedtype = mono_reflection_type_from_name(managedtypename.data(), ScriptEngine::GetCoreAssemblyImage());
+					if (!managedtype)
+					{
+						LOGERROR("Could not find component type: {}", managedtypename);
+						return;
+					}
 				}
 				s_EntityHasComponentFuncs[managedtype] = [](Entity entity) {return entity.HasComponent<component>(); };
 			}(), ...);
@@ -166,13 +267,26 @@ namespace Clonemmings
 		ADD_INTERNAL_CALL(NativeLog);
 		ADD_INTERNAL_CALL(Vector3_Normalise);
 		ADD_INTERNAL_CALL(Vector3_Dot);
-		ADD_INTERNAL_CALL(Transform_GetTranslation);
-		ADD_INTERNAL_CALL(Transform_SetTranslation);
+		ADD_INTERNAL_CALL(TransformComponent_GetTranslation);
+		ADD_INTERNAL_CALL(TransformComponent_SetTranslation);
 		ADD_INTERNAL_CALL(RigidBody2D_ApplyLinearImpulse);
 		ADD_INTERNAL_CALL(RigidBody2D_ApplyLinearImpulseToCentre);
 		ADD_INTERNAL_CALL(RigidBody2D_GetLinearVelocity);
 		ADD_INTERNAL_CALL(RigidBody2D_GetType);
 		ADD_INTERNAL_CALL(RigidBody2D_SetType);
 		ADD_INTERNAL_CALL(Input_IsKeyDown);
+		ADD_INTERNAL_CALL(TransformComponent_GetRotation);
+		ADD_INTERNAL_CALL(TransformComponent_SetRotation);
+		ADD_INTERNAL_CALL(TransformComponent_GetScale);
+		ADD_INTERNAL_CALL(TransformComponent_SetScale);
+		ADD_INTERNAL_CALL(ClonemmingComponent_GetStatus);
+		ADD_INTERNAL_CALL(ClonemmingComponent_SetStatus);
+		ADD_INTERNAL_CALL(ClonemmingStartComponent_GetNumberOfClonemmings);
+		ADD_INTERNAL_CALL(ClonemmingStartComponent_SetNumberOfClonemmings);
+		ADD_INTERNAL_CALL(ClonemmingStartComponent_GetClonemmingReleaseRate);
+		ADD_INTERNAL_CALL(ClonemmingStartComponent_SetClonemmingReleaseRate);
+		ADD_INTERNAL_CALL(ClonemmingExitComponent_GetNumberOfClonemmings);
+		ADD_INTERNAL_CALL(ClonemmingExitComponent_SetNumberOfClonemmings);
+
 	}
 }
