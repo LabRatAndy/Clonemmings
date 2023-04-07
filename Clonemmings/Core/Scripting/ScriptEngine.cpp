@@ -27,10 +27,10 @@ namespace Clonemmings
 		{"System.UInt16",ScriptFieldType::UShort},
 		{"System.UInt32",ScriptFieldType::UInt},
 		{"System.UInt64",ScriptFieldType::ULong},
-		{"Clonemmings.Vector2",ScriptFieldType::Vector2},
-		{"Clonemmings.Vector3",ScriptFieldType::Vector3},
-		{"Clonemmings.Vector4",ScriptFieldType::Vector4},
-		{"Clonemmings.Entity",ScriptFieldType::Entity},
+		{"Core.Vector2",ScriptFieldType::Vector2},
+		{"Core.Vector3",ScriptFieldType::Vector3},
+		{"Core.Vector4",ScriptFieldType::Vector4},
+		{"Core.Entity",ScriptFieldType::Entity},
 	};
 
 	namespace Utills
@@ -371,7 +371,7 @@ namespace Clonemmings
 				}
 			}
 		}
-		auto& entityclasses = s_Data->EntityClasses;
+		//auto& entityclasses = s_Data->EntityClasses;
 	}
 
 	MonoImage* ScriptEngine::GetCoreAssemblyImage()
