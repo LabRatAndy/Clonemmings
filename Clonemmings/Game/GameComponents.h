@@ -15,6 +15,9 @@ namespace Clonemmings
 		};
 
 		ClonemingStatus Status = ClonemingStatus::Walker;
+		float WalkSpeed = 1.0f;
+		float DigSpeed = 1.0f;
+		float MineSpeed = 1.0f;
 
 		ClonemmingComponent() = default;
 		ClonemmingComponent(const ClonemmingComponent&) = default;
