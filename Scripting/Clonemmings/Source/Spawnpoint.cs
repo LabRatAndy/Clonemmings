@@ -7,16 +7,37 @@ namespace Clonemmings
         private TransformComponent m_Transform;
         private ClonemmingStartComponent m_Component;
 
-        public void OnCreate()
+        private float m_Time = 0.0f;
+        void OnCreate()
         {
-            Console.WriteLine($"Creating spawn point ID: {ID}");
             m_Transform = GetComponent<TransformComponent>();
             m_Component = GetComponent<ClonemmingStartComponent>();
         }
 
-        public void OnUpdate(float ts)
+        void OnUpdate(float ts)
         {
+            m_Time += ts;
+            if (m_Component.NumberOfClonemmings == 0)
+            {
+                return;
+            }
+            float clonemmingspersecond = m_Component.ClonemmingReleaseRate * 60.0f;
+            if(m_Time > clonemmingspersecond) 
+            {
+                CreateNewClonemming(m_Component.NumberOfClonemmings.ToString());
+                m_Component.NumberOfClonemmings--;
+                m_Time = 0.0f;
+            }
+        }
 
+        private new void CreateNewClonemming(string name)
+        {
+            Entity entity = Entity.CreateNewClonemming(name);
+            Clonemming clonemming = entity.As<Clonemming>();
+            if(clonemming != null) 
+            {
+                clonemming.SetInitialPostion(new Vector3(-8.0f, 8.0f, 0.0f));
+            }
         }
     }
 
