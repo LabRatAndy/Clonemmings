@@ -30,6 +30,7 @@ namespace Clonemmings
 		bool IsRunning() const { return m_IsRunning; }
 		bool IsPaused() const { return m_IsPaused; }
 		void SetPaused(bool paused) { m_IsPaused = paused; }
+		void SetUpPhysicOnEntity(Entity entity);
 
 
 
