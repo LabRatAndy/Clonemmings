@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection.Emit;
 
 namespace Core
 {
@@ -50,8 +51,18 @@ namespace Core
         }
         public T As<T>() where T : Entity, new()
         {
-            object instance = InternalCalls.GetScriptInstance(ID);
+            object instance = InternalCalls.GetInstance(ID);
             return instance as T;
         }
-    }
+        public static Entity CreateNewClonemming(string name)
+        {
+            ulong uuid = InternalCalls.Entity_CreateNewClonemming(name);
+            return new Entity(uuid);
+        }
+        public static Entity CreateNewEntity(string name)
+        {
+             ulong uuid = InternalCalls.Entity_CreateNewEntity(name);
+             return new Entity(uuid);
+        }
+   }
 }
