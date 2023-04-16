@@ -531,7 +531,7 @@ namespace Clonemmings
 					cec.NumberOfClonemmings = clonemmingexitcomponent["NumberOfClonemmings"].as<uint32_t>();
 					TRACE("Clonemming exit point, number of clonemmings: {}", cec.NumberOfClonemmings);
 				}
-				auto scriptcomponent = entity["Scriptcomponent"];
+				auto scriptcomponent = entity["ScriptComponent"];
 				if (scriptcomponent)
 				{
 					auto& sc = deserialisedentity.AddComponent<ScriptComponent>();
