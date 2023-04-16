@@ -66,9 +66,29 @@
         }
         public void ApplyLinearImpulse(Vector2 impulse,bool wake)
         {
-            InternalCalls.RigidBody2DComponent_ApplyLinearImpulseToCenter(Entity.ID, ref impulse, wake);
+            InternalCalls.RigidBody2DComponent_ApplyLinearImpulseToCentre(Entity.ID, ref impulse, wake);
         }
     }
+
+    public class SpriteRendererComponent : Component
+    {
+        public Vector4 Colour 
+        {
+            get
+            {
+                InternalCalls.SpriteRendererComponent_GetColour(Entity.ID, out Vector4 result);
+                return result;
+            }
+            set => InternalCalls.SpriteRendererComponent_SetColour(Entity.ID,  ref value);
+        }
+        public float TilingFactor
+        {
+            get => InternalCalls.SpriteRendererComponent_GetTilingFactor(Entity.ID);
+            set => InternalCalls.SpriteRendererComponent_SetTilingFactor(Entity.ID, (float)value);
+        }
+        //todo access textures but need to access textures from C++
+    }
+
 
 
 }
