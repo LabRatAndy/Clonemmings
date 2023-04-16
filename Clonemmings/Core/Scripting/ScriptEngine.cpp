@@ -417,8 +417,8 @@ namespace Clonemmings
 	{
 		m_Instance = m_ScriptClass->Instantiate();
 		m_Constructor = s_Data->EntityClass.GetMethod(".ctor", 1);
-		m_OnCreateMethod = s_Data->EntityClass.GetMethod("OnCreate", 0);
-		m_OnUpdateMethod = s_Data->EntityClass.GetMethod("OnUpdate", 1);
+		m_OnCreateMethod = m_ScriptClass->GetMethod("OnCreate", 0);
+		m_OnUpdateMethod = m_ScriptClass->GetMethod("OnUpdate", 1);
 
 		UUID uuid = entity.GetUUID();
 		void* param = &uuid;
