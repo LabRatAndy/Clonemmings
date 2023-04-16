@@ -8,13 +8,13 @@ namespace Clonemmings
         private ClonemmingExitComponent m_Component;
         private TransformComponent m_Transform;
 
-        public void OnCreate()
+        void OnCreate()
         {
             Console.WriteLine($"creating clonemming exit point ID: {ID}");
             m_Component = GetComponent<ClonemmingExitComponent>();
             m_Transform = GetComponent<TransformComponent>();
         }
-        public void OnUpdate(float ts)
+        void OnUpdate(float ts)
         {
 
         }
