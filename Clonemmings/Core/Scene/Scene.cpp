@@ -13,6 +13,7 @@
 #include <box2d/b2_circle_shape.h>
 namespace Clonemmings
 {
+
 	template<typename... component>
 	static void CopyComponent(entt::registry& dst, entt::registry& src, const std::unordered_map<UUID, entt::entity>& enttmap)
 	{
@@ -117,6 +118,7 @@ namespace Clonemmings
 					transform.Translation.x = position.x;
 					transform.Translation.y = position.y;
 					transform.Rotation.z = body->GetAngle();
+					
 				}
 			}
 			//scripting
@@ -207,6 +209,15 @@ namespace Clonemmings
 		delete m_PhysicsWorld;
 		m_PhysicsWorld = nullptr;
 	}
+	void Scene::SetGameLayer(Layer* gamelayer)
+	{
+		ASSERT(gamelayer);
+		m_GameLayer = gamelayer;
+	}
+	Layer* Scene::GetGameLayer()
+	{
+		return m_GameLayer;
+	}
 	void Scene::StartScene()
 	{
 		m_IsRunning = true;
@@ -230,6 +241,7 @@ namespace Clonemmings
 		std::shared_ptr<Scene> newscene = std::make_shared<Scene>();
 		newscene->m_Viewportheight = other->m_Viewportheight;
 		newscene->m_Viewportwidth = other->m_Viewportwidth;
+		newscene->m_GameLayer = other->m_GameLayer;
 
 		auto& srcreg = other->m_Registry;
 		auto& dstreg = newscene->m_Registry;
@@ -297,6 +309,7 @@ namespace Clonemmings
 			body->CreateFixture(&fixturedef);
 		}
 	}
+
 	template<typename T>
 	void Scene::OnComponentAdded(Entity entity, T& component)
 	{

@@ -7,6 +7,8 @@
 #include "Core/Scene/Scene.h"
 #include "Core/Scene/Entity.h"
 #include "Core/Application/Physics2D.h"
+#include "Core/Application/Application.h"
+#include "Game/GameLayer.h"
 
 #include <mono/metadata/object.h>
 #include <mono/metadata/reflection.h>
@@ -106,10 +108,16 @@ namespace Clonemmings
 		bc2d.RestitutionThreshold = 0.5;
 		auto& sc = clonemming.AddComponent<ScriptComponent>();
 		sc.ClassName = "Clonemmings.Clonemming";
-		scene->SetUpPhysicOnEntity(clonemming);
 		ScriptEngine::OnCreateEntity(clonemming);
 		return clonemming.GetUUID();
-
+	}
+	static void Entity_SetupPhysics(UUID uuid)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		ASSERT(entity);
+		scene->SetUpPhysicOnEntity(entity);
 	}
 	static void Entity_DestroyEntity(UUID uuid)
 	{
@@ -118,6 +126,20 @@ namespace Clonemmings
 		Entity entity = scene->GetEntityByUUID(uuid);
 		ASSERT(entity);
 		scene->DestroyEntity(entity);
+	}
+	static bool Entity_IsSelectedEntity(UUID uuid)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		GameLayer* gamelayer = (GameLayer*)(scene->GetGameLayer());
+		ASSERT(gamelayer);
+		Entity entity = gamelayer->GetSelectedEntity();
+		if (entity && entity.GetUUID() == uuid)
+		{
+			return true;
+		}
+		return false;
+
 	}
 #pragma endregion
 #pragma region TransformComponent 
@@ -424,7 +446,9 @@ namespace Clonemmings
 		ADD_INTERNAL_CALL(Entity_CreateNewEntity);
 		ADD_INTERNAL_CALL(Entity_HasComponent);
 		ADD_INTERNAL_CALL(Entity_FindEntityByName);
+		ADD_INTERNAL_CALL(Entity_SetupPhysics);
 		ADD_INTERNAL_CALL(Entity_DestroyEntity);
+		ADD_INTERNAL_CALL(Entity_IsSelectedEntity);
 		ADD_INTERNAL_CALL(TransformComponent_GetTranslation);
 		ADD_INTERNAL_CALL(TransformComponent_SetTranslation);
 		ADD_INTERNAL_CALL(TransformComponent_GetRotation);

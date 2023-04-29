@@ -1,6 +1,7 @@
 #version 450 core
 
 layout(location = 0) out vec4 o_Colour;
+layout(location = 1) out int o_EntityID;
 
 in VertexOutput
 {
@@ -55,4 +56,5 @@ void main()
 		case 31: texcolour *= texture(u_Textures[31], v_Input.TexCoords * v_Input.TilingFactor); break;
 	}
 	o_Colour = texcolour;
+	o_EntityID = v_EntityID;
 }

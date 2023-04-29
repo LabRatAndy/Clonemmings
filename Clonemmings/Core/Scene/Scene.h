@@ -1,6 +1,7 @@
 #pragma once
 #include "Core/Application/TimeStep.h"
 #include "Core/Application/UUID.h"
+#include "Core/Application/Layer.h"
 #include <entt.hpp>
 
 class b2World;
@@ -25,13 +26,16 @@ namespace Clonemmings
 		Entity GetEntityByUUID(UUID uuid);
 		Entity DuplicateEntity(Entity entity);
 
+		void SetGameLayer(Layer* gamelayer); 
+		Layer* GetGameLayer(); 
+		
 		void StartScene();
 		void StopScene();
 		bool IsRunning() const { return m_IsRunning; }
 		bool IsPaused() const { return m_IsPaused; }
 		void SetPaused(bool paused) { m_IsPaused = paused; }
 		void SetUpPhysicOnEntity(Entity entity);
-
+		
 
 
 	private:
@@ -41,6 +45,7 @@ namespace Clonemmings
 		b2World* m_PhysicsWorld = nullptr;
 		bool m_IsRunning = false;
 		bool m_IsPaused = true;
+		Layer* m_GameLayer = nullptr;
 
 		std::unordered_map<UUID, Entity> m_EntityMap;
 

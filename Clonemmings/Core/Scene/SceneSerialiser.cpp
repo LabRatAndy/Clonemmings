@@ -279,6 +279,9 @@ namespace Clonemmings
 			out << YAML::Key << "ClonemmingComponent";
 			out << YAML::BeginMap;
 			out << YAML::Key << "Clonemming Status" << YAML::Value << ClonemmingStatusToString(cc.Status);
+			out << YAML::Key << "Walk Speed" << YAML::Value << cc.WalkSpeed;
+			out << YAML::Key << "Dig Speed" << YAML::Value << cc.DigSpeed;
+			out << YAML::Key << "Mine Speed" << YAML::Value << cc.MineSpeed;
 			out << YAML::EndMap;
 		}
 		if (entity.HasComponent<ClonemmingStartComponent>())
@@ -476,7 +479,7 @@ namespace Clonemmings
 					if (spriterenderercomponent["TilingFactor"])
 					{
 						src.TilingFactor = spriterenderercomponent["TilingFactor"].as<float>();
-						TRACE("SRC tiling factor:", src.TilingFactor);
+						TRACE("SRC tiling factor: {0}", src.TilingFactor);
 					}
 				}
 				auto rigidbody2Dcomponent = entity["RigidBody2DComponent"];
@@ -514,6 +517,36 @@ namespace Clonemmings
 					auto& cc = deserialisedentity.AddComponent<ClonemmingComponent>();
 					TRACE("Clonemming Component status: {}", clonemmingcomponent["Clonemming Status"].as<std::string>());
 					cc.Status = ClonemmingStatusFromString(clonemmingcomponent["Clonemming Status"].as<std::string>());
+					if (clonemmingcomponent["Walk Speed"])
+					{
+						cc.WalkSpeed = clonemmingcomponent["Walk Speed"].as<float>();
+						TRACE("Clonemming Component: walk speed {0}", cc.WalkSpeed);
+					}
+					else
+					{
+						cc.WalkSpeed = 1.0f;
+						TRACE("no walk speed in file using 1.0");
+					}
+					if (clonemmingcomponent["Dig Speed"])
+					{
+						cc.DigSpeed = clonemmingcomponent["Dig Speed"].as<float>();
+						TRACE("Clonemming Component: dig speed {0}", cc.DigSpeed);
+					}
+					else
+					{
+						cc.DigSpeed = 1.0f;
+						TRACE("no dig speed in file using 1.0");
+					}
+					if (clonemmingcomponent["Mine Speed"])
+					{
+						cc.MineSpeed = clonemmingcomponent["Mine Speed"].as<float>();
+						TRACE("Clonemming Component: mine speed {0}", cc.MineSpeed);
+					}
+					else
+					{
+						cc.MineSpeed = 1.0f;
+						TRACE("no mine speed in file using 1.0");
+					}
 				}
 				auto clonemmingstartcomponent = entity["ClonemmingStartComponent"];
 				if (clonemmingstartcomponent)

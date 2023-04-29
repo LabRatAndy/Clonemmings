@@ -44,6 +44,7 @@ namespace Clonemmings
 		INFO("create Game Layer");
 		GameLayer* gamelayer = new GameLayer("GameLayer");
 		std::shared_ptr<Scene> scene = std::make_shared<Scene>();
+		scene->SetGameLayer(gamelayer);
 		gamelayer->SetScene(scene);
 		PushLayer(gamelayer);
 	}

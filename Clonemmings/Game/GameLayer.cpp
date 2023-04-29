@@ -5,6 +5,7 @@
 #include "Core/Scene/SceneSerialiser.h"
 #include "Core/Application/FileDialog.h"
 #include "Core/Scene/CoreComponents.h"
+#include "Core/Application/Input.h"
 #include <imgui.h>
 namespace Clonemmings
 {
@@ -17,7 +18,7 @@ namespace Clonemmings
 
 		//framebuffer set up for dockspace viewport
 		FramebufferSpecification spec;
-		spec.Attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::Depth };
+		spec.Attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::RedInteger, FramebufferTextureFormat::Depth };
 		// set width and height as 0 causes a crash in depth attachment.
 		spec.Width = Application::Get().GetWindow().GetWidth();
 		spec.Height = Application::Get().GetWindow().GetHeight();
@@ -33,7 +34,33 @@ namespace Clonemmings
 		m_Framebuffer->Bind();
 		//Note don't remove the clear command from here as it needs to be here to draw the scene correctly. Not sure of the reason why but possibly due to framebuffer use.
 		Application::Get().GetRenderer().Clear();
+		m_Framebuffer->ClearAttachment(1, -1);
 		m_ActiveScene->OnUpdateRuntime(ts);
+		
+		//get selected entity
+		auto [mx, my] = ImGui::GetMousePos();
+		mx -= m_ViewportBounds[0].x;
+		my -= m_ViewportBounds[0].y;
+		glm::vec2 viewportsize = m_ViewportBounds[1] - m_ViewportBounds[0];
+		my = viewportsize.y - my;
+		int mousex = (int)mx;
+		int mousey = (int)my;
+		if (mousex >= 0 && mousey >= 0 && mousex < (int)viewportsize.x && mousey < (int)viewportsize.y)
+		{
+			int pixeldata = m_Framebuffer->ReadPixel(1, mousex, mousey);
+			//TRACE("Hovered entity: {}", pixeldata);
+			if (pixeldata != -1)
+			{
+				
+				m_HoveredEntity = Entity((entt::entity)pixeldata, m_ActiveScene.get());
+			}
+			else
+			{
+				m_HoveredEntity = Entity();
+			}
+
+		}
+
 		m_Framebuffer->Unbind();
 	}
 	void GameLayer::OnImGuiRender()
@@ -127,6 +154,7 @@ namespace Clonemmings
 				ImGui::Separator();
 				if (ImGui::MenuItem("Reset Scene"))
 				{
+					m_ActiveScene->StopScene();
 					m_ActiveScene = m_ResetScene;
 					m_ResetScene = Scene::Copy(m_ActiveScene);
 				}
@@ -146,6 +174,14 @@ namespace Clonemmings
 			Application::Get().GetRenderer().GetCamera()->SetOrthographicSize(viewportpanelsize.y);
 			Application::Get().GetRenderer().GetCamera()->SetViewportSize((uint32_t)viewportpanelsize.x, (uint32_t)viewportpanelsize.y, false);
 		}
+		auto viewportminregion = ImGui::GetWindowContentRegionMin();
+		auto viewportmaxregion = ImGui::GetWindowContentRegionMax();
+		auto viewportoffset = ImGui::GetWindowPos();
+		m_ViewportBounds[0] = { viewportminregion.x + viewportoffset.x,viewportminregion.y + viewportoffset.y };
+		m_ViewportBounds[1] = { viewportmaxregion.x + viewportoffset.x,viewportmaxregion.y + viewportoffset.y };
+		m_ViewportHovered = ImGui::IsWindowHovered();
+		m_ViewportFocused = ImGui::IsWindowFocused();
+		Application::Get().GetImGuiLayer()->BlockEvents(!m_ViewportHovered);
 		uint32_t texturehandle = m_Framebuffer->GetColourAttachmentHandle(0);
 		ImGui::Image((void*)texturehandle, ImVec2{ m_ViewportSize.x,m_ViewportSize.y }, ImVec2{ 0,1 }, ImVec2{ 1,0 });
 		ImGui::End();
@@ -227,6 +263,7 @@ namespace Clonemmings
 	void GameLayer::LoadScene(const std::string& filename)
 	{
 		std::shared_ptr<Scene> loadedscene = std::make_shared<Scene>();
+		loadedscene->SetGameLayer(this);
 		loadedscene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
 		SceneSerialiser deserialiser(loadedscene);
 		ASSERT(deserialiser.Deserialise(filename), "failed to deserialise scene");
@@ -289,5 +326,21 @@ namespace Clonemmings
 
 #endif
 		m_ResetScene = Scene::Copy(m_ActiveScene);
+	}
+	void GameLayer::OnEvent(Event& e)
+	{
+		EventDispatcher dispatcher(e);
+		dispatcher.Dispatch<MouseButtonPressedEvent>([this](auto&&...args)->decltype(auto) {return this->GameLayer::OnMouseButtonPressed(std::forward<decltype(args)>(args)...); });
+	}
+	bool GameLayer::OnMouseButtonPressed(MouseButtonPressedEvent& e)
+	{
+		if (e.GetMouseButton() == MouseButton::Leftbutton)
+		{
+			if (m_ViewportHovered && !Input::IsKeyPressed(Key::Leftalt))
+			{
+				m_CurrentSelectedEntity = m_HoveredEntity;
+			}
+		}
+		return false;
 	}
 }
