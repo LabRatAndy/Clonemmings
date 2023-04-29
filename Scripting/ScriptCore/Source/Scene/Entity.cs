@@ -64,5 +64,13 @@ namespace Core
              ulong uuid = InternalCalls.Entity_CreateNewEntity(name);
              return new Entity(uuid);
         }
+        protected void PhysicsSetup()
+        {
+            InternalCalls.Entity_SetupPhysics(ID);
+        }
+        protected bool EntitySelected()
+        {
+            return InternalCalls.Entity_IsSelectedEntity(ID);
+        }
    }
 }

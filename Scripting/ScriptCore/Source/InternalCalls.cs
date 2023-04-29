@@ -19,7 +19,11 @@ namespace Core
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static ulong Entity_CreateNewClonemming(string name);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Entity_SetupPhysics(ulong entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Entity_DestroyEntity(ulong entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool Entity_IsSelectedEntity(ulong entityID);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static object GetInstance(ulong entityID);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]

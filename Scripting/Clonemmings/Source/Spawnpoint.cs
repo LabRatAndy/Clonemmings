@@ -21,7 +21,7 @@ namespace Clonemmings
             {
                 return;
             }
-            float clonemmingspersecond = m_Component.ClonemmingReleaseRate * 60.0f;
+            float clonemmingspersecond = 60.0f / m_Component.ClonemmingReleaseRate;
             if(m_Time > clonemmingspersecond) 
             {
                 CreateNewClonemming(m_Component.NumberOfClonemmings.ToString());
@@ -37,6 +37,7 @@ namespace Clonemmings
             if(clonemming != null) 
             {
                 clonemming.SetInitialPostion(new Vector3(-8.0f, 8.0f, 0.0f));
+                clonemming.SetUpPhysics();
             }
         }
     }
