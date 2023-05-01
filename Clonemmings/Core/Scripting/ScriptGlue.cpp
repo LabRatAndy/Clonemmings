@@ -27,7 +27,7 @@ namespace Clonemmings
 		char* cStr = mono_string_to_utf8(string);
 		std::string str(cStr);
 		mono_free(cStr);
-		WARN(str);
+		//WARN(str);
 	}
 #pragma region Vector3 functions
 	static void Vector3_Normalise(glm::vec3* parameter, glm::vec3* outresult)
@@ -109,6 +109,7 @@ namespace Clonemmings
 		auto& sc = clonemming.AddComponent<ScriptComponent>();
 		sc.ClassName = "Clonemmings.Clonemming";
 		ScriptEngine::OnCreateEntity(clonemming);
+		WARN("Creatated clonemming uuid: {0}", clonemming.GetUUID());
 		return clonemming.GetUUID();
 	}
 	static void Entity_SetupPhysics(UUID uuid)
@@ -133,8 +134,13 @@ namespace Clonemmings
 		ASSERT(scene);
 		GameLayer* gamelayer = (GameLayer*)(scene->GetGameLayer());
 		ASSERT(gamelayer);
-		Entity entity = gamelayer->GetSelectedEntity();
-		if (entity && entity.GetUUID() == uuid)
+		Entity& selectedentity = gamelayer->GetSelectedEntity();
+		if (!selectedentity)
+		{
+			return false;
+		}
+		Entity& entity = scene->GetEntityByUUID(uuid);
+		if (selectedentity == entity)
 		{
 			return true;
 		}
