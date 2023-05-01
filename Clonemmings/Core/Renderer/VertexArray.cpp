@@ -85,7 +85,8 @@ namespace Clonemmings
 		glEnableVertexAttribArray(2);	//colour
 		glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(ColouredVertex), (const void*)colouroffset);
 		glEnableVertexAttribArray(3);	// Entity ID
-		glVertexAttribPointer(3, 1, GL_INT, GL_FALSE, sizeof(ColouredVertex), (const void*)entityidoffset);
+		//note when attribute is an int need to pass this version of the function. NOTE the I between the b and the p
+		glVertexAttribIPointer(3, 1, GL_INT, sizeof(ColouredVertex), (const void*)entityidoffset);
 	}
 	void VertexArrayObject::SetTexturedVertexLayout()
 	{
@@ -100,7 +101,8 @@ namespace Clonemmings
 		glEnableVertexAttribArray(2);	//Tex coords
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), (const void*)texcoordoffset);
 		glEnableVertexAttribArray(3);	//Entity ID
-		glVertexAttribPointer(3, 1, GL_INT, GL_FALSE, sizeof(TexturedVertex), (const void*)entityidoffset);
+		//note when attribute is an int need to pass this version of the function. NOTE the I between the b and the p
+		glVertexAttribIPointer(3, 1, GL_INT, sizeof(TexturedVertex), (const void*)entityidoffset);
 	}
 	void VertexArrayObject::SetBatchVertexLayout()
 	{
@@ -124,6 +126,7 @@ namespace Clonemmings
 		glEnableVertexAttribArray(5);	//tiling factor
 		glVertexAttribPointer(5, 1, GL_FLOAT, GL_FALSE, sizeof(BatchedVertex), (const void*)tilingfactoroffset);
 		glEnableVertexAttribArray(6);	//Entity ID
-		glVertexAttribPointer(6, 1, GL_INT, GL_FALSE, sizeof(BatchedVertex), (const void*)entityidoffset);
+		//note when attribute is an int need to pass this version of the function. NOTE the I between the b and the p
+		glVertexAttribIPointer(6, 1, GL_INT, sizeof(BatchedVertex), (const void*)entityidoffset);
 	}
  }

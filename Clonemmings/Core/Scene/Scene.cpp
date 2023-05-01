@@ -64,11 +64,16 @@ namespace Clonemmings
 	Entity Scene::CreateEntityWithUUID(UUID uuid, const std::string& name)
 	{
 		Entity entity = { m_Registry.create(),this };
-		entity.AddComponent<IDComponent>(uuid);
+		uint32_t handle = entity;
+		INFO("Created new entity name: {0}, ENTT handle: {1}", name, handle);
+		auto& idc = entity.AddComponent<IDComponent>(uuid);
+		INFO("Added ID component: uuid = {0}", idc.ID);
 		entity.AddComponent<TransformComponent>();
 		auto& tag = entity.AddComponent<TagComponent>();
 		tag.Tag = name.empty() ? "Entity" : name;
+		INFO("Added Tag component: tag = {0}", tag.Tag);
 		m_EntityMap[uuid] = entity;
+		INFO("Entity added to entity map. Entity creation is complete!");
 		return entity;
 	}
 	void Scene::DestroyEntity(Entity entity)

@@ -18,8 +18,8 @@ out VertexOutput
 	float TilingFactor;
 } v_Output;
 
-layout(location = 4) out flat float v_TexIndex;
-layout(location = 5) out flat int v_EntityID;
+layout(location = 4)out flat float v_TexIndex;
+layout(location = 5)out flat int v_EntityID;
 
 void main()
 {

@@ -30,6 +30,12 @@ namespace Clonemmings
 	}
 	void GameLayer::OnUpdate(TimeStep ts)
 	{
+		m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+		FramebufferSpecification spec = m_Framebuffer->GetSpecification();
+		if (m_ViewportSize.x > 0.0f && m_ViewportSize.y > 0.0f && (spec.Width != m_ViewportSize.x || spec.Height != m_ViewportSize.y))
+		{
+			m_Framebuffer->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+		}
 		//bind the frame buffer before rendering
 		m_Framebuffer->Bind();
 		//Note don't remove the clear command from here as it needs to be here to draw the scene correctly. Not sure of the reason why but possibly due to framebuffer use.
@@ -48,17 +54,7 @@ namespace Clonemmings
 		if (mousex >= 0 && mousey >= 0 && mousex < (int)viewportsize.x && mousey < (int)viewportsize.y)
 		{
 			int pixeldata = m_Framebuffer->ReadPixel(1, mousex, mousey);
-			//TRACE("Hovered entity: {}", pixeldata);
-			if (pixeldata != -1)
-			{
-				
-				m_HoveredEntity = Entity((entt::entity)pixeldata, m_ActiveScene.get());
-			}
-			else
-			{
-				m_HoveredEntity = Entity();
-			}
-
+			m_HoveredEntity = pixeldata == -1 ? Entity() : Entity((entt::entity)pixeldata, m_ActiveScene.get());
 		}
 
 		m_Framebuffer->Unbind();
