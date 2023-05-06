@@ -60,6 +60,9 @@ namespace Clonemmings
 		case VertexType::Batch:
 			SetBatchVertexLayout();
 			break;
+		case VertexType::Line:
+			SetLineVertexLayout();
+			break;
 		case VertexType::NotSet:
 			ASSERT("Vertex buffer has no vertex type set");
 			break;
@@ -128,5 +131,20 @@ namespace Clonemmings
 		glEnableVertexAttribArray(6);	//Entity ID
 		//note when attribute is an int need to pass this version of the function. NOTE the I between the b and the p
 		glVertexAttribIPointer(6, 1, GL_INT, sizeof(BatchedVertex), (const void*)entityidoffset);
+	}
+	void VertexArrayObject::SetLineVertexLayout()
+	{
+		size_t positionoffset = offsetof(LineVertex, Position);
+		size_t colouroffset = offsetof(LineVertex, Colour);
+		size_t entityidoffset = offsetof(LineVertex, EntityID);
+		//position
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(LineVertex), (const void*)positionoffset);
+		//colour
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertex), (const void*)colouroffset);
+		//Entity ID
+		glEnableVertexAttribArray(2);
+		glVertexAttribIPointer(2, 1, GL_INT, sizeof(LineVertex), (const void*)entityidoffset);
 	}
  }

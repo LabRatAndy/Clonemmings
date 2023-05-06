@@ -48,11 +48,18 @@ namespace Clonemmings
 		float TilingFactor;
 		int EntityID;
 	};
+	struct LineVertex
+	{
+		glm::vec3 Position;
+		glm::vec4 Colour;
+		int EntityID;
+	};
 	enum class VertexType
 	{
 		NotSet = 0,
 		Coloured,
 		Textured,
-		Batch
+		Batch,
+		Line
 	};
 }

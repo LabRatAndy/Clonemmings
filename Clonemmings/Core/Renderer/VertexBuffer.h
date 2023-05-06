@@ -45,6 +45,7 @@ namespace Clonemmings
 
 		void Draw(uint32_t start, uint32_t count) const;
 		void Draw() const;
+		void DrawLines(uint32_t count) const;
 	
 	private:
 		uint32_t m_Handle = 0;
