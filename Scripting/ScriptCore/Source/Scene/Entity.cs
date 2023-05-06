@@ -29,6 +29,8 @@ namespace Core
         public bool HasComponent<T>() where T:Component ,new()
         {
             Type componenttype = typeof(T);
+            string log = "C#: Has Component called by uuid: " + ID.ToString();
+            InternalCalls.Native_Log(log);
             return InternalCalls.Entity_HasComponent(ID, componenttype);
         }
         public T GetComponent<T>() where T : Component, new()
@@ -57,6 +59,8 @@ namespace Core
         public static Entity CreateNewClonemming(string name)
         {
             ulong uuid = InternalCalls.Entity_CreateNewClonemming(name);
+            string log = "C#: New clonemming created with uuid: " + uuid.ToString();
+            InternalCalls.Native_Log(log);
             return new Entity(uuid);
         }
         public static Entity CreateNewEntity(string name)
@@ -68,9 +72,28 @@ namespace Core
         {
             InternalCalls.Entity_SetupPhysics(ID);
         }
-        protected bool EntitySelected()
+        public bool EntitySelected()
         {
             return InternalCalls.Entity_IsSelectedEntity(ID);
+        }
+        public void AddRectangleComponent()
+        {
+            InternalCalls.Entity_AddRectangleComponent(ID);
+        }
+        public void RemoveRectangleComponent()
+        {
+            InternalCalls.Entity_RemoveRectangleComponent(ID);
+        }
+        public T AddComponent<T>() where T : Component, new() 
+        {
+            Type componenttype = typeof(T);
+            InternalCalls.Entity_AddComponent(ID, componenttype);
+            return GetComponent<T>();
+        }
+        public void RemoveComponent<T>() where T: Component
+        {
+            Type type = typeof(T);
+            InternalCalls.Entity_RemoveComponent(ID, type);
         }
    }
 }

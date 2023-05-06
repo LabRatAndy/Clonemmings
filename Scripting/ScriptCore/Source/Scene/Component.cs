@@ -89,6 +89,50 @@
         //todo access textures but need to access textures from C++
     }
 
+    public class RectangleComponent : Component
+    {
+        public Vector3 Translation
+        {
+            get
+            {
+                InternalCalls.RectangleComponent_GetTranslation(Entity.ID, out Vector3 result);
+                return result;
+            }
+            set => InternalCalls.RectangleComponent_SetTranslation(Entity.ID, ref value);
+        }
+        public Vector3 Rotation
+        {
+            get
+            {
+                InternalCalls.RectangleComponent_GetRotation(Entity.ID, out Vector3 result);
+                return result;
+            }
+            set => InternalCalls.RectangleComponent_SetRotation(Entity.ID, ref value);
+        }
+        public Vector3 Scale
+        {
+            get
+            {
+                InternalCalls.RectangleComponent_GetScale(Entity.ID, out Vector3 result);
+                return result;
+            }
+            set => InternalCalls.RectangleComponent_SetScale(Entity.ID, ref value);
+        }
+        public Vector4 LineColour
+        {
+            get
+            {
+                InternalCalls.RectangleComponent_GetColour(Entity.ID, out Vector4 result);
+                return result;
+            }
+            set => InternalCalls.RectangleComponent_SetColour(Entity.ID, ref value);
+        }
+        public float LineThickness
+        {
+            get => InternalCalls.RectangleComponent_GetLineThinkness(Entity.ID);
+            set => InternalCalls.RectangleConponent_SetLineThickness(Entity.ID, value);
+        }
+    }
 
 
 }

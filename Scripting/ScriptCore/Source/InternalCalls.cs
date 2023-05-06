@@ -25,6 +25,14 @@ namespace Core
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static bool Entity_IsSelectedEntity(ulong entityID);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Entity_AddRectangleComponent(ulong entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Entity_RemoveRectangleComponent(ulong entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Entity_AddComponent(ulong entityID, Type componenttype);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Entity_RemoveComponent(ulong entityID, Type componenttype);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static object GetInstance(ulong entityID);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void TransformComponent_GetTranslation(ulong entityID, out Vector3 translation);
@@ -56,6 +64,26 @@ namespace Core
         internal extern static float SpriteRendererComponent_GetTilingFactor(ulong entityID);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void SpriteRendererComponent_SetTilingFactor(ulong entityID, float tilingfactor);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void RectangleComponent_GetTranslation(ulong entityID, out Vector3 translation);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void RectangleComponent_SetTranslation(ulong entityID, ref Vector3 translation);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void RectangleComponent_GetRotation(ulong entityID, out Vector3 rotation);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void RectangleComponent_SetRotation(ulong entityID, ref Vector3 rotation);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void RectangleComponent_GetScale(ulong entityID, out Vector3 scale);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void RectangleComponent_SetScale(ulong entityID, ref Vector3 scale);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void RectangleComponent_GetColour(ulong entityID, out Vector4 colour);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void RectangleComponent_SetColour(ulong entityID, ref Vector4 colour);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float RectangleComponent_GetLineThinkness(ulong entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void RectangleConponent_SetLineThickness(ulong entityID, float thickness);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static bool Input_IsKeyDown(KeyCode keycode);
 

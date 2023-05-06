@@ -9,7 +9,7 @@ namespace Clonemmings
         private TransformComponent m_Transform;
         private RigidBody2DComponent m_RigidBody;
         private ClonemmingComponent m_ClonemmingComponent;
-
+        private RectangleComponent m_Rectangle = null;
         void OnCreate()
         {
             m_Transform = GetComponent<TransformComponent>();
@@ -19,7 +19,9 @@ namespace Clonemmings
         void OnUpdate(float ts)
         {
             Vector3 velocity = Vector3.Zero;
-           if(m_ClonemmingComponent.Status == ClonemmingComponent.ClonmmingStatus.Walker && EntitySelected())
+            HighlightEntityWhenSelected();
+
+           if(EntitySelected())
             {
                 if(Input.IsKeyDown(KeyCode.Left))
                 {
@@ -43,8 +45,8 @@ namespace Clonemmings
                 }
             }
             velocity *= m_ClonemmingComponent.WalkSpeed * ts;
-            string result = "Velocity: X " + velocity.X.ToString() + " Y " + velocity.Y.ToString();
-            InternalCalls.Native_Log(result);
+            string result = "C#: Velocity: X " + velocity.X.ToString() + " Y " + velocity.Y.ToString();
+            //InternalCalls.Native_Log(result);
             m_RigidBody.ApplyLinearImpulse(velocity.XY, true);
         }
 
@@ -57,6 +59,29 @@ namespace Clonemmings
         public void SetUpPhysics()
         {
             PhysicsSetup();
+        }
+        private void HighlightEntityWhenSelected()
+        {
+            if (EntitySelected() && !HasComponent<RectangleComponent>())
+            {
+                m_Rectangle = AddComponent<RectangleComponent>();
+                m_Rectangle.Translation = m_Transform.Translation;
+                m_Rectangle.Rotation = m_Transform.Rotation;
+                Vector3 linescale = new Vector3(m_Transform.Scale.X, m_Transform.Scale.Y, m_Transform.Scale.Z);
+                m_Rectangle.Scale = linescale;
+            }
+            else if (!EntitySelected() && HasComponent<RectangleComponent>())
+            {
+                RemoveComponent<RectangleComponent>();
+                m_Rectangle = null;
+            }
+            else
+            {
+                m_Rectangle.Translation = m_Transform.Translation;
+                m_Rectangle.Rotation = m_Transform.Rotation;
+                Vector3 linescale = new Vector3(m_Transform.Scale.X * 1.1f, m_Transform.Scale.Y * 1.1f, m_Transform.Scale.Z);
+                m_Rectangle.Scale = linescale;
+            }
         }
     }
 }
