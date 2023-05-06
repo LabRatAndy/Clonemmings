@@ -158,7 +158,7 @@ namespace Clonemmings
 			if (maincamera)
 			{
 				Application::Get().GetRenderer().SetCamera(maincamera, cameratransform);
-				Application::Get().GetRenderer().StartBatch();
+				Application::Get().GetRenderer().StartBatch(BatchType::Quad);
 				auto group = m_Registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
 				for (auto entity : group)
 				{
@@ -166,7 +166,16 @@ namespace Clonemmings
 					glm::vec2 size = { transform.Scale.x,transform.Scale.y };
 					Application::Get().GetRenderer().DrawBatchedRotatedQuad(transform.Translation, size, sprite.Tex, sprite.Colour, glm::degrees(transform.Rotation.z), sprite.TilingFactor, (int)entity);
 				}
-				Application::Get().GetRenderer().EndBatch();
+				Application::Get().GetRenderer().EndBatch(BatchType::Quad);
+				Application::Get().GetRenderer().StartBatch(BatchType::Line);
+				auto view = m_Registry.view<RectangleComponent>();
+				for (auto entity : view)
+				{
+					auto rectangle = view.get<RectangleComponent>(entity);
+					Application::Get().GetRenderer().SetLineWidth(rectangle.LineThickness);
+					Application::Get().GetRenderer().DrawRectangle(rectangle.GetTransform(), rectangle.Colour, (int)entity);
+				}
+				Application::Get().GetRenderer().EndBatch(BatchType::Line);
 			}
 		}
 	}
@@ -380,6 +389,11 @@ namespace Clonemmings
 	}
 	template<>
 	void Scene::OnComponentAdded<ClonemmingExitComponent>(Entity entity, ClonemmingExitComponent& component)
+	{
+
+	}
+	template<>
+	void Scene::OnComponentAdded<RectangleComponent>(Entity entity, RectangleComponent& component)
 	{
 
 	}

@@ -46,7 +46,7 @@ namespace Clonemmings
 		void RemoveComponent()
 		{
 			ASSERT(HasComponent<T>(), "Entity does not have component!");
-			m_Scene->m_Registary.remove<T>(m_EntityHandle);
+			m_Scene->m_Registry.remove<T>(m_EntityHandle);
 		}
 		//explict casting operators
 		operator bool() const { return m_EntityHandle != entt::null; }
