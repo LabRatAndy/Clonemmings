@@ -27,8 +27,11 @@ namespace Clonemmings
 		renererdata.ColouredVertexShaderFilename = "Assets/Shaders/Coloured.vert";
 		renererdata.TexturedVertexShaderFilename = "Assets/Shaders/Textured.vert";
 		renererdata.TexturedFragmentShaderFilename = "Assets/Shaders/Textured.frag";
+		renererdata.LineVertexShaderFilename = "Assets/Shaders/Line.vert";
+		renererdata.LineFragmentShaderFilename = "Assets/Shaders/Line.frag";
 		renererdata.MaxQuads = 1000;
 		renererdata.MaxTextures = 32;
+		renererdata.MaxLines = 100;
 		m_Renderer = std::make_unique<Renderer>(renererdata);
 		// very temp get camera and transform from ECS system! but not here!! should be in layer!!
 		m_Camera = new SceneCamera();
