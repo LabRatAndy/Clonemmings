@@ -19,6 +19,8 @@
 namespace Clonemmings
 {
 	static std::unordered_map<MonoType*, std::function<bool(Entity)>> s_EntityHasComponentFuncs;
+	static std::unordered_map<MonoType*, std::function<void(Entity)>> s_EntityAddComponentFuncs;
+	static std::unordered_map<MonoType*, std::function<void(Entity)>> s_EntityRemoveComponentFuncs;
 
 #define ADD_INTERNAL_CALL(name) mono_add_internal_call("Core.InternalCalls::"#name, name)
 
@@ -27,7 +29,7 @@ namespace Clonemmings
 		char* cStr = mono_string_to_utf8(string);
 		std::string str(cStr);
 		mono_free(cStr);
-		//WARN(str);
+		WARN(str);
 	}
 #pragma region Vector3 functions
 	static void Vector3_Normalise(glm::vec3* parameter, glm::vec3* outresult)
@@ -66,6 +68,26 @@ namespace Clonemmings
 			return 0;
 		}
 		return entity.GetUUID();
+	}
+	static void Entity_AddComponent(UUID uuid, MonoReflectionType* componenttype)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		ASSERT(entity);
+		MonoType* managedtype = mono_reflection_type_get_type(componenttype);
+		ASSERT(s_EntityAddComponentFuncs.find(managedtype) != s_EntityAddComponentFuncs.end());
+		s_EntityAddComponentFuncs.at(managedtype)(entity);		
+	}
+	static void Entity_RemoveComponent(UUID uuid, MonoReflectionType* componenttype)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		ASSERT(entity);
+		MonoType* managedtype = mono_reflection_type_get_type(componenttype);
+		ASSERT(s_EntityRemoveComponentFuncs.find(managedtype) != s_EntityRemoveComponentFuncs.end());
+		s_EntityRemoveComponentFuncs.at(managedtype)(entity);
 	}
 	static uint64_t Entity_CreateNewEntity(MonoString* name)
 	{
@@ -147,7 +169,108 @@ namespace Clonemmings
 		return false;
 
 	}
+	static void Entity_AddRectangleComponent(UUID uuid)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		ASSERT(entity);
+		ASSERT(!entity.HasComponent<RectangleComponent>(), "Entity already has rectangle component");
+		entity.AddComponent<RectangleComponent>();
+	}
+	static void Entity_RemoveRectangleComponent(UUID uuid)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		ASSERT(entity);
+		ASSERT(entity.HasComponent<RectangleComponent>(), "Entity doesn't have rectangle component");
+		entity.RemoveComponent<RectangleComponent>();
+	}
 #pragma endregion
+#pragma region RectangleComponent
+	static void RectangleComponent_GetTranslation(UUID uuid, glm::vec3* outresult)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		ASSERT(entity);
+		*outresult = entity.GetComponent<RectangleComponent>().Translation;
+	}
+	static void RectangleComponent_SetTranslation(UUID uuid, glm::vec3* translation)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		ASSERT(entity);
+		entity.GetComponent<RectangleComponent>().Translation = *translation;
+	}
+	static void RectangleComponent_GetRotation(UUID uuid, glm::vec3* outresult)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		ASSERT(entity);
+		*outresult = entity.GetComponent<RectangleComponent>().Rotation;
+	}
+	static void RectangleComponent_SetRotation(UUID uuid, glm::vec3* rotation)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		ASSERT(entity);
+		entity.GetComponent<RectangleComponent>().Rotation = *rotation;
+	}
+	static void RectangleComponent_GetScale(UUID uuid, glm::vec3* outresult)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		ASSERT(entity);
+		*outresult = entity.GetComponent<RectangleComponent>().Scale;
+	}
+	static void RectangleComponent_SetScale(UUID uuid, glm::vec3* scale)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		ASSERT(entity);
+		entity.GetComponent<RectangleComponent>().Scale = *scale;
+	}
+	static void RectangleComponent_GetColour(UUID uuid, glm::vec4* outresult)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		ASSERT(entity);
+		*outresult = entity.GetComponent<RectangleComponent>().Colour;
+	}
+	static void RectangleComponent_SetColour(UUID uuid, glm::vec4* colour)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		ASSERT(entity);
+		entity.GetComponent<RectangleComponent>().Colour = *colour;
+	}
+	static float Rectangle_Component_GetLineThickness(UUID uuid)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		ASSERT(entity);
+		return entity.GetComponent<RectangleComponent>().LineThickness;
+	}
+	static void Rectangle_Component_SetLineThickness(UUID uuid, float linethickness)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		ASSERT(entity);
+		entity.GetComponent<RectangleComponent>().LineThickness = linethickness;
+	}
+#pragma endregion
+
 #pragma region TransformComponent 
 
 
@@ -431,6 +554,8 @@ namespace Clonemmings
 					}
 				}
 				s_EntityHasComponentFuncs[managedtype] = [](Entity entity) {return entity.HasComponent<component>(); };
+				s_EntityAddComponentFuncs[managedtype] = [](Entity entity) {entity.AddComponent<component>(); };
+				s_EntityRemoveComponentFuncs[managedtype] = [](Entity entity) {entity.RemoveComponent<component>(); };
 			}(), ...);
 	}
 	template<typename... component>
@@ -455,6 +580,10 @@ namespace Clonemmings
 		ADD_INTERNAL_CALL(Entity_SetupPhysics);
 		ADD_INTERNAL_CALL(Entity_DestroyEntity);
 		ADD_INTERNAL_CALL(Entity_IsSelectedEntity);
+		ADD_INTERNAL_CALL(Entity_AddRectangleComponent);
+		ADD_INTERNAL_CALL(Entity_RemoveRectangleComponent);
+		ADD_INTERNAL_CALL(Entity_AddComponent);
+		ADD_INTERNAL_CALL(Entity_RemoveComponent);
 		ADD_INTERNAL_CALL(TransformComponent_GetTranslation);
 		ADD_INTERNAL_CALL(TransformComponent_SetTranslation);
 		ADD_INTERNAL_CALL(TransformComponent_GetRotation);
@@ -470,6 +599,16 @@ namespace Clonemmings
 		ADD_INTERNAL_CALL(SpriteRendererComponent_SetColour);
 		ADD_INTERNAL_CALL(SpriteRendererComponent_GetTilingFactor);
 		ADD_INTERNAL_CALL(SpriteRendererComponent_SetTilingFactor);
+		ADD_INTERNAL_CALL(RectangleComponent_GetTranslation);
+		ADD_INTERNAL_CALL(RectangleComponent_SetTranslation);
+		ADD_INTERNAL_CALL(RectangleComponent_GetRotation);
+		ADD_INTERNAL_CALL(RectangleComponent_SetRotation);
+		ADD_INTERNAL_CALL(RectangleComponent_GetScale);
+		ADD_INTERNAL_CALL(RectangleComponent_SetScale);
+		ADD_INTERNAL_CALL(RectangleComponent_GetColour);
+		ADD_INTERNAL_CALL(RectangleComponent_SetColour);
+		ADD_INTERNAL_CALL(Rectangle_Component_GetLineThickness);
+		ADD_INTERNAL_CALL(Rectangle_Component_SetLineThickness);
 		ADD_INTERNAL_CALL(Input_IsKeyDown);
 		ADD_INTERNAL_CALL(TransformComponent_GetRotation);
 		ADD_INTERNAL_CALL(TransformComponent_SetRotation);
