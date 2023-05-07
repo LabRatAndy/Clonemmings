@@ -29,12 +29,16 @@ namespace Core
         public bool HasComponent<T>() where T:Component ,new()
         {
             Type componenttype = typeof(T);
-            string log = "C#: Has Component called by uuid: " + ID.ToString();
-            InternalCalls.Native_Log(log);
+            if(ID == 0) 
+            {
+                InternalCalls.Native_Log("C#: Has Component called by entity with invalid ID");
+                return false;
+            }
             return InternalCalls.Entity_HasComponent(ID, componenttype);
         }
         public T GetComponent<T>() where T : Component, new()
         {
+            InternalCalls.Native_Log("C#: GetComponent called");
             if(!HasComponent<T>())
             {
                 return null;
@@ -59,8 +63,10 @@ namespace Core
         public static Entity CreateNewClonemming(string name)
         {
             ulong uuid = InternalCalls.Entity_CreateNewClonemming(name);
-            string log = "C#: New clonemming created with uuid: " + uuid.ToString();
-            InternalCalls.Native_Log(log);
+            if (uuid ==0)
+            {
+                InternalCalls.Native_Log("C#: Clonemming has invalid ID");
+            }
             return new Entity(uuid);
         }
         public static Entity CreateNewEntity(string name)

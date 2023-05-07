@@ -10,7 +10,6 @@ namespace Clonemmings
 
         void OnCreate()
         {
-            Console.WriteLine($"creating clonemming exit point ID: {ID}");
             m_Component = GetComponent<ClonemmingExitComponent>();
             m_Transform = GetComponent<TransformComponent>();
         }

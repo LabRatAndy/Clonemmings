@@ -77,6 +77,8 @@ namespace Clonemmings
             }
             else
             {
+                if (m_Rectangle == null)
+                    return;
                 m_Rectangle.Translation = m_Transform.Translation;
                 m_Rectangle.Rotation = m_Transform.Rotation;
                 Vector3 linescale = new Vector3(m_Transform.Scale.X * 1.1f, m_Transform.Scale.Y * 1.1f, m_Transform.Scale.Z);

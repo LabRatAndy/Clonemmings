@@ -43,7 +43,6 @@ namespace Clonemmings
             {
                 clonemming.SetInitialPostion(new Vector3(-8.0f, 8.0f, 0.0f));
                 clonemming.SetUpPhysics();
-                GC.KeepAlive(clonemming);
             }
         }
         public void RemoveClonemming(Clonemming clonemming)
