@@ -371,7 +371,6 @@ namespace Clonemmings
 				}
 			}
 		}
-		//auto& entityclasses = s_Data->EntityClasses;
 	}
 
 	MonoImage* ScriptEngine::GetCoreAssemblyImage()
@@ -416,6 +415,9 @@ namespace Clonemmings
 	ScriptInstance::ScriptInstance(std::shared_ptr<ScriptClass> scriptclass, Entity entity) : m_ScriptClass(scriptclass)
 	{
 		m_Instance = m_ScriptClass->Instantiate();
+		// add the instance to garbage collection so that it doesn't collect them and crash the program.
+		//must also be pinned ie called with true in order to prevent the crash. this is not recommended so may cause preformance or other issues later.
+		m_GCHandle = mono_gchandle_new(m_Instance, true);
 		m_Constructor = s_Data->EntityClass.GetMethod(".ctor", 1);
 		m_OnCreateMethod = m_ScriptClass->GetMethod("OnCreate", 0);
 		m_OnUpdateMethod = m_ScriptClass->GetMethod("OnUpdate", 1);
@@ -424,7 +426,11 @@ namespace Clonemmings
 		void* param = &uuid;
 		m_ScriptClass->InvokeMethod(m_Instance, m_Constructor, &param);
 	}
-
+	ScriptInstance::~ScriptInstance()
+	{
+		if(m_GCHandle) 
+			mono_gchandle_free(m_GCHandle);
+	}
 	void ScriptInstance::InvokeOnCreate()
 	{
 		if (m_OnCreateMethod)
