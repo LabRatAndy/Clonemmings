@@ -21,33 +21,18 @@ namespace Clonemmings
             Vector3 velocity = Vector3.Zero;
             HighlightEntityWhenSelected();
 
-           if(EntitySelected())
+            if (m_ClonemmingComponent.Status == ClonemmingComponent.ClonmmingStatus.Walker)
             {
-                if(Input.IsKeyDown(KeyCode.Left))
-                {
-                    InternalCalls.Native_Log("Key left pressed");
-                    velocity.X = -1.0f;
-                }
-                else if(Input.IsKeyDown(KeyCode.Right))
-                {
-                    InternalCalls.Native_Log("key right pressed");
-                    velocity.X = 1.0f;
-                }
-                if (Input.IsKeyDown(KeyCode.Up))
-                {
-                    InternalCalls.Native_Log("key up pressed");
-                    velocity.Y = 1.0f; 
-                }
-                else if (Input.IsKeyDown(KeyCode.Down)) 
-                {
-                    InternalCalls.Native_Log("key down pressed");
-                    velocity.Y = -1.0f;
-                }
+                Vector2 linearvelocity =  m_RigidBody.LinearVelocity;
+                Vector2 normalisedLV = linearvelocity.Normalise();
+                InternalCalls.Native_Log("C#: normalised Linear velocity X: " + normalisedLV.X.ToString() + " Y: " + normalisedLV.Y.ToString());
+                velocity.X = normalisedLV.X;
+                velocity.Y = normalisedLV.Y;
+                velocity *= m_ClonemmingComponent.WalkSpeed * ts;
+                string result = "C#: Velocity: X " + velocity.X.ToString() + " Y " + velocity.Y.ToString();
+                InternalCalls.Native_Log(result);
+                m_RigidBody.ApplyLinearImpulse(velocity.XY, true);
             }
-            velocity *= m_ClonemmingComponent.WalkSpeed * ts;
-            string result = "C#: Velocity: X " + velocity.X.ToString() + " Y " + velocity.Y.ToString();
-            //InternalCalls.Native_Log(result);
-            m_RigidBody.ApplyLinearImpulse(velocity.XY, true);
         }
 
         public void SetInitialPostion(Vector3 position, float rotation = 0.0f)
@@ -84,6 +69,14 @@ namespace Clonemmings
                 Vector3 linescale = new Vector3(m_Transform.Scale.X * 1.1f, m_Transform.Scale.Y * 1.1f, m_Transform.Scale.Z);
                 m_Rectangle.Scale = linescale;
             }
+        }
+        private Vector3 RotateVelocity(float rotation,Vector2 velocity)
+        {
+            float sintheta = (float)Math.Sin(rotation);
+            float costheta = (float)Math.Cos(rotation);
+            float rotatedX = costheta * -sintheta * velocity.X;
+            float rotatedy = sintheta * costheta * velocity.Y;
+            return new Vector3(rotatedX, rotatedy, 0);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Security.Policy;
 
 namespace Core
 {
@@ -35,6 +36,12 @@ namespace Core
         public float Length()
         {
             return (float)Math.Sqrt(LengthSquared());
+        }
+        public Vector2 Normalise()
+        {
+            float normalX = X / Length();
+            float normalY = Y / Length();
+            return new Vector2(normalX, normalY);
         }
     }
     public struct Vector3
