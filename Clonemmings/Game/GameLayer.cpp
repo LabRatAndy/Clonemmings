@@ -15,7 +15,7 @@ namespace Clonemmings
 	}
 	void GameLayer::OnAttach()
 	{
-
+		
 		//framebuffer set up for dockspace viewport
 		FramebufferSpecification spec;
 		spec.Attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::RedInteger, FramebufferTextureFormat::Depth };
@@ -61,6 +61,7 @@ namespace Clonemmings
 	}
 	void GameLayer::OnImGuiRender()
 	{
+		m_ControlPanel.LoadLabelText("labels.lbl");
 		// dock space set up taken from ImGui examples!
 
 		// Note: Switch this to true to enable dockspace
@@ -158,7 +159,7 @@ namespace Clonemmings
 			}
 			ImGui::EndMenuBar();
 		}
-
+		m_ControlPanel.OnImGuiRender();
 		//viewport window
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0, 0.0));
 		ImGui::Begin("Viewport");
@@ -190,6 +191,7 @@ namespace Clonemmings
 	{
 		m_ActiveScene = scene;
 		m_ResetScene = Scene::Copy(m_ActiveScene);
+		m_ControlPanel.SetContext(m_ActiveScene);
 #if 0
 		//temp code for testing
 		{
@@ -322,6 +324,7 @@ namespace Clonemmings
 
 #endif
 		m_ResetScene = Scene::Copy(m_ActiveScene);
+		m_ControlPanel.SetContext(m_ActiveScene);
 	}
 	void GameLayer::OnEvent(Event& e)
 	{
@@ -335,6 +338,7 @@ namespace Clonemmings
 			if (m_ViewportHovered && !Input::IsKeyPressed(Key::Leftalt))
 			{
 				m_CurrentSelectedEntity = m_HoveredEntity;
+				m_ControlPanel.SetSelectedEntity(m_CurrentSelectedEntity);
 			}
 		}
 		return false;

@@ -7,6 +7,7 @@
 #include "Core/Renderer/Texture.h"
 #include "Core/Renderer/Framebuffer.h"
 #include "Core/Renderer/FramebufferSpecification.h"
+#include "Game/ControlPanel.h"
 #include <glm/glm.hpp>
 
 namespace Clonemmings
@@ -40,6 +41,8 @@ namespace Clonemmings
 		bool m_ViewportHovered = false;
 		Entity m_HoveredEntity = Entity();
 		Entity m_CurrentSelectedEntity = Entity();
+
+		ControlPanel m_ControlPanel;
 
 		//only really for testing and initial saving of demo scenes etc
 		void SaveScene(const std::string& filename);
