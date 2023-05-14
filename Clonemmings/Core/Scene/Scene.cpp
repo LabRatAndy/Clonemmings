@@ -91,8 +91,8 @@ namespace Clonemmings
 			{
 				return Entity{ entity,this };
 			}
-			return {};
 		}
+		return {};
 	}
 	Entity Scene::GetEntityByUUID(UUID uuid)
 	{
