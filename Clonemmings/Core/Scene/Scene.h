@@ -2,6 +2,7 @@
 #include "Core/Application/TimeStep.h"
 #include "Core/Application/UUID.h"
 #include "Core/Application/Layer.h"
+#include "Game/GameLevelData.h"
 #include <entt.hpp>
 
 class b2World;
@@ -36,6 +37,8 @@ namespace Clonemmings
 		void SetPaused(bool paused) { m_IsPaused = paused; }
 		void SetUpPhysicOnEntity(Entity entity);
 		
+		GameLevelData& GetGameLevelData() { return m_GameLevelData; }
+		void SetGameLevelData(const GameLevelData& gameleveldata) { m_GameLevelData = gameleveldata; }
 
 
 	private:
@@ -46,6 +49,7 @@ namespace Clonemmings
 		bool m_IsRunning = false;
 		bool m_IsPaused = true;
 		Layer* m_GameLayer = nullptr;
+		GameLevelData m_GameLevelData;
 
 		std::unordered_map<UUID, Entity> m_EntityMap;
 
