@@ -3,6 +3,7 @@
 #include "Core/Scene/CoreComponents.h"
 #include "Core/Application/UUID.h"
 #include "Core/Scripting/ScriptEngine.h"
+#include "Game/GameLevelData.h"
 
 #include <yaml-cpp/yaml.h>
 
@@ -364,6 +365,18 @@ namespace Clonemmings
 		YAML::Emitter out;
 		out << YAML::BeginMap;
 		out << YAML::Key << "Scene" << YAML::Value << "Untitled";
+		out << YAML::Key << "GameLevelData";
+		out << YAML::BeginMap;
+		out << YAML::Key << "MaxNumFloaters" << YAML::Value << m_Scene->m_GameLevelData.MaxNumFloaters;
+		out << YAML::Key << "MaxNumBlockers" << YAML::Value << m_Scene->m_GameLevelData.MaxNumBlockers;
+		out << YAML::Key << "MaxNumDiggers" << YAML::Value << m_Scene->m_GameLevelData.MaxNumDiggers;
+		out << YAML::Key << "MaxNumMiners" << YAML::Value << m_Scene->m_GameLevelData.MaxNumMiners;
+		out << YAML::Key << "CanRecycleFloaters" << YAML::Value << m_Scene->m_GameLevelData.CanRecycleFloaters;
+		out << YAML::Key << "CanRecycleBlockers" << YAML::Value << m_Scene->m_GameLevelData.CanRecycleBlockers;
+		out << YAML::Key << "CanRecycleDiggers" << YAML::Value << m_Scene->m_GameLevelData.CanRecycleDiggers;
+		out << YAML::Key << "CanRecycleMiners" << YAML::Value << m_Scene->m_GameLevelData.CanRecycleMiners;
+		out << YAML::Key << "TargetToSavePercentage" << YAML::Value << m_Scene->m_GameLevelData.PercentageToSave;
+		out << YAML::EndMap;
 		out << YAML::Key << "Entities" << YAML::Value << YAML::BeginSeq;
 		m_Scene->m_Registry.each([&](auto entityid)
 			{
@@ -396,6 +409,19 @@ namespace Clonemmings
 		if (!data["Scene"]) return false;
 		std::string scenename = data["Scene"].as<std::string>();
 		TRACE("Deserialising Scene '{0}'", scenename);
+		auto gldata = data["GameLevelData"];
+		if (gldata)
+		{
+			m_Scene->m_GameLevelData.MaxNumBlockers = gldata["MaxNumBlockers"].as<uint32_t>();
+			m_Scene->m_GameLevelData.MaxNumDiggers = gldata["MaxNumDiggers"].as<uint32_t>();
+			m_Scene->m_GameLevelData.MaxNumFloaters = gldata["MaxNumFloaters"].as<uint32_t>();
+			m_Scene->m_GameLevelData.MaxNumMiners = gldata["MaxNumMiners"].as<uint32_t>();
+			m_Scene->m_GameLevelData.CanRecycleBlockers = gldata["CanRecycleBlockers"].as<bool>();
+			m_Scene->m_GameLevelData.CanRecycleDiggers = gldata["CanRecycleBlockers"].as<bool>();
+			m_Scene->m_GameLevelData.CanRecycleFloaters = gldata["CanRecycleFloaters"].as<bool>();
+			m_Scene->m_GameLevelData.CanRecycleMiners = gldata["CanRecycleMiners"].as<bool>();
+			m_Scene->m_GameLevelData.PercentageToSave = gldata["TargetToSavePercentage"].as<float>();
+		}
 		auto entities = data["Entities"];
 		if (entities)
 		{
