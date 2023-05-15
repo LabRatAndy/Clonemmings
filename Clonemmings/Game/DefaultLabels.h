@@ -23,12 +23,16 @@ namespace Clonemmings
 	constexpr uint32_t STATISTICSLABEL = 17;
 	constexpr uint32_t CLONEMMINGSSAVEDLABEL = 18;
 	constexpr uint32_t CLONEMMINGSLOSTLABEL = 19;
+	constexpr uint32_t UNPAUSELEVELBUTTON = 20;
+	constexpr uint32_t STOPLEVELBUTTON = 21;
 
 #ifdef DEBUG
 	#define CONTROLPANELLABELTEXT "Control Panel"
 	#define LEVELCONTROLSLABELTEXT "Level Controls"
 	#define STARTLEVELBUTTONTEXT "Start Level"
+	#define STOPLEVELBUTTONTEXT "Stop Level"
 	#define PAUSELEVELBUTTONTEXT "Pause Level"
+	#define UNPAUSElEVELBUTTONTEXT "Unpause Level"
 	#define OPENLEVELBUTTONTEXT "Open Level"
 	#define QUITBUTTONTEXT "Quit"
 	#define GAMECONTROLLEVELTEXT "Game Controls"

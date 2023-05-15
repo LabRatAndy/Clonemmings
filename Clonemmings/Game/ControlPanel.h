@@ -64,6 +64,8 @@ namespace Clonemmings
 
 		void GetLargestButtonSize();
 		const char* GetLabelText(const uint32_t stringkey) const;
+		const char* GetStartStopButtonText() const;
+		const char* GetPauseUnpauseButtonText() const;
 		void ChangeClonemmingStatus(const ClonemmingComponent::ClonemingStatus status);
 		void RecycleClonemmingStatus();
 		

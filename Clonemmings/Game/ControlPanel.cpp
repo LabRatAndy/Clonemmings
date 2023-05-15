@@ -31,13 +31,15 @@ namespace Clonemmings
 	{
 		ImGui::Begin(GetLabelText(CONTROLPANELLABEL));
 		ImGui::Text(GetLabelText(LEVELCONTROLSLABEL));
-		if (ImGui::Button(GetLabelText(STARTLEVELBUTTON), m_ButtonSize))
+		if (ImGui::Button(GetStartStopButtonText(), m_ButtonSize))
 		{
 			if (!m_Context->IsRunning())
 				m_Context->StartScene();
+			else
+				m_Context->StopScene();
 		}
 		ImGui::SameLine();
-		if (ImGui::Button(GetLabelText(PAUSELEVELBUTTON), m_ButtonSize))
+		if (ImGui::Button(GetPauseUnpauseButtonText(), m_ButtonSize))
 		{
 			//scene is running can pause if not already paused and unpause if already paused
 			if (m_Context->IsRunning())
@@ -167,7 +169,8 @@ namespace Clonemmings
 		m_LabelMap[STATISTICSLABEL] = LabelText(STATISTICSLABELTEXT);
 		m_LabelMap[CLONEMMINGSSAVEDLABEL] = LabelText(CLONEMMINGSSAVEDLABELTEXT);
 		m_LabelMap[CLONEMMINGSLOSTLABEL] = LabelText(CLONEMMINGSLOSTLABELTEXT);
-
+		m_LabelMap[UNPAUSELEVELBUTTON] = LabelText(UNPAUSElEVELBUTTONTEXT);
+		m_LabelMap[STOPLEVELBUTTON] = LabelText(STOPLEVELBUTTONTEXT);
 		
 #else
 		LabelSerialiser serialiser(this);
@@ -177,7 +180,7 @@ namespace Clonemmings
 	}
 	void ControlPanel::GetLargestButtonSize()
 	{
-		std::array<uint32_t, 9> buttonlist{ STARTLEVELBUTTON,PAUSELEVELBUTTON,OPENLEVELBUTTON,QUITBUTTON,MAKEFLOATERBUTTON,MAKEBLOCKERBUTTON,MAKEDIGGERBUTTON,MAKEMINERBUTTON,MAKEWALKERBUTTON };
+		std::array<uint32_t, 11> buttonlist{ STARTLEVELBUTTON,PAUSELEVELBUTTON,OPENLEVELBUTTON,QUITBUTTON,MAKEFLOATERBUTTON,MAKEBLOCKERBUTTON,MAKEDIGGERBUTTON,MAKEMINERBUTTON,MAKEWALKERBUTTON,UNPAUSELEVELBUTTON,STOPLEVELBUTTON };
 		uint32_t indexoflargest = 0;
 		for (uint32_t n = 1; n != buttonlist.size(); n++)
 		{
@@ -244,5 +247,21 @@ namespace Clonemmings
 			return;
 		}
 		ASSERT(false, "Unknown clonemming status");
+	}
+	const char* ControlPanel::GetStartStopButtonText() const
+	{
+		if (m_Context->IsRunning())
+			return GetLabelText(STOPLEVELBUTTON);
+		else
+			return GetLabelText(STARTLEVELBUTTON);
+	}
+	const char* ControlPanel::GetPauseUnpauseButtonText() const
+	{
+		if (!m_Context->IsRunning())
+			return GetLabelText(PAUSELEVELBUTTON);
+		if (m_Context->IsPaused())
+			return GetLabelText(UNPAUSELEVELBUTTON);
+		else
+			return GetLabelText(PAUSELEVELBUTTON);
 	}
 }
