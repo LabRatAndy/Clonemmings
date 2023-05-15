@@ -21,27 +21,27 @@ namespace Clonemmings
 			Text = text;
 			SizeInImGui = ImGui::CalcTextSize(Text.c_str());
 		}
-		bool operator<(const LabelText& other)
+		bool operator <(const LabelText& other)
 		{
 			return (SizeInImGui.x < other.SizeInImGui.x);
 		}
-		bool operator>(const LabelText& other)
+		bool operator >(const LabelText& other)
 		{
 			return !(*this < other);
 		}
-		bool operator<=(const LabelText& other)
+		bool operator <=(const LabelText& other)
 		{
 			return(SizeInImGui.x <= other.SizeInImGui.x);
 		}
-		bool operator>=(const LabelText& other)
+		bool operator >=(const LabelText& other)
 		{
 			return !(*this <= other);
 		}
-		bool operator==(const LabelText& other)
+		bool operator ==(const LabelText& other)
 		{
 			return SizeInImGui.x == other.SizeInImGui.x;
 		}
-		bool operator!=(const LabelText& other)
+		bool operator !=(const LabelText& other)
 		{
 			return !(*this == other);
 		}
@@ -68,6 +68,9 @@ namespace Clonemmings
 		const char* GetPauseUnpauseButtonText() const;
 		void ChangeClonemmingStatus(const ClonemmingComponent::ClonemingStatus status);
 		void RecycleClonemmingStatus();
+		float GetReleaseRateLabelWidth() const;
+		float GetWidestGameControllerLabel();
+		float GetWidestStatisticsLabel();
 		
 
 		friend class LabelSerialiser;

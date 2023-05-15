@@ -19,10 +19,10 @@ namespace Clonemmings
 	}
 	void ControlPanel::SetSelectedEntity(Entity entity)
 	{
-		if (!entity.HasComponent<ClonemmingComponent>())
+		if (entity && !entity.HasComponent<ClonemmingComponent>());
 		{
-			m_SelectedEntity = {};
-			return;
+				m_SelectedEntity = {};
+				return;
 		}
 		m_SelectedEntity = entity;
 
@@ -69,22 +69,24 @@ namespace Clonemmings
 		}
 		ImGui::Separator();
 		ImGui::Text(GetLabelText(GAMECONTROLLEVEL));
+		ImGui::PushID("column set 1");
+		ImGui::Columns(2, "column set 1", false);
+		ImGui::SetColumnWidth(0, GetWidestGameControllerLabel());
 		ImGui::Text(GetLabelText(NUMFLOATERSLEFTLABEL));
-		ImGui::SameLine();
+		ImGui::Text(GetLabelText(NUMBLOCKERSLEFTLABEL));
+		ImGui::Text(GetLabelText(NUMDIGGERSLEFTLABEL));
+		ImGui::Text(GetLabelText(NUMMINERSLEFTLABEL));
+		ImGui::NextColumn();
 		uint32_t left = m_Context->GetGameLevelData().MaxNumFloaters - m_Context->GetGameLevelData().NumFloatersUsed;
 		ImGui::Text(std::to_string(left).c_str());
-		ImGui::Text(GetLabelText(NUMBLOCKERSLEFTLABEL));
-		ImGui::SameLine();
 		left = m_Context->GetGameLevelData().MaxNumBlockers - m_Context->GetGameLevelData().NumBlockersUsed;
 		ImGui::Text(std::to_string(left).c_str());
-		ImGui::Text(GetLabelText(NUMDIGGERSLEFTLABEL));
-		ImGui::SameLine();
 		left = m_Context->GetGameLevelData().MaxNumDiggers - m_Context->GetGameLevelData().NumDiggersUsed;
 		ImGui::Text(std::to_string(left).c_str());
-		ImGui::Text(GetLabelText(NUMMINERSLEFTLABEL));
-		ImGui::SameLine();
 		left = m_Context->GetGameLevelData().MaxNumMiners - m_Context->GetGameLevelData().NumMinersUsed;
 		ImGui::Text(std::to_string(left).c_str());
+		ImGui::Columns(1);
+		ImGui::PopID();
 		if (ImGui::Button(GetLabelText(MAKEFLOATERBUTTON), m_ButtonSize))
 		{
 			if (m_Context->GetGameLevelData().UseFloater())
@@ -118,32 +120,41 @@ namespace Clonemmings
 		{
 			rate = startpoint.GetComponent<ClonemmingStartComponent>().ClonemmingReleaseRate;
 		}
-		if (ImGui::DragFloat(GetLabelText(RELEASERATEDRAGFLOAT), &rate, 1.0f, 0.1f, 10.0f))
+		ImGui::PushID("Column set 2");
+		ImGui::Columns(2, NULL, false);
+		ImGui::SetColumnWidth(0, GetReleaseRateLabelWidth());
+		ImGui::Text(GetLabelText(RELEASERATEDRAGFLOAT));
+		ImGui::NextColumn();
+		if (ImGui::SliderFloat("##ReleaseRateSlider", &rate, 0.1f, 10.0f))
 		{
 			if (startpoint)
 				startpoint.GetComponent<ClonemmingStartComponent>().ClonemmingReleaseRate = rate;
 		}
+		ImGui::Columns(1);
+		ImGui::PopID();
 		ImGui::Separator();
 		ImGui::Text(GetLabelText(STATISTICSLABEL));
+		ImGui::PushID("Columns set 3");
+		ImGui::Columns(2, "Columns set 3", false);
+		ImGui::SetColumnWidth(0, m_LabelMap.at(CLONEMMINGSSAVEDLABEL).SizeInImGui.x + (ImGui::GetStyle().FramePadding.x*2));
 		ImGui::Text(GetLabelText(CLONEMMINGSSAVEDLABEL));
-		ImGui::SameLine();
+		ImGui::Text(GetLabelText(CLONEMMINGSLOSTLABEL));	
+		ImGui::NextColumn();
 		Entity exitpoint = m_Context->GetEntityByName("Exitpoint");
 		if (startpoint && exitpoint)
 		{
 			uint32_t numclonemmings = exitpoint.GetComponent<ClonemmingExitComponent>().NumberOfClonemmings;
 			ImGui::Text(std::to_string(numclonemmings).c_str());
-			ImGui::Text(GetLabelText(CLONEMMINGSLOSTLABEL));
-			ImGui::SameLine();
 			uint32_t lostclonemmings = startpoint.GetComponent<ClonemmingStartComponent>().NumberOfClonemmings - numclonemmings;
 			ImGui::Text(std::to_string(lostclonemmings).c_str());
 		}
 		else
 		{
 			ImGui::Text("Level not loaded!");
-			ImGui::Text(GetLabelText(CLONEMMINGSLOSTLABEL));
-			ImGui::SameLine();
 			ImGui::Text("Level not loaded");
 		}
+		ImGui::Columns(1);
+		ImGui::PopID();
 		ImGui::End();
 	}
 	void ControlPanel::LoadLabelText(const std::string& filename)
@@ -184,13 +195,13 @@ namespace Clonemmings
 		uint32_t indexoflargest = 0;
 		for (uint32_t n = 1; n != buttonlist.size(); n++)
 		{
-			if (m_LabelMap.at(indexoflargest).operator<(m_LabelMap.at(n)))
+			if (m_LabelMap.at(buttonlist[indexoflargest]).operator<(m_LabelMap.at(buttonlist[n])))
 			{
 				indexoflargest = n;
 			}
 		}
-		m_ButtonSize.x = m_LabelMap.at(indexoflargest).SizeInImGui.x;
-		m_ButtonSize.y = m_LabelMap.at(indexoflargest).SizeInImGui.y + (ImGui::GetStyle().FramePadding.y * 2);
+		m_ButtonSize.x = m_LabelMap.at(buttonlist[indexoflargest]).SizeInImGui.x + (ImGui::GetStyle().FramePadding.x * 2);
+		m_ButtonSize.y = m_LabelMap.at(buttonlist[indexoflargest]).SizeInImGui.y + (ImGui::GetStyle().FramePadding.y * 2);
 
 	
 	}
@@ -263,5 +274,33 @@ namespace Clonemmings
 			return GetLabelText(UNPAUSELEVELBUTTON);
 		else
 			return GetLabelText(PAUSELEVELBUTTON);
+	}
+	float ControlPanel::GetReleaseRateLabelWidth() const
+	{
+		return m_LabelMap.at(RELEASERATEDRAGFLOAT).SizeInImGui.x + (ImGui::GetStyle().FramePadding.x * 2);
+	}
+	float ControlPanel::GetWidestGameControllerLabel()
+	{
+		std::array<uint32_t, 4> labellist = { NUMFLOATERSLEFTLABEL,NUMBLOCKERSLEFTLABEL,NUMDIGGERSLEFTLABEL,NUMMINERSLEFTLABEL };
+		uint32_t indexofwidest = 0;
+		for (uint32_t n = 1; n != labellist.size(); n++)
+		{
+			if (m_LabelMap.at(labellist[indexofwidest]) < m_LabelMap.at(labellist[n]))
+			{
+				indexofwidest = n;
+			}
+		}
+		return m_LabelMap.at(labellist[indexofwidest]).SizeInImGui.x + (ImGui::GetStyle().FramePadding.x * 2);
+	}
+	float ControlPanel::GetWidestStatisticsLabel()
+	{
+		if (m_LabelMap.at(CLONEMMINGSSAVEDLABEL) < m_LabelMap.at(CLONEMMINGSLOSTLABEL))
+		{
+			return m_LabelMap.at(CLONEMMINGSLOSTLABEL).SizeInImGui.x + (ImGui::GetStyle().FramePadding.x * 2);
+		}
+		else
+		{
+			return m_LabelMap.at(CLONEMMINGSSAVEDLABEL).SizeInImGui.x + (ImGui::GetStyle().FramePadding.x * 2);
+		}
 	}
 }
