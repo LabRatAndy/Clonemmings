@@ -32,7 +32,6 @@ namespace Clonemmings
 		uint32_t count = 0;
 		for (auto it = m_ControlPanelPtr->m_LabelMap.begin(); it != m_ControlPanelPtr->m_LabelMap.end(); ++it)
 		{
-			out << YAML::Key << std::to_string(count);
 			out << YAML::Key << YAML::BeginMap;
 			out << YAML::Key << "LabelID" << YAML::Value << it->first;
 			LabelText text = it->second;
