@@ -15,7 +15,6 @@ namespace Clonemmings
 	}
 	void GameLayer::OnAttach()
 	{
-		
 		//framebuffer set up for dockspace viewport
 		FramebufferSpecification spec;
 		spec.Attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::RedInteger, FramebufferTextureFormat::Depth };
@@ -61,7 +60,11 @@ namespace Clonemmings
 	}
 	void GameLayer::OnImGuiRender()
 	{
-		m_ControlPanel.LoadLabelText("labels.lbl");
+		if (!m_LabelsLoaded)
+		{
+			m_ControlPanel.LoadLabelText("Assets/Labels/ControlPanel.lbl");
+			m_LabelsLoaded = true;
+		}
 		// dock space set up taken from ImGui examples!
 
 		// Note: Switch this to true to enable dockspace

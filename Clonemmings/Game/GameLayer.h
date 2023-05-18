@@ -41,6 +41,7 @@ namespace Clonemmings
 		bool m_ViewportHovered = false;
 		Entity m_HoveredEntity = Entity();
 		Entity m_CurrentSelectedEntity = Entity();
+		bool m_LabelsLoaded = false;
 
 		ControlPanel m_ControlPanel;
 
