@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
-
+#define SAVELBLS
+#undef SAVELBLS
 namespace Clonemmings
 {
 	constexpr uint32_t CONTROLPANELLABEL = 0;
@@ -26,7 +27,7 @@ namespace Clonemmings
 	constexpr uint32_t UNPAUSELEVELBUTTON = 20;
 	constexpr uint32_t STOPLEVELBUTTON = 21;
 
-#ifdef DEBUG
+#ifdef SAVELBLS
 	#define CONTROLPANELLABELTEXT "Control Panel"
 	#define LEVELCONTROLSLABELTEXT "Level Controls"
 	#define STARTLEVELBUTTONTEXT "Start Level"

@@ -19,7 +19,10 @@ namespace Clonemmings
 		LabelText(const std::string& text)
 		{
 			Text = text;
+			ImFont* font = ImGui::GetIO().FontDefault;
+			ImGui::PushFont(font);
 			SizeInImGui = ImGui::CalcTextSize(Text.c_str());
+			ImGui::PopFont();
 		}
 		bool operator <(const LabelText& other)
 		{

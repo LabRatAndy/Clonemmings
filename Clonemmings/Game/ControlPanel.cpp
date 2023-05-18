@@ -1,6 +1,7 @@
 #include "Game/ControlPanel.h"
 #include "Game/DefaultLabels.h"
 #include "Game/GameLayer.h"
+#include "Game/LabelSerialiser.h"
 #include "Core/Application/Application.h"
 #include "Core/Application/FileDialog.h"
 #include <imgui.h>
@@ -29,6 +30,7 @@ namespace Clonemmings
 	}
 	void ControlPanel::OnImGuiRender()
 	{
+		GetLargestButtonSize();
 		ImGui::Begin(GetLabelText(CONTROLPANELLABEL));
 		ImGui::Text(GetLabelText(LEVELCONTROLSLABEL));
 		if (ImGui::Button(GetStartStopButtonText(), m_ButtonSize))
@@ -159,7 +161,7 @@ namespace Clonemmings
 	}
 	void ControlPanel::LoadLabelText(const std::string& filename)
 	{
-#ifdef DEBUG
+#ifdef SAVELBLS
 		m_LabelMap[CONTROLPANELLABEL] = LabelText(CONTROLPANELLABELTEXT);
 		m_LabelMap[LEVELCONTROLSLABEL] = LabelText(LEVELCONTROLSLABELTEXT);
 		m_LabelMap[STARTLEVELBUTTON] = LabelText(STARTLEVELBUTTONTEXT);
@@ -182,12 +184,15 @@ namespace Clonemmings
 		m_LabelMap[CLONEMMINGSLOSTLABEL] = LabelText(CLONEMMINGSLOSTLABELTEXT);
 		m_LabelMap[UNPAUSELEVELBUTTON] = LabelText(UNPAUSElEVELBUTTONTEXT);
 		m_LabelMap[STOPLEVELBUTTON] = LabelText(STOPLEVELBUTTONTEXT);
-		
+		LabelSerialiser serialiser(this);
+		serialiser.Serialise(filename);		
 #else
 		LabelSerialiser serialiser(this);
-		serialiser.Deserialise(filename);
+		if (!serialiser.Deserialise(filename))
+		{
+			CRITICAL("Unable to load Labels from file: {0}", filename);
+		}
 #endif // DEBUG
-		GetLargestButtonSize();
 	}
 	void ControlPanel::GetLargestButtonSize()
 	{

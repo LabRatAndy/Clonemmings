@@ -1,0 +1,46 @@
+LabelText: Label strings for Clonemmings control panel
+Labels:
+  - LabelID: 0
+    LabelText: Control Panel
+  - LabelID: 1
+    LabelText: Level Controls
+  - LabelID: 2
+    LabelText: Start Level
+  - LabelID: 3
+    LabelText: Pause Level
+  - LabelID: 4
+    LabelText: Open Level
+  - LabelID: 5
+    LabelText: Quit
+  - LabelID: 6
+    LabelText: Game Controls
+  - LabelID: 7
+    LabelText: Clonemming Release Rate
+  - LabelID: 8
+    LabelText: Number of floaters left
+  - LabelID: 9
+    LabelText: Number of blockers left
+  - LabelID: 10
+    LabelText: Number of diggers left
+  - LabelID: 11
+    LabelText: Number of miners left
+  - LabelID: 12
+    LabelText: Make Floater
+  - LabelID: 13
+    LabelText: Make Blocker
+  - LabelID: 14
+    LabelText: Make Digger
+  - LabelID: 15
+    LabelText: Make Miner
+  - LabelID: 16
+    LabelText: Make Walker
+  - LabelID: 17
+    LabelText: Level Statistics
+  - LabelID: 18
+    LabelText: Number of clonemmings saved
+  - LabelID: 19
+    LabelText: Number of clonemmings lost
+  - LabelID: 20
+    LabelText: Unpause Level
+  - LabelID: 21
+    LabelText: Stop Level

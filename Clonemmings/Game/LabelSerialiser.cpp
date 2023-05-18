@@ -28,7 +28,7 @@ namespace Clonemmings
 		YAML::Emitter out;
 		out << YAML::BeginMap;
 		out << YAML::Key << "LabelText" << YAML::Value << "Label strings for Clonemmings control panel";
-		out << YAML::Key << "labels" << YAML::Value << YAML::BeginSeq;
+		out << YAML::Key << "Labels" << YAML::Value << YAML::BeginSeq;
 		uint32_t count = 0;
 		for (auto it = m_ControlPanelPtr->m_LabelMap.begin(); it != m_ControlPanelPtr->m_LabelMap.end(); ++it)
 		{
