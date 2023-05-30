@@ -1,9 +1,11 @@
 #include "Core/Scene/Scene.h"
-#include "Core/Scene/Components.h"
+#include "Core/Scene/CoreComponents.h"
 #include "Core/Scene/Entity.h"
 #include "Core/Renderer/Renderer.h"
 #include "Core/Application/Application.h"
 #include "Core/Application/Physics2D.h"
+#include "Core/Scripting/ScriptEngine.h"
+#include "Core/Physic2D/PhysicsEngine.h"
 
 #include <box2d/b2_body.h>
 #include <box2d/b2_world.h>
@@ -12,6 +14,7 @@
 #include <box2d/b2_circle_shape.h>
 namespace Clonemmings
 {
+
 	template<typename... component>
 	static void CopyComponent(entt::registry& dst, entt::registry& src, const std::unordered_map<UUID, entt::entity>& enttmap)
 	{
@@ -53,7 +56,7 @@ namespace Clonemmings
 	}
 	Scene::~Scene()
 	{
-		delete m_PhysicsWorld;
+		PhysicsEngine::Shutdown();
 	}
 	Entity Scene::CreateEntity(const std::string& name)
 	{
@@ -62,15 +65,25 @@ namespace Clonemmings
 	Entity Scene::CreateEntityWithUUID(UUID uuid, const std::string& name)
 	{
 		Entity entity = { m_Registry.create(),this };
-		entity.AddComponent<IDComponent>(uuid);
+		uint32_t handle = entity;
+		INFO("Created new entity name: {0}, ENTT handle: {1}", name, handle);
+		auto& idc = entity.AddComponent<IDComponent>(uuid);
+		INFO("Added ID component: uuid = {0}", idc.ID);
 		entity.AddComponent<TransformComponent>();
 		auto& tag = entity.AddComponent<TagComponent>();
 		tag.Tag = name.empty() ? "Entity" : name;
+		INFO("Added Tag component: tag = {0}", tag.Tag);
 		m_EntityMap[uuid] = entity;
+		INFO("Entity added to entity map. Entity creation is complete!");
 		return entity;
 	}
 	void Scene::DestroyEntity(Entity entity)
 	{
+		if (entity.HasComponent<RigidBody2DComponent>())
+		{
+			auto& rb2d = entity.GetComponent<RigidBody2DComponent>();
+			PhysicsEngine::DestroyBody((b2Body*)rb2d.RuntimeBody);
+		}
 		m_EntityMap.erase(entity.GetUUID());
 		m_Registry.destroy(entity);
 	}
@@ -84,8 +97,8 @@ namespace Clonemmings
 			{
 				return Entity{ entity,this };
 			}
-			return {};
 		}
+		return {};
 	}
 	Entity Scene::GetEntityByUUID(UUID uuid)
 	{
@@ -103,7 +116,7 @@ namespace Clonemmings
 			{
 				const int32_t velocityiterations = 6;
 				const int32_t positioniterations = 2;
-				m_PhysicsWorld->Step(ts, velocityiterations, positioniterations);
+				PhysicsEngine::PhysicsWorldUpdate(ts);
 				//retrive transforms from Box2D
 				auto view = m_Registry.view<RigidBody2DComponent>();
 				for (auto e : view)
@@ -111,11 +124,20 @@ namespace Clonemmings
 					Entity entity = { e,this };
 					auto& transform = entity.GetComponent<TransformComponent>();
 					auto& rb2d = entity.GetComponent<RigidBody2DComponent>();
-					b2Body* body = (b2Body*)rb2d.RuntimeBody;
-					const auto& position = body->GetPosition();
+					const auto& position = PhysicsEngine::GetPosition((b2Body*)rb2d.RuntimeBody);
 					transform.Translation.x = position.x;
 					transform.Translation.y = position.y;
-					transform.Rotation.z = body->GetAngle();
+					transform.Rotation.z = PhysicsEngine::GetAngle((b2Body*)rb2d.RuntimeBody);
+					
+				}
+			}
+			//scripting
+			{
+				auto view = m_Registry.view<ScriptComponent>();
+				for (auto e : view)
+				{
+					Entity entity = { e,this };
+					ScriptEngine::OnUpdateEntity(entity, ts);
 				}
 			}
 		}
@@ -141,15 +163,24 @@ namespace Clonemmings
 			if (maincamera)
 			{
 				Application::Get().GetRenderer().SetCamera(maincamera, cameratransform);
-				Application::Get().GetRenderer().StartBatch();
+				Application::Get().GetRenderer().StartBatch(BatchType::Quad);
 				auto group = m_Registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
 				for (auto entity : group)
 				{
 					auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
 					glm::vec2 size = { transform.Scale.x,transform.Scale.y };
-					Application::Get().GetRenderer().DrawBatchedQuad(transform.Translation, size, sprite.Tex, sprite.Colour, sprite.TilingFactor, (int)entity);
+					Application::Get().GetRenderer().DrawBatchedRotatedQuad(transform.Translation, size, sprite.Tex, sprite.Colour, glm::degrees(transform.Rotation.z), sprite.TilingFactor, (int)entity);
 				}
-				Application::Get().GetRenderer().EndBatch();
+				Application::Get().GetRenderer().EndBatch(BatchType::Quad);
+				Application::Get().GetRenderer().StartBatch(BatchType::Line);
+				auto view = m_Registry.view<RectangleComponent>();
+				for (auto entity : view)
+				{
+					auto rectangle = view.get<RectangleComponent>(entity);
+					Application::Get().GetRenderer().SetLineWidth(rectangle.LineThickness);
+					Application::Get().GetRenderer().DrawRectangle(rectangle.GetTransform(), rectangle.Colour, (int)entity);
+				}
+				Application::Get().GetRenderer().EndBatch(BatchType::Line);
 			}
 		}
 	}
@@ -164,7 +195,7 @@ namespace Clonemmings
 			auto& cameracomponent = view.get<CameraComponent>(entity);
 			if (!cameracomponent.FixedAspectRatio)
 			{
-				cameracomponent.Camera.SetViewportSize(width, height);
+				cameracomponent.Camera.SetViewportSize(width, height, false);
 			}
 		}
 	}
@@ -183,71 +214,52 @@ namespace Clonemmings
 	}
 	void Scene::OnPhysicsStart()
 	{
-		m_PhysicsWorld = new b2World({ 0.0f,-9.8f });
+		PhysicsEngine::Initialise(glm::vec2(0.0, -9.81));
 		
 		auto view = m_Registry.view<RigidBody2DComponent>();
 		for (auto e : view)
 		{
 			Entity entity = { e,this };
-			auto& transform = entity.GetComponent<TransformComponent>();
-			auto& rb2d = entity.GetComponent<RigidBody2DComponent>();
-			b2BodyDef bodydef;
-			bodydef.type = Utills::Rigidbody2DTypeToBox2DBody(rb2d.Type);
-			bodydef.position.Set(transform.Translation.x, transform.Translation.y);
-			bodydef.angle = transform.Rotation.z;
-			b2Body* body = m_PhysicsWorld->CreateBody(&bodydef);
-			body->SetFixedRotation(rb2d.FixedRotation);
-			rb2d.RuntimeBody = body;
-
-			if (entity.HasComponent<BoxCollider2DComponent>())
-			{
-				auto& bc2d = entity.GetComponent<BoxCollider2DComponent>();
-				b2PolygonShape boxshape;
-				boxshape.SetAsBox(bc2d.Size.x * transform.Scale.x, bc2d.Size.y * transform.Scale.y);
-				b2FixtureDef fixturedef;
-				fixturedef.shape = &boxshape;
-				fixturedef.density = bc2d.Density;
-				fixturedef.friction = bc2d.Friction;
-				fixturedef.restitution = bc2d.Restitution;
-				fixturedef.restitutionThreshold = bc2d.RestitutionThreshold;
-				body->CreateFixture(&fixturedef);
-			}
-			if (entity.HasComponent<CircleCollider2DComponent>())
-			{
-				auto& cc2d = entity.GetComponent<CircleCollider2DComponent>();
-				b2CircleShape circleshape;
-				circleshape.m_p.Set(cc2d.Offset.x, cc2d.Offset.y);
-				circleshape.m_radius = transform.Scale.x * cc2d.Radius;
-				b2FixtureDef fixturedef;
-				fixturedef.shape = &circleshape;
-				fixturedef.density = cc2d.Density;
-				fixturedef.friction = cc2d.Friction;
-				fixturedef.restitution = cc2d.Restitution;
-				fixturedef.restitutionThreshold = cc2d.RestitutionThreshold;
-				body->CreateFixture(&fixturedef);
-			}
+			SetUpPhysicOnEntity(entity);
 		}
 	}
 	void Scene::OnPhysicsStop()
 	{
-		delete m_PhysicsWorld;
-		m_PhysicsWorld = nullptr;
+		PhysicsEngine::Shutdown();
+	}
+	void Scene::SetGameLayer(Layer* gamelayer)
+	{
+		ASSERT(gamelayer);
+		m_GameLayer = gamelayer;
+	}
+	Layer* Scene::GetGameLayer()
+	{
+		return m_GameLayer;
 	}
 	void Scene::StartScene()
 	{
 		m_IsRunning = true;
 		OnPhysicsStart();
+		ScriptEngine::OnRuntimeStart(this);
+		auto view = m_Registry.view<ScriptComponent>();
+		for (auto e : view)
+		{
+			Entity entity = { e,this };
+			ScriptEngine::OnCreateEntity(entity);
+		}
 	}
 	void Scene::StopScene()
 	{
 		m_IsRunning = false;
 		OnPhysicsStop();
+		ScriptEngine::OnRuntimeStop();
 	}
 	std::shared_ptr<Scene> Scene::Copy(std::shared_ptr<Scene> other)
 	{
 		std::shared_ptr<Scene> newscene = std::make_shared<Scene>();
 		newscene->m_Viewportheight = other->m_Viewportheight;
 		newscene->m_Viewportwidth = other->m_Viewportwidth;
+		newscene->m_GameLayer = other->m_GameLayer;
 
 		auto& srcreg = other->m_Registry;
 		auto& dstreg = newscene->m_Registry;
@@ -275,6 +287,24 @@ namespace Clonemmings
 		CopyComponentIfExists(AllComponents{}, newentity, entity);
 		return newentity;
 	}
+	void Scene::SetUpPhysicOnEntity(Entity entity)
+	{
+		auto& transform = entity.GetComponent<TransformComponent>();
+		auto& rb2d = entity.GetComponent<RigidBody2DComponent>();
+		rb2d.RuntimeBody = PhysicsEngine::CreateBody(rb2d, transform);
+
+		if (entity.HasComponent<BoxCollider2DComponent>())
+		{
+			auto& bc2d = entity.GetComponent<BoxCollider2DComponent>();
+			PhysicsEngine::CreateBoxCollider(bc2d, transform, (b2Body*)rb2d.RuntimeBody);
+		}
+		if (entity.HasComponent<CircleCollider2DComponent>())
+		{
+			auto& cc2d = entity.GetComponent<CircleCollider2DComponent>();
+			PhysicsEngine::CreateCircleCollider(cc2d, transform, (b2Body*)rb2d.RuntimeBody);
+		}
+	}
+
 	template<typename T>
 	void Scene::OnComponentAdded(Entity entity, T& component)
 	{
@@ -290,7 +320,7 @@ namespace Clonemmings
 	{
 		if (m_Viewportwidth > 0 && m_Viewportheight > 0)
 		{
-			component.Camera.SetViewportSize(m_Viewportwidth, m_Viewportheight);
+			component.Camera.SetViewportSize(m_Viewportwidth, m_Viewportheight, false);
 		}
 	}
 	template<>
@@ -320,6 +350,31 @@ namespace Clonemmings
 	}
 	template<>
 	void Scene::OnComponentAdded<CircleCollider2DComponent>(Entity entity, CircleCollider2DComponent& component)
+	{
+
+	}
+	template<>
+	void Scene::OnComponentAdded<ScriptComponent>(Entity entity, ScriptComponent& component)
+	{
+
+	}
+	template<>
+	void Scene::OnComponentAdded<ClonemmingComponent>(Entity entity, ClonemmingComponent& component)
+	{
+
+	}
+	template<>
+	void Scene::OnComponentAdded<ClonemmingStartComponent>(Entity entity, ClonemmingStartComponent& component)
+	{
+
+	}
+	template<>
+	void Scene::OnComponentAdded<ClonemmingExitComponent>(Entity entity, ClonemmingExitComponent& component)
+	{
+
+	}
+	template<>
+	void Scene::OnComponentAdded<RectangleComponent>(Entity entity, RectangleComponent& component)
 	{
 
 	}
