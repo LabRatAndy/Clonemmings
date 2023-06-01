@@ -91,6 +91,7 @@ namespace Clonemmings
 	{
 	public:
 		ScriptInstance(std::shared_ptr<ScriptClass> scriptclass, Entity entity);
+		~ScriptInstance();
 		void InvokeOnCreate();
 		void InvokeOnUpdate(float ts);
 		std::shared_ptr<ScriptClass> GetScriptClass() { return m_ScriptClass; }
@@ -119,13 +120,14 @@ namespace Clonemmings
 		MonoMethod* m_Constructor = nullptr;
 		MonoMethod* m_OnCreateMethod = nullptr;
 		MonoMethod* m_OnUpdateMethod = nullptr;
+		uint32_t m_GCHandle = 0;
 		inline static char s_FieldValueBuffer[16];
-
+				
 		bool GetFieldValueInternal(const std::string& name, void* buffer);
 		bool SetFieldValueInternal(const std::string& name, const void* buffer);
 
 		friend class ScriptEngine;
-		friend class ScriptFieldInstance;
+		friend struct ScriptFieldInstance;
 	};
 
 	class ScriptEngine
