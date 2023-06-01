@@ -140,6 +140,15 @@ namespace Clonemmings
 					ScriptEngine::OnUpdateEntity(entity, ts);
 				}
 			}
+			//scripting
+			{
+				auto view = m_Registry.view<ScriptComponent>();
+				for (auto e : view)
+				{
+					Entity entity = { e,this };
+					ScriptEngine::OnUpdateEntity(entity, ts);
+				}
+			}
 		}
 		
 
