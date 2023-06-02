@@ -1,5 +1,5 @@
 #pragma once
-#include "Core/Scene/Components.h"
+#include "Core/Scene/CoreComponents.h"
 #include "Core/Application/Assert.h"
 #include <box2d/b2_body.h>
 namespace Clonemmings

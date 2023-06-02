@@ -42,6 +42,9 @@ namespace Clonemmings
 		case VertexType::Batch:
 			m_VertexCount = size / sizeof(BatchedVertex);
 			break;
+		case VertexType::Line:
+			m_VertexCount = size / sizeof(LineVertex);
+			break;
 		default:
 			ASSERT(false, "Vertex type is not set!");
 			break;
@@ -63,6 +66,9 @@ namespace Clonemmings
 			break;
 		case VertexType::Batch:
 			m_VertexCount = size / sizeof(BatchedVertex);
+			break;
+		case VertexType::Line:
+			m_VertexCount = size / sizeof(LineVertex);
 			break;
 		default:
 			ASSERT(false, "Vertex type is not set!");
@@ -104,5 +110,10 @@ namespace Clonemmings
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, m_Handle);
 		glDrawArrays(GL_TRIANGLES, 0, m_VertexCount);
+	}
+	void VertexBufferObject::DrawLines(uint32_t count) const
+	{
+		glBindBuffer(GL_ARRAY_BUFFER, m_Handle);
+		glDrawArrays(GL_LINES, 0, count);
 	}
 }

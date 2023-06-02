@@ -1,7 +1,7 @@
 #pragma once
 #include "core/Scene/Scene.h"
 #include "Core/Application/Assert.h"
-#include "Core/Scene/Components.h"
+#include "Core/Scene/CoreComponents.h"
 #include "Core/Application/UUID.h"
 
 #include "entt.hpp"
@@ -33,7 +33,8 @@ namespace Clonemmings
 		template<typename T>
 		T& GetComponent()
 		{
-			ASSERT(HasComponent<T>(), "Entity does not have component!");
+			bool hascomp = HasComponent<T>();
+			ASSERT(hascomp, "Entity does not have component!");
 			return m_Scene->m_Registry.get<T>(m_EntityHandle);
 		}
 		template<typename T>
@@ -44,8 +45,8 @@ namespace Clonemmings
 		template<typename T>
 		void RemoveComponent()
 		{
-			ASSERT(!HasComponent<T>(), "Entity does not have component!");
-			m_Scene->m_Registary.remove<T>(m_EntityHandle);
+			ASSERT(HasComponent<T>(), "Entity does not have component!");
+			m_Scene->m_Registry.remove<T>(m_EntityHandle);
 		}
 		//explict casting operators
 		operator bool() const { return m_EntityHandle != entt::null; }
@@ -63,7 +64,7 @@ namespace Clonemmings
 		{
 			return !(*this == other);
 		}
-
+		
 	private:
 		entt::entity m_EntityHandle = { entt::null };
 		Scene* m_Scene = nullptr;

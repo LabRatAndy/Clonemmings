@@ -3,6 +3,9 @@
 #include "Core/Renderer/Renderer.h"
 #include "Core/Scene/Entity.h"
 #include "Core/Scene/SceneSerialiser.h"
+#include "Core/Application/FileDialog.h"
+#include "Core/Scene/CoreComponents.h"
+#include "Core/Application/Input.h"
 #include <imgui.h>
 namespace Clonemmings
 {
@@ -12,10 +15,9 @@ namespace Clonemmings
 	}
 	void GameLayer::OnAttach()
 	{
-
 		//framebuffer set up for dockspace viewport
 		FramebufferSpecification spec;
-		spec.Attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::Depth };
+		spec.Attachments = { FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::RedInteger, FramebufferTextureFormat::Depth };
 		// set width and height as 0 causes a crash in depth attachment.
 		spec.Width = Application::Get().GetWindow().GetWidth();
 		spec.Height = Application::Get().GetWindow().GetHeight();
@@ -27,15 +29,42 @@ namespace Clonemmings
 	}
 	void GameLayer::OnUpdate(TimeStep ts)
 	{
+		m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+		FramebufferSpecification spec = m_Framebuffer->GetSpecification();
+		if (m_ViewportSize.x > 0.0f && m_ViewportSize.y > 0.0f && (spec.Width != m_ViewportSize.x || spec.Height != m_ViewportSize.y))
+		{
+			m_Framebuffer->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+		}
 		//bind the frame buffer before rendering
 		m_Framebuffer->Bind();
 		//Note don't remove the clear command from here as it needs to be here to draw the scene correctly. Not sure of the reason why but possibly due to framebuffer use.
 		Application::Get().GetRenderer().Clear();
+		m_Framebuffer->ClearAttachment(1, -1);
 		m_ActiveScene->OnUpdateRuntime(ts);
+		
+		//get selected entity
+		auto [mx, my] = ImGui::GetMousePos();
+		mx -= m_ViewportBounds[0].x;
+		my -= m_ViewportBounds[0].y;
+		glm::vec2 viewportsize = m_ViewportBounds[1] - m_ViewportBounds[0];
+		my = viewportsize.y - my;
+		int mousex = (int)mx;
+		int mousey = (int)my;
+		if (mousex >= 0 && mousey >= 0 && mousex < (int)viewportsize.x && mousey < (int)viewportsize.y)
+		{
+			int pixeldata = m_Framebuffer->ReadPixel(1, mousex, mousey);
+			m_HoveredEntity = pixeldata == -1 ? Entity() : Entity((entt::entity)pixeldata, m_ActiveScene.get());
+		}
+
 		m_Framebuffer->Unbind();
 	}
 	void GameLayer::OnImGuiRender()
 	{
+		if (!m_LabelsLoaded)
+		{
+			m_ControlPanel.LoadLabelText("Assets/Labels/ControlPanel.lbl");
+			m_LabelsLoaded = true;
+		}
 		// dock space set up taken from ImGui examples!
 
 		// Note: Switch this to true to enable dockspace
@@ -93,10 +122,24 @@ namespace Clonemmings
 				if (ImGui::MenuItem("Close")) Application::Get().Close();
 				ImGui::Separator();
 #ifndef DIST	//todo flesh out scene loading and saving routine etc. this basic implementation will allow me to save the current hard coded test scene and reload it again.
-				if (ImGui::MenuItem("Save Scene")) SaveScene("Assets/Levels/test1.lvl");
+				if (ImGui::MenuItem("Save Scene"))
+				{
+					std::string filename = FileDialog::SaveFile("lvl");
+					if (!filename.empty())
+					{
+						SaveScene(filename);
+					}
+				}
 				ImGui::Separator();
 #endif
-				if (ImGui::MenuItem("Load Scene")) LoadScene("Assets/Levels/test1.lvl");
+				if (ImGui::MenuItem("Load Scene"))
+				{
+					std::string filename = FileDialog::OpenFile("lvl");
+					if (!filename.empty())
+					{
+						LoadScene(filename);
+					}
+				}
 				ImGui::EndMenu();
 			}
 			if (ImGui::BeginMenu("RunScene"))
@@ -111,6 +154,7 @@ namespace Clonemmings
 				ImGui::Separator();
 				if (ImGui::MenuItem("Reset Scene"))
 				{
+					m_ActiveScene->StopScene();
 					m_ActiveScene = m_ResetScene;
 					m_ResetScene = Scene::Copy(m_ActiveScene);
 				}
@@ -118,7 +162,7 @@ namespace Clonemmings
 			}
 			ImGui::EndMenuBar();
 		}
-
+		m_ControlPanel.OnImGuiRender();
 		//viewport window
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0, 0.0));
 		ImGui::Begin("Viewport");
@@ -128,8 +172,16 @@ namespace Clonemmings
 			m_Framebuffer->Resize((uint32_t)viewportpanelsize.x, (uint32_t)viewportpanelsize.y);
 			m_ViewportSize = { viewportpanelsize.x,viewportpanelsize.y };
 			Application::Get().GetRenderer().GetCamera()->SetOrthographicSize(viewportpanelsize.y);
-			Application::Get().GetRenderer().GetCamera()->SetViewportSize((uint32_t)viewportpanelsize.x, (uint32_t)viewportpanelsize.y);
+			Application::Get().GetRenderer().GetCamera()->SetViewportSize((uint32_t)viewportpanelsize.x, (uint32_t)viewportpanelsize.y, false);
 		}
+		auto viewportminregion = ImGui::GetWindowContentRegionMin();
+		auto viewportmaxregion = ImGui::GetWindowContentRegionMax();
+		auto viewportoffset = ImGui::GetWindowPos();
+		m_ViewportBounds[0] = { viewportminregion.x + viewportoffset.x,viewportminregion.y + viewportoffset.y };
+		m_ViewportBounds[1] = { viewportmaxregion.x + viewportoffset.x,viewportmaxregion.y + viewportoffset.y };
+		m_ViewportHovered = ImGui::IsWindowHovered();
+		m_ViewportFocused = ImGui::IsWindowFocused();
+		Application::Get().GetImGuiLayer()->BlockEvents(!m_ViewportHovered);
 		uint32_t texturehandle = m_Framebuffer->GetColourAttachmentHandle(0);
 		ImGui::Image((void*)texturehandle, ImVec2{ m_ViewportSize.x,m_ViewportSize.y }, ImVec2{ 0,1 }, ImVec2{ 1,0 });
 		ImGui::End();
@@ -142,6 +194,7 @@ namespace Clonemmings
 	{
 		m_ActiveScene = scene;
 		m_ResetScene = Scene::Copy(m_ActiveScene);
+		m_ControlPanel.SetContext(m_ActiveScene);
 #if 0
 		//temp code for testing
 		{
@@ -211,10 +264,86 @@ namespace Clonemmings
 	void GameLayer::LoadScene(const std::string& filename)
 	{
 		std::shared_ptr<Scene> loadedscene = std::make_shared<Scene>();
+		loadedscene->SetGameLayer(this);
 		loadedscene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
 		SceneSerialiser deserialiser(loadedscene);
 		ASSERT(deserialiser.Deserialise(filename), "failed to deserialise scene");
 		m_ActiveScene = loadedscene;
+#if done
+		{
+			//floor
+			auto entity = m_ActiveScene->GetEntityByUUID(10729042005327288283);
+			auto rb2d = entity.AddComponent<RigidBody2DComponent>();
+			rb2d.FixedRotation = false;
+			rb2d.Type = RigidBody2DComponent::BodyType::Static;
+		}
+		{
+			//left side
+			auto entity = m_ActiveScene->GetEntityByUUID(15550001477896860377);
+			auto rb2d = entity.AddComponent<RigidBody2DComponent>();
+			rb2d.FixedRotation = false;
+			rb2d.Type = RigidBody2DComponent::BodyType::Static;
+		}
+		{
+			//Right side
+			auto entity = m_ActiveScene->GetEntityByUUID(11470402996329204725);
+			auto rb2d = entity.AddComponent<RigidBody2DComponent>();
+			rb2d.FixedRotation = false;
+			rb2d.Type = RigidBody2DComponent::BodyType::Static;
+		}
+		{
+			//ledge 1
+			auto entity = m_ActiveScene->GetEntityByUUID(16071090857428972422);
+			auto rb2d = entity.AddComponent<RigidBody2DComponent>();
+			rb2d.FixedRotation = false;
+			rb2d.Type = RigidBody2DComponent::BodyType::Static;
+		}
+		{
+			//ledge 2
+			auto entity = m_ActiveScene->GetEntityByUUID(1322686980937890548);
+			auto rb2d = entity.AddComponent<RigidBody2DComponent>();
+			rb2d.FixedRotation = false;
+			rb2d.Type = RigidBody2DComponent::BodyType::Static;
+		}
+		{
+			//clonemming
+			auto& entity = m_ActiveScene->GetEntityByUUID(14113292102905541749);
+			entity.AddComponent<ClonemmingComponent>();
+			auto& sc = entity.AddComponent<ScriptComponent>();
+			sc.ClassName = "Clonemmings.Clonemming";
+		}
+		{
+			auto& entity = m_ActiveScene->GetEntityByUUID(14853091333380765479);
+			entity.AddComponent<ClonemmingStartComponent>();
+			auto& sc = entity.AddComponent<ScriptComponent>();
+			sc.ClassName = "Clonemmings.ClonemmingSpawnPoint";
+		}
+		{
+			auto& entity = m_ActiveScene->GetEntityByUUID(9136904962338667385);
+			entity.AddComponent<ClonemmingExitComponent>();
+			auto& sc = entity.AddComponent<ScriptComponent>();
+			sc.ClassName = "Clonemmings.ClonemmingExitPoint";
+		}
+
+#endif
 		m_ResetScene = Scene::Copy(m_ActiveScene);
+		m_ControlPanel.SetContext(m_ActiveScene);
+	}
+	void GameLayer::OnEvent(Event& e)
+	{
+		EventDispatcher dispatcher(e);
+		dispatcher.Dispatch<MouseButtonPressedEvent>([this](auto&&...args)->decltype(auto) {return this->GameLayer::OnMouseButtonPressed(std::forward<decltype(args)>(args)...); });
+	}
+	bool GameLayer::OnMouseButtonPressed(MouseButtonPressedEvent& e)
+	{
+		if (e.GetMouseButton() == MouseButton::Leftbutton)
+		{
+			if (m_ViewportHovered && !Input::IsKeyPressed(Key::Leftalt))
+			{
+				m_CurrentSelectedEntity = m_HoveredEntity;
+				m_ControlPanel.SetSelectedEntity(m_CurrentSelectedEntity);
+			}
+		}
+		return false;
 	}
 }

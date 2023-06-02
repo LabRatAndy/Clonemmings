@@ -1,8 +1,9 @@
 #include "Core/Scene/SceneSerialiser.h"
 #include "Core/Scene/Entity.h"
-#include "Core/Scene/Components.h"
+#include "Core/Scene/CoreComponents.h"
 #include "Core/Application/UUID.h"
 #include "Core/Scripting/ScriptEngine.h"
+#include "Game/GameLevelData.h"
 
 #include <yaml-cpp/yaml.h>
 
@@ -154,6 +155,31 @@ namespace Clonemmings
 		ASSERT(false, "Unknown body type string");
 		return RigidBody2DComponent::BodyType::Static;
 	}
+	static  std::string ClonemmingStatusToString(ClonemmingComponent::ClonemingStatus status)
+	{
+		switch (status)
+		{
+			case ClonemmingComponent::ClonemingStatus::Walker: return "Walker";
+			case ClonemmingComponent::ClonemingStatus::Blocker: return "Blocker";
+			case ClonemmingComponent::ClonemingStatus::Dead: return "Dead";
+			case ClonemmingComponent::ClonemingStatus::Digger: return "Digger";
+			case ClonemmingComponent::ClonemingStatus::Floater: return "Floater";
+			case ClonemmingComponent::ClonemingStatus::Miner: return "Miner";
+		}
+		ASSERT(false, "Unknown clonemming status");
+		return {};
+	}
+	static ClonemmingComponent::ClonemingStatus ClonemmingStatusFromString(const std::string& statusstring)
+	{
+		if (statusstring == "Walker") return ClonemmingComponent::ClonemingStatus::Walker;
+		if (statusstring == "Blocker") return ClonemmingComponent::ClonemingStatus::Blocker;
+		if (statusstring == "Dead") return ClonemmingComponent::ClonemingStatus::Dead;
+		if (statusstring == "Digger") return ClonemmingComponent::ClonemingStatus::Digger;
+		if (statusstring == "Floater") return ClonemmingComponent::ClonemingStatus::Floater;
+		if (statusstring == "Miner") return ClonemmingComponent::ClonemingStatus::Miner;
+		ASSERT(false, "Unknown clonemming status string");
+		return ClonemmingComponent::ClonemingStatus::Walker;
+	}
 	static void SerialiseEntity(YAML::Emitter& out, Entity entity)
 	{
 		ASSERT(entity.HasComponent<IDComponent>())
@@ -193,6 +219,8 @@ namespace Clonemmings
 			out << YAML::Key << "PerspectiveFOV" << YAML::Value << camera.GetPerspectiveVerticalFOV();
 			out << YAML::Key << "PerspectiveNear" << YAML::Value << camera.GetPerspectiveNearClip();
 			out << YAML::Key << "PerspectiveFar" << YAML::Value << camera.GetPerspectiveFarClip();
+			out << YAML::Key << "LevelHeight" << YAML::Value << camera.GetLevelHeight();
+			out << YAML::Key << "LevelWidth" << YAML::Value << camera.GetLevelWidth();
 			out << YAML::EndMap;
 			out << YAML::Key << "Primary" << YAML::Value << cameracomponent.Primary;
 			out << YAML::Key << "FixedAspectRatio" << YAML::Value << cameracomponent.FixedAspectRatio;
@@ -230,7 +258,7 @@ namespace Clonemmings
 			out << YAML::Key << "Density" << YAML::Value << bc2d.Density;
 			out << YAML::Key << "Friction" << YAML::Value << bc2d.Friction;
 			out << YAML::Key << "Restitution" << YAML::Value << bc2d.Restitution;
-			out << YAML::Key << "Restutution Threshold" << YAML::Value << bc2d.RestitutionThreshold;
+			out << YAML::Key << "Restitution Threshold" << YAML::Value << bc2d.RestitutionThreshold;
 			out << YAML::EndMap;
 		}
 		if (entity.HasComponent<CircleCollider2DComponent>())
@@ -244,6 +272,34 @@ namespace Clonemmings
 			out << YAML::Key << "Friction" << YAML::Value << cc2d.Friction;
 			out << YAML::Key << "Restitution" << YAML::Value << cc2d.Restitution;
 			out << YAML::Key << "Restitution Threshold" << YAML::Value << cc2d.RestitutionThreshold;
+			out << YAML::EndMap;
+		}
+		if (entity.HasComponent<ClonemmingComponent>())
+		{
+			auto& cc = entity.GetComponent<ClonemmingComponent>();
+			out << YAML::Key << "ClonemmingComponent";
+			out << YAML::BeginMap;
+			out << YAML::Key << "Clonemming Status" << YAML::Value << ClonemmingStatusToString(cc.Status);
+			out << YAML::Key << "Walk Speed" << YAML::Value << cc.WalkSpeed;
+			out << YAML::Key << "Dig Speed" << YAML::Value << cc.DigSpeed;
+			out << YAML::Key << "Mine Speed" << YAML::Value << cc.MineSpeed;
+			out << YAML::EndMap;
+		}
+		if (entity.HasComponent<ClonemmingStartComponent>())
+		{
+			auto& csc = entity.GetComponent<ClonemmingStartComponent>();
+			out << YAML::Key << "ClonemmingStartComponent";
+			out << YAML::BeginMap;
+			out << YAML::Key << "NumberOfClonemmings" << YAML::Value << csc.NumberOfClonemmings;
+			out << YAML::Key << "ClonemmingReleaseRate" << YAML::Value << csc.ClonemmingReleaseRate;
+			out << YAML::EndMap;
+		}
+		if (entity.HasComponent<ClonemmingExitComponent>())
+		{
+			auto& cec = entity.GetComponent<ClonemmingExitComponent>();
+			out << YAML::Key << "ClonemmingExitComponent";
+			out << YAML::BeginMap;
+			out << YAML::Key << "NumberOfClonemmings" << YAML::Value << cec.NumberOfClonemmings;
 			out << YAML::EndMap;
 		}
 		if (entity.HasComponent<ScriptComponent>())
@@ -309,6 +365,18 @@ namespace Clonemmings
 		YAML::Emitter out;
 		out << YAML::BeginMap;
 		out << YAML::Key << "Scene" << YAML::Value << "Untitled";
+		out << YAML::Key << "GameLevelData";
+		out << YAML::BeginMap;
+		out << YAML::Key << "MaxNumFloaters" << YAML::Value << m_Scene->m_GameLevelData.MaxNumFloaters;
+		out << YAML::Key << "MaxNumBlockers" << YAML::Value << m_Scene->m_GameLevelData.MaxNumBlockers;
+		out << YAML::Key << "MaxNumDiggers" << YAML::Value << m_Scene->m_GameLevelData.MaxNumDiggers;
+		out << YAML::Key << "MaxNumMiners" << YAML::Value << m_Scene->m_GameLevelData.MaxNumMiners;
+		out << YAML::Key << "CanRecycleFloaters" << YAML::Value << m_Scene->m_GameLevelData.CanRecycleFloaters;
+		out << YAML::Key << "CanRecycleBlockers" << YAML::Value << m_Scene->m_GameLevelData.CanRecycleBlockers;
+		out << YAML::Key << "CanRecycleDiggers" << YAML::Value << m_Scene->m_GameLevelData.CanRecycleDiggers;
+		out << YAML::Key << "CanRecycleMiners" << YAML::Value << m_Scene->m_GameLevelData.CanRecycleMiners;
+		out << YAML::Key << "TargetToSavePercentage" << YAML::Value << m_Scene->m_GameLevelData.PercentageToSave;
+		out << YAML::EndMap;
 		out << YAML::Key << "Entities" << YAML::Value << YAML::BeginSeq;
 		m_Scene->m_Registry.each([&](auto entityid)
 			{
@@ -341,6 +409,19 @@ namespace Clonemmings
 		if (!data["Scene"]) return false;
 		std::string scenename = data["Scene"].as<std::string>();
 		TRACE("Deserialising Scene '{0}'", scenename);
+		auto gldata = data["GameLevelData"];
+		if (gldata)
+		{
+			m_Scene->m_GameLevelData.MaxNumBlockers = gldata["MaxNumBlockers"].as<uint32_t>();
+			m_Scene->m_GameLevelData.MaxNumDiggers = gldata["MaxNumDiggers"].as<uint32_t>();
+			m_Scene->m_GameLevelData.MaxNumFloaters = gldata["MaxNumFloaters"].as<uint32_t>();
+			m_Scene->m_GameLevelData.MaxNumMiners = gldata["MaxNumMiners"].as<uint32_t>();
+			m_Scene->m_GameLevelData.CanRecycleBlockers = gldata["CanRecycleBlockers"].as<bool>();
+			m_Scene->m_GameLevelData.CanRecycleDiggers = gldata["CanRecycleBlockers"].as<bool>();
+			m_Scene->m_GameLevelData.CanRecycleFloaters = gldata["CanRecycleFloaters"].as<bool>();
+			m_Scene->m_GameLevelData.CanRecycleMiners = gldata["CanRecycleMiners"].as<bool>();
+			m_Scene->m_GameLevelData.PercentageToSave = gldata["TargetToSavePercentage"].as<float>();
+		}
 		auto entities = data["Entities"];
 		if (entities)
 		{
@@ -362,9 +443,18 @@ namespace Clonemmings
 					tc.Translation = transformcomponent["Translation"].as<glm::vec3>();
 					tc.Rotation = transformcomponent["Rotation"].as<glm::vec3>();
 					tc.Scale = transformcomponent["Scale"].as<glm::vec3>();
+					/*float x = tc.Translation.x;
+					float y = tc.Translation.y;
+					float sx = tc.Scale.x;
+					float sy = tc.Scale.y;
+					tc.Translation.x = x * 10.0f;
+					tc.Translation.y = y * 10.0f;
+					tc.Scale.x = sx * 10.0f;
+					tc.Scale.y = sy * 10.0f;*/
 					TRACE("Deserialised transform componenent: Translation: X  {0}, Y {1}, Z {2}", tc.Translation.x, tc.Translation.y, tc.Translation.z);
 					TRACE("Deserialised transform componenent: Rotation: X  {0}, Y {1}, Z {2}", tc.Rotation.x, tc.Rotation.y, tc.Rotation.z);
 					TRACE("Deserialised transform componenent: Scale: X  {0}, Y {1}, Z {2}", tc.Scale.x, tc.Scale.y, tc.Scale.z);
+
 				}
 				auto cameracomponent = entity["CameraComponent"];
 				if (cameracomponent)
@@ -385,6 +475,16 @@ namespace Clonemmings
 					TRACE("Camera component orthographic near: {0}", cc.Camera.GetOthographicNearClip());
 					cc.Camera.SetOrthographicFarClip(cameraprops["OrthographicFar"].as<float>());
 					TRACE("Camera component orthographic far: {0}", cc.Camera.GetOrthographicFarClip());
+					if (cameraprops["LevelHeight"])
+					{
+						cc.Camera.SetLevelHeight(cameraprops["LevelHeight"].as<float>());
+						TRACE("Camera Component Level height: {0}", cc.Camera.GetLevelHeight());
+					}
+					if (cameraprops["LevelWidth"])
+					{
+						cc.Camera.SetLevelWidth(cameraprops["LevelWidth"].as<float>());
+						TRACE("Camera Component Level width: {0}", cc.Camera.GetLevelWidth());
+					}
 					cc.Primary = cameracomponent["Primary"].as<bool>();
 					TRACE("Camera component primary: {0}", cc.Primary);
 					cc.FixedAspectRatio = cameracomponent["FixedAspectRatio"].as<bool>();
@@ -405,7 +505,7 @@ namespace Clonemmings
 					if (spriterenderercomponent["TilingFactor"])
 					{
 						src.TilingFactor = spriterenderercomponent["TilingFactor"].as<float>();
-						TRACE("SRC tiling factor:", src.TilingFactor);
+						TRACE("SRC tiling factor: {0}", src.TilingFactor);
 					}
 				}
 				auto rigidbody2Dcomponent = entity["RigidBody2DComponent"];
@@ -437,7 +537,60 @@ namespace Clonemmings
 					cc2d.Restitution = circlecollider2Dcomponent["Restitution"].as<float>();
 					cc2d.RestitutionThreshold = circlecollider2Dcomponent["Restitution Threshold"].as<float>();
 				}
-				auto scriptcomponent = entity["Scriptcomponent"];
+				auto clonemmingcomponent = entity["ClonemmingComponent"];
+				if (clonemmingcomponent)
+				{
+					auto& cc = deserialisedentity.AddComponent<ClonemmingComponent>();
+					TRACE("Clonemming Component status: {}", clonemmingcomponent["Clonemming Status"].as<std::string>());
+					cc.Status = ClonemmingStatusFromString(clonemmingcomponent["Clonemming Status"].as<std::string>());
+					if (clonemmingcomponent["Walk Speed"])
+					{
+						cc.WalkSpeed = clonemmingcomponent["Walk Speed"].as<float>();
+						TRACE("Clonemming Component: walk speed {0}", cc.WalkSpeed);
+					}
+					else
+					{
+						cc.WalkSpeed = 1.0f;
+						TRACE("no walk speed in file using 1.0");
+					}
+					if (clonemmingcomponent["Dig Speed"])
+					{
+						cc.DigSpeed = clonemmingcomponent["Dig Speed"].as<float>();
+						TRACE("Clonemming Component: dig speed {0}", cc.DigSpeed);
+					}
+					else
+					{
+						cc.DigSpeed = 1.0f;
+						TRACE("no dig speed in file using 1.0");
+					}
+					if (clonemmingcomponent["Mine Speed"])
+					{
+						cc.MineSpeed = clonemmingcomponent["Mine Speed"].as<float>();
+						TRACE("Clonemming Component: mine speed {0}", cc.MineSpeed);
+					}
+					else
+					{
+						cc.MineSpeed = 1.0f;
+						TRACE("no mine speed in file using 1.0");
+					}
+				}
+				auto clonemmingstartcomponent = entity["ClonemmingStartComponent"];
+				if (clonemmingstartcomponent)
+				{
+					auto& csc = deserialisedentity.AddComponent<ClonemmingStartComponent>();
+					csc.NumberOfClonemmings = clonemmingstartcomponent["NumberOfClonemmings"].as<uint32_t>();
+					csc.ClonemmingReleaseRate = clonemmingstartcomponent["ClonemmingReleaseRate"].as<uint32_t>();
+					TRACE("Clonemming start point, number of clonemmings: {}", csc.NumberOfClonemmings);
+					TRACE("Clonemming Startpoint, Release Rate: {}", csc.ClonemmingReleaseRate);
+				}
+				auto clonemmingexitcomponent = entity["ClonemmingExitComponent"];
+				if (clonemmingexitcomponent)
+				{
+					auto& cec = deserialisedentity.AddComponent<ClonemmingExitComponent>();
+					cec.NumberOfClonemmings = clonemmingexitcomponent["NumberOfClonemmings"].as<uint32_t>();
+					TRACE("Clonemming exit point, number of clonemmings: {}", cec.NumberOfClonemmings);
+				}
+				auto scriptcomponent = entity["ScriptComponent"];
 				if (scriptcomponent)
 				{
 					auto& sc = deserialisedentity.AddComponent<ScriptComponent>();

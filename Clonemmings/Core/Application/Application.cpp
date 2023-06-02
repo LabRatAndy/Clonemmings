@@ -13,7 +13,7 @@ namespace Clonemmings
 		ASSERT(!s_Instance, "Application already exists!");
 		s_Instance = this;
 		INFO("Setting up the application window");
-		m_Window = std::make_unique<Window>(name, 1600, 900);
+		m_Window = std::make_unique<Window>(name, 1100, 720);
 		m_Window->SetEventCallbackFunction([this](auto&&...args)->decltype(auto) {return this->Application::OnEvent(std::forward<decltype(args)>(args)...); });
 		INFO("Window set up complete!");
 		m_Layers = new LayerStack();
@@ -27,16 +27,19 @@ namespace Clonemmings
 		renererdata.ColouredVertexShaderFilename = "Assets/Shaders/Coloured.vert";
 		renererdata.TexturedVertexShaderFilename = "Assets/Shaders/Textured.vert";
 		renererdata.TexturedFragmentShaderFilename = "Assets/Shaders/Textured.frag";
+		renererdata.LineVertexShaderFilename = "Assets/Shaders/Line.vert";
+		renererdata.LineFragmentShaderFilename = "Assets/Shaders/Line.frag";
 		renererdata.MaxQuads = 1000;
 		renererdata.MaxTextures = 32;
+		renererdata.MaxLines = 100;
 		m_Renderer = std::make_unique<Renderer>(renererdata);
 		// very temp get camera and transform from ECS system! but not here!! should be in layer!!
 		m_Camera = new SceneCamera();
-		m_Camera->SetOrthographic(900, -1.0f, 1.0f);
-		m_Camera->SetViewportSize(1600, 900);
-		glm::mat4 cameratransform = glm::translate(glm::mat4(1.0), glm::vec3(0.0, 0.0, -1.0));
+		m_Camera->SetOrthographic(m_Window->GetHeight(), -1.0f, 1.0f, false);
+		m_Camera->SetViewportSize(m_Window->GetWidth(), m_Window->GetHeight(), false);
+		glm::mat4 cameratransform = glm::translate(glm::mat4(1.0), glm::vec3(0.0, 0.0, -0.5));
 		m_Renderer->SetCamera(m_Camera, cameratransform);
-		m_Renderer->SetClearColour(glm::vec4(1.0, 0.0, 0.0, 1.0));
+		m_Renderer->SetClearColour(glm::vec4(0.0, 0.0, 0.0, 1.0));
 		m_Renderer->SetViewPort(0, 0, m_Window->GetWidth(), m_Window->GetHeight());
 		INFO("Renderer set up complete");
 		INFO("Start up the script engine");
@@ -44,6 +47,7 @@ namespace Clonemmings
 		INFO("create Game Layer");
 		GameLayer* gamelayer = new GameLayer("GameLayer");
 		std::shared_ptr<Scene> scene = std::make_shared<Scene>();
+		scene->SetGameLayer(gamelayer);
 		gamelayer->SetScene(scene);
 		PushLayer(gamelayer);
 	}

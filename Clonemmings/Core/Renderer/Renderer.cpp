@@ -29,13 +29,13 @@ namespace Clonemmings
 		switch (severity)
 		{
 		case GL_DEBUG_SEVERITY_HIGH: CRITICAL(msg); return;
-		case GL_DEBUG_SEVERITY_MEDIUM: LOGERROR(msg); return;
+		case GL_DEBUG_SEVERITY_MEDIUM: /*LOGERROR(msg);*/ return;
 		case GL_DEBUG_SEVERITY_LOW: WARN(msg); return;
 		case GL_DEBUG_SEVERITY_NOTIFICATION: TRACE(msg); return;
 		}
 		ASSERT(false, "Unknown Debug severity level");
 	}
-	Renderer::Renderer(RendererSetupData setupdata) : m_MaxQuads(setupdata.MaxQuads), m_MaxTextures(setupdata.MaxTextures)
+	Renderer::Renderer(RendererSetupData setupdata) : m_MaxQuads(setupdata.MaxQuads), m_MaxTextures(setupdata.MaxTextures), m_MaxLinesVertices(setupdata.MaxLines)
 	{
 		//setup debug callback!
 		INFO("-1-Debug callback setup!");
@@ -79,7 +79,13 @@ namespace Clonemmings
 		m_TexturedShader = std::make_unique<Shader>(setupdata.TexturedVertexShaderFilename, setupdata.TexturedFragmentShaderFilename);
 		INFO("-4----Building coloured shader");
 		m_ColouredShader = std::make_unique<Shader>(setupdata.ColouredVertexShaderFilename, setupdata.ColouredFragmentShaderFilename);
-		INFO("-5-----Geting initial default settings");
+		INFO("-5----Build Line shader");
+		m_LineShader = std::make_unique<Shader>(setupdata.LineVertexShaderFilename, setupdata.LineFragmentShaderFilename);
+		m_LineVBO = std::make_shared<VertexBufferObject>(m_MaxLinesVertices * sizeof(LineVertex), VertexType::Line);
+		m_LineVAO = std::make_shared<VertexArrayObject>();
+		m_LineVAO->Bind();
+		m_LineVAO->AddVertexBuffer(m_LineVBO);
+		INFO("-6-----Geting initial default settings");
 		GetInitalDefaults();
 		INFO("Depth test setting: {0}", m_DepthTestOn);
 		INFO("Blending setting: {0}", m_BlendingOn);
@@ -88,6 +94,7 @@ namespace Clonemmings
 		SetWindingOrderAntiClockwise();
 		SetDepthTest(true);
 		SetBackFaceCull(true);
+		SetLineSmooth(true);
 	}
 	Renderer::~Renderer()
 	{
@@ -192,22 +199,35 @@ namespace Clonemmings
 		vao.Bind();
 		vao.GetIndexBuffer()->Draw();
 	}
-	void Renderer::StartBatch()
+	void Renderer::StartBatch(const BatchType batchtype)
 	{
-		m_CurrentVertex = (BatchedVertex*)m_BatchVBO->GetMappedDataPointer();
-		ASSERT(m_CurrentVertex, "Error mapping vertex data pointer")
-		m_Textures.clear();
-		m_Textures.resize(m_MaxTextures);
-		m_Textures[0] = m_WhiteTexture;
-		m_TextureCount = 1;
-		m_QuadCount = 0;
+		if (batchtype == BatchType::Quad)
+		{
+			m_CurrentVertex = (BatchedVertex*)m_BatchVBO->GetMappedDataPointer();
+			ASSERT(m_CurrentVertex, "Error mapping vertex data pointer");
+			m_Textures.clear();
+			m_Textures.resize(m_MaxTextures);
+			m_Textures[0] = m_WhiteTexture;
+			m_TextureCount = 1;
+			m_QuadCount = 0;
+		}
+		else if (batchtype == BatchType::Line)
+		{
+			m_CurrentLineVertex = (LineVertex*)m_LineVBO->GetMappedDataPointer();
+			ASSERT(m_CurrentLineVertex, "Error mapping line vertex data pointer");
+			m_LineVertexCount = 0;
+		}
+		else
+		{
+			ASSERT(false, "Unknown batch type");
+		}
 	}
 	void Renderer::SubmitToBatch(const glm::mat4& transform, std::shared_ptr<Texture> texture, const glm::vec4& colour, float tilingfactor, int entityID)
 	{
 		if (m_QuadCount >= m_MaxQuads || m_TextureCount >= m_MaxTextures)
 		{
-			EndBatch();
-			StartBatch();
+			EndBatch(BatchType::Quad);
+			StartBatch(BatchType::Quad);
 		}
 
 		float textureindex = -1.0f;
@@ -245,19 +265,35 @@ namespace Clonemmings
 			m_CurrentVertex++;
 		}
 	}
-	void Renderer::EndBatch()
+	void Renderer::EndBatch(BatchType batchtype)
 	{
-		m_BatchVBO->UnmapDataPointer();
-		m_CurrentVertex = nullptr;
-		for (uint32_t i = 0; i < m_TextureCount; i++)
-		{
-			m_Textures[i]->Bind(i);
-		}
 		glm::mat4 viewprojection = m_Camera->GetProjection() * glm::inverse(m_CameraTransform);
-		m_BatchShader->Bind();
-		m_BatchShader->SetMat4("u_ViewProjection", viewprojection);
-		m_BatchVAO->Bind();
-		m_BatchVAO->GetIndexBuffer()->Draw();
+		if (batchtype == BatchType::Quad)
+		{
+			m_BatchVBO->UnmapDataPointer();
+			m_CurrentVertex = nullptr;
+			for (uint32_t i = 0; i < m_TextureCount; i++)
+			{
+				m_Textures[i]->Bind(i);
+			}
+			m_BatchShader->Bind();
+			m_BatchShader->SetMat4("u_ViewProjection", viewprojection);
+			m_BatchVAO->Bind();
+			m_BatchVAO->GetIndexBuffer()->Draw();
+		}
+		else if (batchtype == BatchType::Line)
+		{
+			m_LineVBO->UnmapDataPointer();
+			m_LineShader->Bind();
+			m_LineShader->SetMat4("u_ViewProjection", viewprojection);
+			m_LineVAO->Bind();
+			glLineWidth(m_LineWidth);
+			m_LineVAO->GetVertexBuffer()->DrawLines(m_LineVertexCount);
+		}
+		else
+		{
+			ASSERT(false, "Unknown Batch type");
+		}
 	}
 	void Renderer::SetBackFaceCull(bool enable)
 	{
@@ -311,5 +347,51 @@ namespace Clonemmings
 		glm::mat4 transform = glm::translate(glm::mat4(1.0), position) * glm::rotate(glm::mat4(1.0), glm::radians(rotation), glm::vec3(0, 0, 1)) 
 			* glm::scale(glm::mat4(1.0), glm::vec3(size, 1.0));
 		SubmitToBatch(transform, texture, colour, tilingfactor, entityID);
+	}
+	void Renderer::DrawLine(const glm::vec3& startpos, const glm::vec3& endpos, const glm::vec4& colour, int entityID)
+	{
+		if (m_LineVertexCount == m_MaxLinesVertices)
+		{
+			EndBatch(BatchType::Line);
+			StartBatch(BatchType::Line);
+		}
+		m_CurrentLineVertex->Position = startpos;
+		m_CurrentLineVertex->Colour = colour;
+		m_CurrentLineVertex->EntityID = entityID;
+		m_CurrentLineVertex++;
+
+		m_CurrentLineVertex->Position = endpos;
+		m_CurrentLineVertex->Colour = colour;
+		m_CurrentLineVertex->EntityID = entityID;
+		m_CurrentLineVertex++;
+
+		m_LineVertexCount += 2;
+	}
+	void Renderer::DrawRectangle(const glm::mat4& transform, const glm::vec4& colour, int entityID)
+	{
+		glm::vec3 linevertexpos[4];
+		for (size_t i = 0; i < 4; i++)
+		{
+			linevertexpos[i] = transform * m_QuadVertices[i];
+		}
+		DrawLine(linevertexpos[0], linevertexpos[1], colour, entityID);
+		DrawLine(linevertexpos[1], linevertexpos[2], colour, entityID);
+		DrawLine(linevertexpos[2], linevertexpos[3], colour, entityID);
+		DrawLine(linevertexpos[3], linevertexpos[0], colour, entityID);
+	}
+	void Renderer::SetLineSmooth(bool enable)
+	{
+		if (enable && !m_LineSmooth)
+		{
+			glEnable(GL_LINE_SMOOTH);
+			m_LineSmooth = true;
+			return;
+		}
+		if (!enable && m_LineSmooth)
+		{
+			glDisable(GL_LINE_SMOOTH);
+			m_LineSmooth = false;
+			return;
+		}
 	}
 }

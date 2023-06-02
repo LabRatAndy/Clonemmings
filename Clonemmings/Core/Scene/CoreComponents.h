@@ -3,6 +3,7 @@
 #include "Core/Renderer/Texture.h"
 #include "Core/Renderer/SceneCamera.h"
 #include "Core/Application/UUID.h"
+#include "Game/GameComponents.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
@@ -61,6 +62,22 @@ namespace Clonemmings
 
 		CameraComponent() = default;
 		CameraComponent(const CameraComponent&) = default;
+	};
+	struct RectangleComponent
+	{
+		glm::vec3 Translation = { 0.0,0.0,0.0 };
+		glm::vec3 Rotation = { 0.0,0.0,0.0 };
+		glm::vec3 Scale = { 1.0,1.0,1.0 };
+		glm::vec4 Colour = { 1.0,1.0,1.0,1.0 };
+		float LineThickness = 1.0;
+
+		RectangleComponent() = default;
+		RectangleComponent(const RectangleComponent&) = default;
+		glm::mat4 GetTransform() const
+		{
+			glm::mat4 rotation = glm::toMat4(glm::quat(Rotation));
+			return glm::translate(glm::mat4(1.0), Translation) * rotation * glm::scale(glm::mat4(1.0), Scale);
+		}
 	};
 
 	//Physiscs components
@@ -122,5 +139,5 @@ namespace Clonemmings
 
 	};
 	using  AllComponents = ComponentGroup<TransformComponent, SpriteRendererComponent, CameraComponent, RigidBody2DComponent, BoxCollider2DComponent,
-		CircleCollider2DComponent, ScriptComponent>;
+		CircleCollider2DComponent, ScriptComponent, ClonemmingComponent, ClonemmingStartComponent, ClonemmingExitComponent, RectangleComponent>;
 }

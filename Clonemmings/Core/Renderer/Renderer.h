@@ -33,12 +33,21 @@ namespace Clonemmings
 	{
 		size_t MaxQuads = 1000;
 		size_t MaxTextures = 32;
+		size_t MaxLines = 100;
 		std::filesystem::path BatchVertexShaderFilename;
 		std::filesystem::path BatchFragmentShaderFilename;
 		std::filesystem::path TexturedVertexShaderFilename;
 		std::filesystem::path TexturedFragmentShaderFilename;
 		std::filesystem::path ColouredVertexShaderFilename;
 		std::filesystem::path ColouredFragmentShaderFilename;
+		std::filesystem::path LineVertexShaderFilename;
+		std::filesystem::path LineFragmentShaderFilename;
+	};
+	enum class BatchType
+	{
+		None = 0,
+		Quad,
+		Line
 	};
 	class Renderer
 	{
@@ -56,12 +65,14 @@ namespace Clonemmings
 		void DrawTexturedIndexed(const VertexArrayObject& vao, const glm::mat4& modeltransform, std::shared_ptr<Texture> texture);
 
 		//Batched Renderering functions
-		void StartBatch();
+		void StartBatch(const BatchType batchtype);
 		void DrawBatchedQuad(const glm::vec3& position, const glm::vec2& size, std::shared_ptr<Texture> texture, const glm::vec4& colour, float tilingfactor = 1.0f,
 			int entityID = -1);
 		void DrawBatchedRotatedQuad(const glm::vec3& position, const glm::vec2& size, std::shared_ptr<Texture> texture, const glm::vec4& colour, float roatation = 0.0f,
 			float tilingfactor = 1.0f, int entityID = -1);
-		void EndBatch();
+		void DrawLine(const glm::vec3& startpos, const glm::vec3& endpos, const glm::vec4& Colour, int entityID = -1);
+		void DrawRectangle(const glm::mat4& transform, const glm::vec4& colour, int entityID = -1);
+		void EndBatch(const BatchType batchtype);
 
 		//General renderer functions
 		void Clear();
@@ -72,18 +83,24 @@ namespace Clonemmings
 		void SetBackFaceCull(bool enable);
 		void SetWindingOrderClockwise();
 		void SetWindingOrderAntiClockwise();
+		float GetLineWidth() { return m_LineWidth; }
+		void SetLineWidth(float linewidth) { m_LineWidth = linewidth; }
+		void SetLineSmooth(bool enable);
+
 
 	private:
 		//shaders
 		std::unique_ptr<Shader> m_TexturedShader = nullptr;
 		std::unique_ptr<Shader> m_ColouredShader = nullptr;
 		std::unique_ptr<Shader> m_BatchShader = nullptr;
+		std::unique_ptr<Shader> m_LineShader = nullptr;
 
 		//Renderer Settings
 		bool m_DepthTestOn = false;
 		bool m_BlendingOn = false;
 		bool m_BackFaceCull = false;
 		bool m_ClockwiseWinding = false;
+		bool m_LineSmooth = false;
 
 		void GetInitalDefaults();
 
@@ -102,6 +119,13 @@ namespace Clonemmings
 		uint32_t m_TextureCount = 0;
 		BatchedVertex* m_CurrentVertex = nullptr;
 		std::shared_ptr<Texture> m_WhiteTexture = nullptr;
+		//line renderering variables
+		const size_t m_MaxLinesVertices;
+		std::shared_ptr<VertexBufferObject> m_LineVBO = nullptr;
+		std::shared_ptr<VertexArrayObject> m_LineVAO = nullptr;
+		float m_LineWidth = 2.0f;
+		uint32_t m_LineVertexCount = 0;
+		LineVertex* m_CurrentLineVertex = nullptr;
 
 		void SubmitToBatch(const glm::mat4& transform, std::shared_ptr<Texture> texture, const glm::vec4& colour, float tilingfactor, int entityID);
 		//Camera

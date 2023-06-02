@@ -56,5 +56,6 @@ namespace Clonemmings
 		void SetColouredVertexLayout();
 		void SetTexturedVertexLayout();
 		void SetBatchVertexLayout();
+		void SetLineVertexLayout();
 	};
 }
