@@ -57,6 +57,26 @@ namespace Core
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void RigidBody2DComponent_SetType(ulong entityID, RigidBody2DComponent.BodyType type);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float RigidBody2DComponent_GetMass(ulong entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void RigidBody2DComponent_ApplyForce(ulong entityID, ref Vector2 force, ref Vector2 point, bool wake);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void RigidBody2DComponent_ApplyForceToCentre(ulong entityID, ref Vector2 force,bool wake);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void RigidBody2DComponent_ApplyAngularImpulse(ulong entityID, float impulse, bool wake);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void RigidBody2DComponent_ApplyTorque(ulong entityID, float torque, bool wake);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool RigidBody2DComponent_HasContact(ulong entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool RigidBody2DComponent_HasContactLeft(ulong entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool RigidBody2DComponent_HasContactRight(ulong entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool RigidBody2DComponent_HasContactTop(ulong entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool RigidBody2DComponent_HasContactBottom(ulong entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void SpriteRendererComponent_GetColour(ulong entityID, out Vector4 colour);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void SpriteRendererComponent_SetColour(ulong entityID, ref Vector4 colour);

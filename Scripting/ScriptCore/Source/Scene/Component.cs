@@ -68,6 +68,46 @@
         {
             InternalCalls.RigidBody2DComponent_ApplyLinearImpulseToCentre(Entity.ID, ref impulse, wake);
         }
+        public float Mass
+        {
+           get =>InternalCalls.RigidBody2DComponent_GetMass(Entity.ID);
+        }
+        public void ApplyForce(Vector2 force, Vector2 point,bool wake)
+        {
+            InternalCalls.RigidBody2DComponent_ApplyForce(Entity.ID, ref force, ref point, wake);
+        }
+        public void ApplyForce(Vector2 force, bool wake)
+        {
+            InternalCalls.RigidBody2DComponent_ApplyForceToCentre(Entity.ID, ref force, wake);
+        }
+        public void ApplyAngularImpulse(float impulse, bool wake)
+        {
+            InternalCalls.RigidBody2DComponent_ApplyAngularImpulse(Entity.ID, impulse, wake);
+        }
+        public void ApplyTorque(float torque,bool wake)
+        {
+            InternalCalls.RigidBody2DComponent_ApplyTorque(Entity.ID, torque, wake);
+        }
+        public bool HasContact
+        {
+            get =>InternalCalls.RigidBody2DComponent_HasContact(Entity.ID);
+        }
+        public bool HasContactLeft
+        {
+            get =>InternalCalls.RigidBody2DComponent_HasContactLeft(Entity.ID);
+        }
+        public bool HasContactRight
+        {
+            get => InternalCalls.RigidBody2DComponent_HasContactRight(Entity.ID);
+        }
+        public bool HasContactTop
+        {
+            get => InternalCalls.RigidBody2DComponent_HasContactTop(Entity.ID);
+        }
+        public bool HasContactBottom
+        {
+            get => InternalCalls.RigidBody2DComponent_HasContactBottom(Entity.ID);
+        }
     }
 
     public class SpriteRendererComponent : Component

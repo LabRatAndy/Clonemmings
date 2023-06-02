@@ -5,6 +5,7 @@
 #include "Core/Application/Application.h"
 #include "Core/Application/Physics2D.h"
 #include "Core/Scripting/ScriptEngine.h"
+#include "Core/Physic2D/PhysicsEngine.h"
 
 #include <box2d/b2_body.h>
 #include <box2d/b2_world.h>
@@ -55,7 +56,7 @@ namespace Clonemmings
 	}
 	Scene::~Scene()
 	{
-		delete m_PhysicsWorld;
+		PhysicsEngine::Shutdown();
 	}
 	Entity Scene::CreateEntity(const std::string& name)
 	{
@@ -78,6 +79,11 @@ namespace Clonemmings
 	}
 	void Scene::DestroyEntity(Entity entity)
 	{
+		if (entity.HasComponent<RigidBody2DComponent>())
+		{
+			auto& rb2d = entity.GetComponent<RigidBody2DComponent>();
+			PhysicsEngine::DestroyBody((b2Body*)rb2d.RuntimeBody);
+		}
 		m_EntityMap.erase(entity.GetUUID());
 		m_Registry.destroy(entity);
 	}
@@ -110,7 +116,7 @@ namespace Clonemmings
 			{
 				const int32_t velocityiterations = 6;
 				const int32_t positioniterations = 2;
-				m_PhysicsWorld->Step(ts, velocityiterations, positioniterations);
+				PhysicsEngine::PhysicsWorldUpdate(ts);
 				//retrive transforms from Box2D
 				auto view = m_Registry.view<RigidBody2DComponent>();
 				for (auto e : view)
@@ -118,12 +124,20 @@ namespace Clonemmings
 					Entity entity = { e,this };
 					auto& transform = entity.GetComponent<TransformComponent>();
 					auto& rb2d = entity.GetComponent<RigidBody2DComponent>();
-					b2Body* body = (b2Body*)rb2d.RuntimeBody;
-					const auto& position = body->GetPosition();
+					const auto& position = PhysicsEngine::GetPosition((b2Body*)rb2d.RuntimeBody);
 					transform.Translation.x = position.x;
 					transform.Translation.y = position.y;
-					transform.Rotation.z = body->GetAngle();
+					transform.Rotation.z = PhysicsEngine::GetAngle((b2Body*)rb2d.RuntimeBody);
 					
+				}
+			}
+			//scripting
+			{
+				auto view = m_Registry.view<ScriptComponent>();
+				for (auto e : view)
+				{
+					Entity entity = { e,this };
+					ScriptEngine::OnUpdateEntity(entity, ts);
 				}
 			}
 			//scripting
@@ -209,7 +223,7 @@ namespace Clonemmings
 	}
 	void Scene::OnPhysicsStart()
 	{
-		m_PhysicsWorld = new b2World({ 0.0f,-9.8f });
+		PhysicsEngine::Initialise(glm::vec2(0.0, -9.81));
 		
 		auto view = m_Registry.view<RigidBody2DComponent>();
 		for (auto e : view)
@@ -220,8 +234,16 @@ namespace Clonemmings
 	}
 	void Scene::OnPhysicsStop()
 	{
-		delete m_PhysicsWorld;
-		m_PhysicsWorld = nullptr;
+		PhysicsEngine::Shutdown();
+	}
+	void Scene::SetGameLayer(Layer* gamelayer)
+	{
+		ASSERT(gamelayer);
+		m_GameLayer = gamelayer;
+	}
+	Layer* Scene::GetGameLayer()
+	{
+		return m_GameLayer;
 	}
 	void Scene::SetGameLayer(Layer* gamelayer)
 	{
@@ -287,40 +309,17 @@ namespace Clonemmings
 	{
 		auto& transform = entity.GetComponent<TransformComponent>();
 		auto& rb2d = entity.GetComponent<RigidBody2DComponent>();
-		b2BodyDef bodydef;
-		bodydef.type = Utills::Rigidbody2DTypeToBox2DBody(rb2d.Type);
-		bodydef.position.Set(transform.Translation.x, transform.Translation.y);
-		bodydef.angle = transform.Rotation.z;
-		b2Body* body = m_PhysicsWorld->CreateBody(&bodydef);
-		body->SetFixedRotation(rb2d.FixedRotation);
-		rb2d.RuntimeBody = body;
+		rb2d.RuntimeBody = PhysicsEngine::CreateBody(rb2d, transform);
 
 		if (entity.HasComponent<BoxCollider2DComponent>())
 		{
 			auto& bc2d = entity.GetComponent<BoxCollider2DComponent>();
-			b2PolygonShape boxshape;
-			boxshape.SetAsBox(bc2d.Size.x * transform.Scale.x, bc2d.Size.y * transform.Scale.y);
-			b2FixtureDef fixturedef;
-			fixturedef.shape = &boxshape;
-			fixturedef.density = bc2d.Density;
-			fixturedef.friction = bc2d.Friction;
-			fixturedef.restitution = bc2d.Restitution;
-			fixturedef.restitutionThreshold = bc2d.RestitutionThreshold;
-			body->CreateFixture(&fixturedef);
+			PhysicsEngine::CreateBoxCollider(bc2d, transform, (b2Body*)rb2d.RuntimeBody);
 		}
 		if (entity.HasComponent<CircleCollider2DComponent>())
 		{
 			auto& cc2d = entity.GetComponent<CircleCollider2DComponent>();
-			b2CircleShape circleshape;
-			circleshape.m_p.Set(cc2d.Offset.x, cc2d.Offset.y);
-			circleshape.m_radius = transform.Scale.x * cc2d.Radius;
-			b2FixtureDef fixturedef;
-			fixturedef.shape = &circleshape;
-			fixturedef.density = cc2d.Density;
-			fixturedef.friction = cc2d.Friction;
-			fixturedef.restitution = cc2d.Restitution;
-			fixturedef.restitutionThreshold = cc2d.RestitutionThreshold;
-			body->CreateFixture(&fixturedef);
+			PhysicsEngine::CreateCircleCollider(cc2d, transform, (b2Body*)rb2d.RuntimeBody);
 		}
 	}
 

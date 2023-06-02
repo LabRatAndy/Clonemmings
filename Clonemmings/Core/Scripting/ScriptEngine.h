@@ -127,7 +127,7 @@ namespace Clonemmings
 		bool SetFieldValueInternal(const std::string& name, const void* buffer);
 
 		friend class ScriptEngine;
-		friend class ScriptFieldInstance;
+		friend struct ScriptFieldInstance;
 	};
 
 	class ScriptEngine

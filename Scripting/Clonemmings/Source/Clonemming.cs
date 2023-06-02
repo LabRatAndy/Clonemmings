@@ -10,6 +10,7 @@ namespace Clonemmings
         private RigidBody2DComponent m_RigidBody;
         private ClonemmingComponent m_ClonemmingComponent;
         private RectangleComponent m_Rectangle = null;
+        private int m_Direction = 1; //-1 == left 1 == right
         void OnCreate()
         {
             m_Transform = GetComponent<TransformComponent>();
@@ -20,18 +21,46 @@ namespace Clonemmings
         {
             Vector3 velocity = Vector3.Zero;
             HighlightEntityWhenSelected();
-
+            InternalCalls.Native_Log("C#: on update");
             if (m_ClonemmingComponent.Status == ClonemmingComponent.ClonmmingStatus.Walker)
             {
-                Vector2 linearvelocity =  m_RigidBody.LinearVelocity;
-                Vector2 normalisedLV = linearvelocity.Normalise();
-                InternalCalls.Native_Log("C#: normalised Linear velocity X: " + normalisedLV.X.ToString() + " Y: " + normalisedLV.Y.ToString());
-                velocity.X = normalisedLV.X;
-                velocity.Y = normalisedLV.Y;
-                velocity *= m_ClonemmingComponent.WalkSpeed * ts;
-                string result = "C#: Velocity: X " + velocity.X.ToString() + " Y " + velocity.Y.ToString();
-                InternalCalls.Native_Log(result);
-                m_RigidBody.ApplyLinearImpulse(velocity.XY, true);
+                if(m_RigidBody.HasContactLeft)
+                {
+                    InternalCalls.Native_Log("C#: Left contact");
+                    m_Direction = 1;
+                }
+                if(m_RigidBody.HasContactRight)
+                {
+                    InternalCalls.Native_Log("C#: Right contact");
+                    m_Direction = -1;
+                }
+                if (m_RigidBody.HasContactBottom)
+                {
+                    InternalCalls.Native_Log("C#: Bottom Contact");
+                    Vector2 linearvelocity = m_RigidBody.LinearVelocity;
+                    InternalCalls.Native_Log("C#: Linear velocity x: " + linearvelocity.X + " y: " + linearvelocity.Y);
+                    float targetvelocity = 0;   
+                    switch(m_Direction)
+                    {
+                        case 1: targetvelocity = Math.Min(Math.Abs(linearvelocity.X) + 0.1f, m_ClonemmingComponent.WalkSpeed); break;
+                        case -1: targetvelocity = -(Math.Min(Math.Abs(linearvelocity.X) + 0.1f, m_ClonemmingComponent.WalkSpeed)); break;
+                    }
+                    InternalCalls.Native_Log("C#: targetvelocity: " + targetvelocity);
+                    float velocitychange = targetvelocity - linearvelocity.X;
+                    InternalCalls.Native_Log("C#: velocitychange: " + velocitychange);
+                    float impulse = m_RigidBody.Mass * velocitychange;
+                    if (m_Direction == -1)
+                    {
+                        InternalCalls.Native_Log("C#: apply leftward impulse of: " + impulse); ;
+                        m_RigidBody.ApplyLinearImpulse(new Vector2(impulse, 0), true);
+                    }
+                    else if (m_Direction == 1)
+                    {
+                        InternalCalls.Native_Log("C#: apply rightward impulse of: " + impulse);
+                        m_RigidBody.ApplyLinearImpulse(new Vector2(impulse, 0), true);
+                    }
+                }
+                InternalCalls.Native_Log("C#: passed contact checking");
             }
         }
 

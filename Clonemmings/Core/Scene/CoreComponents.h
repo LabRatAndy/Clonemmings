@@ -99,7 +99,7 @@ namespace Clonemmings
 	struct BoxCollider2DComponent
 	{
 		glm::vec2 Offset = { 0.0,0.0 };
-		glm::vec2 Size = { 0.5,0.5 };
+		glm::vec2 Size = { 0.5,0.5 }; // half extents
 
 		float Density = 1.0f;
 		float Friction = 0.5f;

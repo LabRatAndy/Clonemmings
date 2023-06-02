@@ -6,13 +6,13 @@
 #include "Core/Application/Input.h"
 #include "Core/Scene/Scene.h"
 #include "Core/Scene/Entity.h"
-#include "Core/Application/Physics2D.h"
 #include "Core/Application/Application.h"
 #include "Game/GameLayer.h"
+#include "Core/Physic2D/PhysicsEngine.h"
 
 #include <mono/metadata/object.h>
 #include <mono/metadata/reflection.h>
-#include <box2d/b2_body.h>
+
 
 #include <iostream>
 
@@ -331,8 +331,7 @@ namespace Clonemmings
 		Entity entity = scene->GetEntityByUUID(uuid);
 		ASSERT(entity);
 		auto& rb2d = entity.GetComponent<RigidBody2DComponent>();
-		b2Body* body = (b2Body*)rb2d.RuntimeBody;
-		body->ApplyLinearImpulse(b2Vec2(impulse->x, impulse->y), b2Vec2(point->x, point->y), wake);
+		PhysicsEngine::ApplyLinearImpulse((b2Body*)rb2d.RuntimeBody, *impulse, *point, wake);
 	}
 	static void RigidBody2DComponent_ApplyLinearImpulseToCentre(UUID uuid, glm::vec2* impulse, bool wake)
 	{
@@ -341,8 +340,7 @@ namespace Clonemmings
 		Entity entity = scene->GetEntityByUUID(uuid);
 		ASSERT(entity);
 		auto& rb2d = entity.GetComponent<RigidBody2DComponent>();
-		b2Body* body = (b2Body*)rb2d.RuntimeBody;
-		body->ApplyLinearImpulseToCenter(b2Vec2(impulse->x, impulse->y), wake);
+		PhysicsEngine::ApplyLinearImpulseToCentre((b2Body*)rb2d.RuntimeBody, *impulse, wake);
 	}
 	static void RigidBody2DComponent_GetLinearVelocity(UUID uuid, glm::vec2* outresult)
 	{
@@ -351,9 +349,7 @@ namespace Clonemmings
 		Entity entity = scene->GetEntityByUUID(uuid);
 		ASSERT(entity);
 		auto& rb2d = entity.GetComponent<RigidBody2DComponent>();
-		b2Body* body = (b2Body*)rb2d.RuntimeBody;
-		const b2Vec2& linearvelocity = body->GetLinearVelocity();
-		*outresult = glm::vec2(linearvelocity.x, linearvelocity.y);
+		*outresult = PhysicsEngine::GetLinearVelocity((b2Body*)rb2d.RuntimeBody);
 	}
 	static RigidBody2DComponent::BodyType RigidBody2DComponent_GetType(UUID uuid)
 	{
@@ -362,8 +358,7 @@ namespace Clonemmings
 		Entity entity = scene->GetEntityByUUID(uuid);
 		ASSERT(entity);
 		auto& rb2d = entity.GetComponent<RigidBody2DComponent>();
-		b2Body* body = (b2Body*)rb2d.RuntimeBody;
-		return Utills::Rigidbody2DTypeFromBox2DBody(body->GetType());
+		return PhysicsEngine::GetBodyType((b2Body*)rb2d.RuntimeBody);
 	}
 	static void RigidBody2DComponent_SetType(UUID uuid, RigidBody2DComponent::BodyType bodytype)
 	{
@@ -372,8 +367,105 @@ namespace Clonemmings
 		Entity entity = scene->GetEntityByUUID(uuid);
 		ASSERT(entity);
 		auto& rb2d = entity.GetComponent<RigidBody2DComponent>();
-		b2Body* body = (b2Body*)rb2d.RuntimeBody;
-		body->SetType(Utills::Rigidbody2DTypeToBox2DBody(bodytype));
+		PhysicsEngine::SetBodyType((b2Body*)rb2d.RuntimeBody, bodytype);
+	}
+	static float RigidBody2DComponent_GetMass(UUID uuid)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		ASSERT(entity);
+		auto& rb2d = entity.GetComponent<RigidBody2DComponent>();
+		return PhysicsEngine::GetMass((b2Body*)rb2d.RuntimeBody);
+	}
+	static void RigidBody2DComponent_ApplyForce(UUID uuid, glm::vec2* force, glm::vec2* point, bool wake)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		ASSERT(entity);
+		auto& rb2d = entity.GetComponent<RigidBody2DComponent>();
+		PhysicsEngine::ApplyForce((b2Body*)rb2d.RuntimeBody, *force, *point, wake);
+	}
+	static void RigidBody2DComponent_ApplyForceTocentre(UUID uuid, glm::vec2* force, bool wake)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		ASSERT(entity);
+		auto& rb2d = entity.GetComponent<RigidBody2DComponent>();
+		PhysicsEngine::ApplyForceToCentre((b2Body*)rb2d.RuntimeBody, *force, wake);
+	}
+	static void RigidBody2DComponent_ApplyTorque(UUID uuid, float torque, bool wake)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		ASSERT(entity);
+		auto& rb2d = entity.GetComponent<RigidBody2DComponent>();
+		PhysicsEngine::ApplyTorque((b2Body*)rb2d.RuntimeBody, torque, wake);
+	}
+	static void RigidBody2DComponent_ApplyAngularImpulse(UUID uuid, float impulse, bool wake)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		ASSERT(entity);
+		auto& rb2d = entity.GetComponent<RigidBody2DComponent>();
+		PhysicsEngine::ApplyAngularImpulse((b2Body*)rb2d.RuntimeBody, impulse, wake);
+	}
+	static bool RigidBody2DComponent_HasContact(UUID uuid)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		ASSERT(entity);
+		auto& rb2d = entity.GetComponent<RigidBody2DComponent>();
+		return PhysicsEngine::IsContact((b2Body*)rb2d.RuntimeBody);
+	}
+	static bool RigidBody2DComponent_HasContactTop(UUID uuid)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		ASSERT(entity);
+		auto& rb2d = entity.GetComponent<RigidBody2DComponent>();
+		ASSERT(entity.HasComponent<BoxCollider2DComponent>());
+		auto& bc2d = entity.GetComponent<BoxCollider2DComponent>();
+		return PhysicsEngine::IsContactTop((b2Body*)rb2d.RuntimeBody, bc2d.Size);
+	}
+	static bool RigidBody2DComponent_HasContactBottom(UUID uuid)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		ASSERT(entity);
+		auto& rb2d = entity.GetComponent<RigidBody2DComponent>();
+		ASSERT(entity.HasComponent<BoxCollider2DComponent>());
+		auto& bc2d = entity.GetComponent<BoxCollider2DComponent>();
+		return PhysicsEngine::IsContactBottom((b2Body*)rb2d.RuntimeBody, bc2d.Size);
+	}
+	static bool RigidBody2DComponent_HasContactLeft(UUID uuid)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		ASSERT(entity);
+		auto& rb2d = entity.GetComponent<RigidBody2DComponent>();
+		ASSERT(entity.HasComponent<BoxCollider2DComponent>());
+		auto& bc2d = entity.GetComponent<BoxCollider2DComponent>();
+		return PhysicsEngine::IsContactLeft((b2Body*)rb2d.RuntimeBody, bc2d.Size);
+	}
+	static bool RigidBody2DComponent_HasContactRight(UUID uuid)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		ASSERT(entity);
+		auto& rb2d = entity.GetComponent<RigidBody2DComponent>();
+		ASSERT(entity.HasComponent<BoxCollider2DComponent>());
+		auto& bc2d = entity.GetComponent<BoxCollider2DComponent>();
+		return PhysicsEngine::IsContactRight((b2Body*)rb2d.RuntimeBody, bc2d.Size);
 	}
 #pragma endregion
 #pragma region SpriteRendererComponent
@@ -595,6 +687,16 @@ namespace Clonemmings
 		ADD_INTERNAL_CALL(RigidBody2DComponent_GetLinearVelocity);
 		ADD_INTERNAL_CALL(RigidBody2DComponent_GetType);
 		ADD_INTERNAL_CALL(RigidBody2DComponent_SetType);
+		ADD_INTERNAL_CALL(RigidBody2DComponent_GetMass);
+		ADD_INTERNAL_CALL(RigidBody2DComponent_ApplyAngularImpulse);
+		ADD_INTERNAL_CALL(RigidBody2DComponent_ApplyForce);
+		ADD_INTERNAL_CALL(RigidBody2DComponent_ApplyForceTocentre);
+		ADD_INTERNAL_CALL(RigidBody2DComponent_ApplyTorque);
+		ADD_INTERNAL_CALL(RigidBody2DComponent_HasContact);
+		ADD_INTERNAL_CALL(RigidBody2DComponent_HasContactLeft);
+		ADD_INTERNAL_CALL(RigidBody2DComponent_HasContactRight);
+		ADD_INTERNAL_CALL(RigidBody2DComponent_HasContactTop);
+		ADD_INTERNAL_CALL(RigidBody2DComponent_HasContactBottom);
 		ADD_INTERNAL_CALL(SpriteRendererComponent_GetColour);
 		ADD_INTERNAL_CALL(SpriteRendererComponent_SetColour);
 		ADD_INTERNAL_CALL(SpriteRendererComponent_GetTilingFactor);
