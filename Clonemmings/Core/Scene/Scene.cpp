@@ -245,15 +245,6 @@ namespace Clonemmings
 	{
 		return m_GameLayer;
 	}
-	void Scene::SetGameLayer(Layer* gamelayer)
-	{
-		ASSERT(gamelayer);
-		m_GameLayer = gamelayer;
-	}
-	Layer* Scene::GetGameLayer()
-	{
-		return m_GameLayer;
-	}
 	void Scene::StartScene()
 	{
 		m_IsRunning = true;
