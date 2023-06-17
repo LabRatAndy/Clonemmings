@@ -4,6 +4,7 @@
 #include "Game/LabelSerialiser.h"
 #include "Core/Application/Application.h"
 #include "Core/Application/FileDialog.h"
+#include "Core/Physic2D/PhysicsEngine.h"
 #include <imgui.h>
 
 
@@ -20,7 +21,7 @@ namespace Clonemmings
 	}
 	void ControlPanel::SetSelectedEntity(Entity entity)
 	{
-		if (entity && !entity.HasComponent<ClonemmingComponent>());
+		if (entity && !entity.HasComponent<ClonemmingComponent>())
 		{
 				m_SelectedEntity = {};
 				return;
@@ -58,7 +59,7 @@ namespace Clonemmings
 		}
 		if (ImGui::Button(GetLabelText(OPENLEVELBUTTON), m_ButtonSize))
 		{
-			std::string filename = FileDialog::OpenFile("lvl");
+			std::string filename = FileDialog::OpenFile(".lvl");
 			if (!filename.empty())
 			{
 				((GameLayer*)m_Context->GetGameLayer())->LoadScene(filename);
@@ -91,14 +92,20 @@ namespace Clonemmings
 		ImGui::PopID();
 		if (ImGui::Button(GetLabelText(MAKEFLOATERBUTTON), m_ButtonSize))
 		{
-			if (m_Context->GetGameLevelData().UseFloater())
-				ChangeClonemmingStatus(ClonemmingComponent::ClonemingStatus::Floater);
+			if (m_SelectedEntity && !PhysicsEngine::IsContactBottom(m_SelectedEntity.GetUUID()))
+			{
+				if (m_Context->GetGameLevelData().UseFloater())
+					ChangeClonemmingStatus(ClonemmingComponent::ClonemingStatus::Floater);
+			}
 		}
 		ImGui::SameLine();
 		if (ImGui::Button(GetLabelText(MAKEBLOCKERBUTTON), m_ButtonSize))
 		{
-			if (m_Context->GetGameLevelData().UseBlocker())
-				ChangeClonemmingStatus(ClonemmingComponent::ClonemingStatus::Blocker);
+			if (m_SelectedEntity && !PhysicsEngine::IsContactBottom(m_SelectedEntity.GetUUID()))
+			{
+				if (m_Context->GetGameLevelData().UseBlocker())
+					ChangeClonemmingStatus(ClonemmingComponent::ClonemingStatus::Blocker);
+			}
 		}
 		if (ImGui::Button(GetLabelText(MAKEDIGGERBUTTON), m_ButtonSize))
 		{
@@ -147,7 +154,7 @@ namespace Clonemmings
 		{
 			uint32_t numclonemmings = exitpoint.GetComponent<ClonemmingExitComponent>().NumberOfClonemmings;
 			ImGui::Text(std::to_string(numclonemmings).c_str());
-			uint32_t lostclonemmings = startpoint.GetComponent<ClonemmingStartComponent>().NumberOfClonemmings - numclonemmings;
+			uint32_t lostclonemmings = m_Context->GetGameLevelData().DeadClonemmings;
 			ImGui::Text(std::to_string(lostclonemmings).c_str());
 		}
 		else
@@ -235,29 +242,29 @@ namespace Clonemmings
 			if (m_Context->GetGameLevelData().RecycleBlocker())
 			{
 				ChangeClonemmingStatus(ClonemmingComponent::ClonemingStatus::Walker);
-				return;
 			}
+			return;
 			break;
 		case ClonemmingComponent::ClonemingStatus::Floater:
 			if (m_Context->GetGameLevelData().RecycleFloater())
 			{
 				ChangeClonemmingStatus(ClonemmingComponent::ClonemingStatus::Walker);
-				return;
 			}
+			return;
 			break;
 		case ClonemmingComponent::ClonemingStatus::Digger:
 			if (m_Context->GetGameLevelData().RecycleDigger())
 			{
 				ChangeClonemmingStatus(ClonemmingComponent::ClonemingStatus::Walker);
-				return;
 			}
+			return;
 			break;
 		case ClonemmingComponent::ClonemingStatus::Miner:
 			if (m_Context->GetGameLevelData().RecycleMiner())
 			{
 				ChangeClonemmingStatus(ClonemmingComponent::ClonemingStatus::Walker);
-				return;
 			}
+			return;
 			break;
 		case ClonemmingComponent::ClonemingStatus::Walker:
 			return;

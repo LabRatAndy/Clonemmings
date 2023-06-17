@@ -19,6 +19,9 @@ namespace Clonemmings
 		bool CanRecycleDiggers = false;
 		float PercentageToSave = 100.0f;
 		uint32_t ClonemmingsSaved = 0;
+		uint32_t StartClonemmingCount = 0;
+		uint32_t DeadClonemmings = 0;
+		float DeadVelocityChange = 0;
 
 		GameLevelData() = default;
 		GameLevelData(const GameLevelData&) = default;
