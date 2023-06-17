@@ -7,7 +7,7 @@ namespace Core
     {
         protected Entity() { ID = 0; }
 
-        internal Entity(ulong id)
+        public Entity(ulong id)
         {
             ID = id;
         }
@@ -100,6 +100,10 @@ namespace Core
         {
             Type type = typeof(T);
             InternalCalls.Entity_RemoveComponent(ID, type);
+        }
+        public void Destroy()
+        {
+            InternalCalls.Entity_DestroyEntity(ID);
         }
    }
 }

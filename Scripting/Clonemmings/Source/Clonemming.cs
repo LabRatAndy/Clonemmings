@@ -9,59 +9,59 @@ namespace Clonemmings
         private TransformComponent m_Transform;
         private RigidBody2DComponent m_RigidBody;
         private ClonemmingComponent m_ClonemmingComponent;
+        private SpriteRendererComponent m_Sprite;
         private RectangleComponent m_Rectangle = null;
         private int m_Direction = 1; //-1 == left 1 == right
+        private ClonemmingComponent.ClonmmingStatus m_previousStatus = ClonemmingComponent.ClonmmingStatus.Walker;
+        private float fallvelocity = 0;
+        private Vector2 m_CurrentLinearVelocity;
+        private float m_DeadTime = 0.0f;
+        public float m_MaxSurvivableVelocityChange;
         void OnCreate()
         {
             m_Transform = GetComponent<TransformComponent>();
             m_RigidBody = GetComponent<RigidBody2DComponent>();
             m_ClonemmingComponent = GetComponent<ClonemmingComponent>();
+            m_Sprite = GetComponent<SpriteRendererComponent>();
         }
         void OnUpdate(float ts)
         {
-            Vector3 velocity = Vector3.Zero;
-            HighlightEntityWhenSelected();
             InternalCalls.Native_Log("C#: on update");
+            Vector2 linearvelocity = m_RigidBody.LinearVelocity;
+            InternalCalls.Native_Log("C#: Linear velocity x: " + linearvelocity.X + " y: " + linearvelocity.Y);
+            HighlightEntityWhenSelected();
+            CheckIfDead(linearvelocity);
+            if(m_ClonemmingComponent.Status == ClonemmingComponent.ClonmmingStatus.Dead)
+            {
+                InternalCalls.Native_Log("C#: Dead Clonemming !!");
+                float newalpha = Math.Max(m_Sprite.Colour.W * 0.9f, 0.0f);
+                InternalCalls.Native_Log("C#: dead new alpha value: " + newalpha);
+                m_Sprite.Colour = new Vector4(0.0f, 1.0f, 0.0f, newalpha);
+                InternalCalls.Native_Log("C#: dead time value: " + m_DeadTime);
+                if(newalpha < 0.01f|| m_DeadTime >10.0)
+                {
+                    Destroy();
+                }
+                m_DeadTime += ts;
+                return;
+            }
+            if(m_previousStatus != m_ClonemmingComponent.Status)
+            {
+                ProcessRecycleStatus();
+            }
             if (m_ClonemmingComponent.Status == ClonemmingComponent.ClonmmingStatus.Walker)
             {
-                if(m_RigidBody.HasContactLeft)
-                {
-                    InternalCalls.Native_Log("C#: Left contact");
-                    m_Direction = 1;
-                }
-                if(m_RigidBody.HasContactRight)
-                {
-                    InternalCalls.Native_Log("C#: Right contact");
-                    m_Direction = -1;
-                }
-                if (m_RigidBody.HasContactBottom)
-                {
-                    InternalCalls.Native_Log("C#: Bottom Contact");
-                    Vector2 linearvelocity = m_RigidBody.LinearVelocity;
-                    InternalCalls.Native_Log("C#: Linear velocity x: " + linearvelocity.X + " y: " + linearvelocity.Y);
-                    float targetvelocity = 0;   
-                    switch(m_Direction)
-                    {
-                        case 1: targetvelocity = Math.Min(Math.Abs(linearvelocity.X) + 0.1f, m_ClonemmingComponent.WalkSpeed); break;
-                        case -1: targetvelocity = -(Math.Min(Math.Abs(linearvelocity.X) + 0.1f, m_ClonemmingComponent.WalkSpeed)); break;
-                    }
-                    InternalCalls.Native_Log("C#: targetvelocity: " + targetvelocity);
-                    float velocitychange = targetvelocity - linearvelocity.X;
-                    InternalCalls.Native_Log("C#: velocitychange: " + velocitychange);
-                    float impulse = m_RigidBody.Mass * velocitychange;
-                    if (m_Direction == -1)
-                    {
-                        InternalCalls.Native_Log("C#: apply leftward impulse of: " + impulse); ;
-                        m_RigidBody.ApplyLinearImpulse(new Vector2(impulse, 0), true);
-                    }
-                    else if (m_Direction == 1)
-                    {
-                        InternalCalls.Native_Log("C#: apply rightward impulse of: " + impulse);
-                        m_RigidBody.ApplyLinearImpulse(new Vector2(impulse, 0), true);
-                    }
-                }
-                InternalCalls.Native_Log("C#: passed contact checking");
+                ProcessWalker(linearvelocity);
             }
+            if(m_ClonemmingComponent.Status == ClonemmingComponent.ClonmmingStatus.Blocker)
+            {
+                ProcessBlocker();
+            }
+            if(m_ClonemmingComponent.Status == ClonemmingComponent.ClonmmingStatus.Floater)
+            {
+                ProcessFloater(linearvelocity);
+            }
+
         }
 
         public void SetInitialPostion(Vector3 position, float rotation = 0.0f)
@@ -106,6 +106,116 @@ namespace Clonemmings
             float rotatedX = costheta * -sintheta * velocity.X;
             float rotatedy = sintheta * costheta * velocity.Y;
             return new Vector3(rotatedX, rotatedy, 0);
+        }
+        private void CheckIfDead(Vector2 linearvelocity)
+        {
+            //check if already dead and return if so!
+            if (m_ClonemmingComponent.Status == ClonemmingComponent.ClonmmingStatus.Dead) return;
+            float velocitychange = Math.Abs(m_CurrentLinearVelocity.Y) - Math.Abs(linearvelocity.Y);
+            InternalCalls.Native_Log("C#: Check if dead");
+            InternalCalls.Native_Log("C#: Dead check velocity change: " + velocitychange);
+            if (Math.Abs(velocitychange) >= m_MaxSurvivableVelocityChange)
+            {
+                //clonemming is dead
+                InternalCalls.Native_Log("C#: Clonemming is dead");
+                m_ClonemmingComponent.Status = ClonemmingComponent.ClonmmingStatus.Dead;
+                InternalCalls.SetDeadClonemming(ID);
+                return;
+            }
+            m_CurrentLinearVelocity = linearvelocity;
+        }  
+        private void ProcessWalker(Vector2 linearvelocity)
+        {
+            if (m_RigidBody.HasContactLeft)
+            {
+                InternalCalls.Native_Log("C#: Left contact");
+                m_Direction = 1;
+            }
+            if (m_RigidBody.HasContactRight)
+            {
+                InternalCalls.Native_Log("C#: Right contact");
+                m_Direction = -1;
+            }
+            if (m_RigidBody.HasContactBottom)
+            {
+                InternalCalls.Native_Log("C#: Bottom Contact");
+                float targetvelocity = 0;
+                switch (m_Direction)
+                {
+                    case 1: targetvelocity = Math.Min(linearvelocity.X + 0.5f, m_ClonemmingComponent.WalkSpeed); break; //Right
+                    case -1: targetvelocity = Math.Max(linearvelocity.X - 0.5f, -m_ClonemmingComponent.WalkSpeed); break; //left
+                }
+                InternalCalls.Native_Log("C#: targetvelocity: " + targetvelocity);
+                float velocitychange = targetvelocity - linearvelocity.X;
+                InternalCalls.Native_Log("C#: velocitychange: " + velocitychange);
+                float impulse = m_RigidBody.Mass * velocitychange;
+                if (m_Direction == -1)
+                {
+                    InternalCalls.Native_Log("C#: apply leftward impulse of: " + impulse); ;
+                    m_RigidBody.ApplyLinearImpulse(new Vector2(impulse, 0), true);
+                }
+                else if (m_Direction == 1)
+                {
+                    InternalCalls.Native_Log("C#: apply rightward impulse of: " + impulse);
+                    m_RigidBody.ApplyLinearImpulse(new Vector2(impulse, 0), true);
+                }
+            }
+            m_previousStatus = ClonemmingComponent.ClonmmingStatus.Walker;
+            InternalCalls.Native_Log("C#: passed contact checking");
+        }
+        private void ProcessBlocker()
+        {
+            InternalCalls.Native_Log("C#: Blocker");
+            if(m_previousStatus == ClonemmingComponent.ClonmmingStatus.Blocker)
+            {
+                //don't need to do the rest if has already been done so skip!
+                return;
+            }
+            m_RigidBody.Type = RigidBody2DComponent.BodyType.Static;
+            m_Sprite.Colour = new Vector4(1.0f, 1.0f, 0.0f, 1.0f);
+            m_previousStatus = ClonemmingComponent.ClonmmingStatus.Blocker;
+        }
+        private void ProcessFloater(Vector2 linearvelocity)
+        {
+            InternalCalls.Native_Log("C#: Floater");
+            if (m_RigidBody.HasContactBottom)
+            {
+                InternalCalls.Native_Log("C#: floater touched down!");
+                m_ClonemmingComponent.Status = ClonemmingComponent.ClonmmingStatus.Walker;
+            }
+            else
+            {
+                InternalCalls.Native_Log("C#: still floating");
+                m_Sprite.Colour = new Vector4(0.0f, 1.0f, 1.0f, 1.0f);
+                if (fallvelocity == 0)
+                {
+                    fallvelocity = linearvelocity.Y;
+                }
+                float targetvelociy = fallvelocity / 2.0f;
+                float velocitychange = targetvelociy - linearvelocity.Y;
+                float impulse = m_RigidBody.Mass * velocitychange;
+                InternalCalls.Native_Log("C#: applying floater impulse of: " + impulse);
+                m_RigidBody.ApplyLinearImpulse(new Vector2(0.0f, Math.Abs(impulse)), true);
+            }
+            m_previousStatus = ClonemmingComponent.ClonmmingStatus.Floater;
+        }
+        private void ProcessRecycleStatus()
+        {
+            switch (m_previousStatus)
+            {
+                case ClonemmingComponent.ClonmmingStatus.Blocker:
+                    InternalCalls.Native_Log("C#: Recycling blocker");
+                    m_RigidBody.Type = RigidBody2DComponent.BodyType.Dynamic;
+                    m_Sprite.Colour = new Vector4(0, 1, 0, 1);
+                    m_previousStatus = m_ClonemmingComponent.Status;
+                    break;
+                case ClonemmingComponent.ClonmmingStatus.Floater:
+                    InternalCalls.Native_Log("C#: Recycling Floater");
+                    m_Sprite.Colour = new Vector4(0, 1, 0, 1);
+                    m_previousStatus = m_ClonemmingComponent.Status;
+                    fallvelocity = 0.0f;
+                    break;
+            }
         }
     }
 }
