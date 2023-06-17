@@ -11,6 +11,8 @@ namespace Core
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         public extern static void Native_Log(string text);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        public extern static void SetDeadClonemming(ulong entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static bool Entity_HasComponent(ulong entityID, Type componenttype);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static ulong Entity_FindEntityByName(string name);
@@ -137,5 +139,7 @@ namespace Core
         internal extern static int ClonemmingExitComponent_GetNumberOfClonemmings(ulong entityID);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void ClonemmingExitComponent_SetNumberOfClonemmings(ulong entityID, int numberofclonemmings);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        public extern static bool ClonemmingExit_HasContactWithClonemming(ulong entityID, out ulong clonemmingID);
     }
 }
