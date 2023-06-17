@@ -105,6 +105,8 @@ namespace Clonemmings
 		float Friction = 0.5f;
 		float Restitution = 0.5f;
 		float RestitutionThreshold = 0.5f;
+		uint16_t Category = 1;
+		uint16_t Mask = 0xffff;
 
 		void* RuntimeFixture = nullptr;
 
@@ -120,6 +122,8 @@ namespace Clonemmings
 		float Friction = 0.5f;
 		float Restitution = 0.5f;
 		float RestitutionThreshold = 0.5f;
+		uint16_t Category = 1;
+		uint16_t Mask = 0xffff;
 
 		void* RuntimeFixture = nullptr;
 

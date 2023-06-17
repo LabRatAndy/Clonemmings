@@ -81,8 +81,7 @@ namespace Clonemmings
 	{
 		if (entity.HasComponent<RigidBody2DComponent>())
 		{
-			auto& rb2d = entity.GetComponent<RigidBody2DComponent>();
-			PhysicsEngine::DestroyBody((b2Body*)rb2d.RuntimeBody);
+			PhysicsEngine::RemovePhysicsEntity(entity.GetUUID());
 		}
 		m_EntityMap.erase(entity.GetUUID());
 		m_Registry.destroy(entity);
@@ -123,21 +122,11 @@ namespace Clonemmings
 				{
 					Entity entity = { e,this };
 					auto& transform = entity.GetComponent<TransformComponent>();
-					auto& rb2d = entity.GetComponent<RigidBody2DComponent>();
-					const auto& position = PhysicsEngine::GetPosition((b2Body*)rb2d.RuntimeBody);
+					const auto& position = PhysicsEngine::GetPosition(entity.GetUUID());
 					transform.Translation.x = position.x;
 					transform.Translation.y = position.y;
-					transform.Rotation.z = PhysicsEngine::GetAngle((b2Body*)rb2d.RuntimeBody);
+					transform.Rotation.z = PhysicsEngine::GetAngle(entity.GetUUID());
 					
-				}
-			}
-			//scripting
-			{
-				auto view = m_Registry.view<ScriptComponent>();
-				for (auto e : view)
-				{
-					Entity entity = { e,this };
-					ScriptEngine::OnUpdateEntity(entity, ts);
 				}
 			}
 			//scripting
@@ -256,6 +245,13 @@ namespace Clonemmings
 			Entity entity = { e,this };
 			ScriptEngine::OnCreateEntity(entity);
 		}
+		auto view2 = m_Registry.view<ClonemmingComponent, ScriptComponent>();
+		for (auto e : view2)
+		{
+			auto uuid = m_Registry.get<IDComponent>(e).ID;
+			auto instance = ScriptEngine::GetEntityScriptInstance(uuid);
+			instance->SetFieldValue("m_MaxSurvivableVelocityChange", m_GameLevelData.DeadVelocityChange);
+		}
 	}
 	void Scene::StopScene()
 	{
@@ -298,20 +294,14 @@ namespace Clonemmings
 	}
 	void Scene::SetUpPhysicOnEntity(Entity entity)
 	{
-		auto& transform = entity.GetComponent<TransformComponent>();
-		auto& rb2d = entity.GetComponent<RigidBody2DComponent>();
-		rb2d.RuntimeBody = PhysicsEngine::CreateBody(rb2d, transform);
+		if (entity.HasComponent<ClonemmingComponent>())
+			PhysicsEngine::AddClonemming(entity);
+		else
+		{
+			if (entity.HasComponent<RigidBody2DComponent>())
+				PhysicsEngine::AddPhysicsEntity(entity);
+		}
 
-		if (entity.HasComponent<BoxCollider2DComponent>())
-		{
-			auto& bc2d = entity.GetComponent<BoxCollider2DComponent>();
-			PhysicsEngine::CreateBoxCollider(bc2d, transform, (b2Body*)rb2d.RuntimeBody);
-		}
-		if (entity.HasComponent<CircleCollider2DComponent>())
-		{
-			auto& cc2d = entity.GetComponent<CircleCollider2DComponent>();
-			PhysicsEngine::CreateCircleCollider(cc2d, transform, (b2Body*)rb2d.RuntimeBody);
-		}
 	}
 
 	template<typename T>

@@ -4,6 +4,7 @@
 #include "Core/Application/UUID.h"
 #include "Core/Scripting/ScriptEngine.h"
 #include "Game/GameLevelData.h"
+#include "Core/Physic2D/PhysicsEngine.h"
 
 #include <yaml-cpp/yaml.h>
 
@@ -180,6 +181,56 @@ namespace Clonemmings
 		ASSERT(false, "Unknown clonemming status string");
 		return ClonemmingComponent::ClonemingStatus::Walker;
 	}
+	static std::string CollisionCategoryToString(CollisionCategory category)
+	{
+		switch (category)
+		{
+		case CollisionCategory::Default: return "Default";
+		case CollisionCategory::Clonemming: return "Clonemming";
+		case CollisionCategory::DigableFloor: return "DigableFloor";
+		case CollisionCategory::ExitPoint: return "ExitPoint";
+		case CollisionCategory::Floor: return "Floor";
+		case CollisionCategory::MineableWall: return "MineableWall";
+		case CollisionCategory::SpawnPoint: return "SpawnPoint";
+		case CollisionCategory::Wall: return "Wall";
+		}
+		ASSERT(false, "Unknown Collision Category");
+		return {};
+	}
+	static CollisionCategory CollisionCategoryFromString(const std::string& categorystring)
+	{
+		if (categorystring == "Default") return CollisionCategory::Default;
+		if (categorystring == "Clonemming") return CollisionCategory::Clonemming;
+		if (categorystring == "DigableFloor") return CollisionCategory::DigableFloor;
+		if (categorystring == "ExitPoint") return CollisionCategory::ExitPoint;
+		if (categorystring == "Floor") return CollisionCategory::Floor;
+		if (categorystring == "MineableWall") return CollisionCategory::MineableWall;
+		if (categorystring == "SpawnPoint") return CollisionCategory::SpawnPoint;
+		if (categorystring == "Wall") return CollisionCategory::Wall;
+		ASSERT(false, "Unknown Collision Category string");
+		return CollisionCategory::Default;
+	}
+	static CollisionMasks CollisionMaskFromString(const std::string& maskString)
+	{
+		if (maskString == "Clonemmings") return CollisionMasks::Clonemmings;
+		if (maskString == "Everything") return CollisionMasks::Everything;
+		if (maskString == "Nothing") return CollisionMasks::Nothing;
+		if (maskString == "Scenary") return CollisionMasks::Scenary;
+		ASSERT(false, "Unknown collision mask string");
+		return CollisionMasks::Everything;
+	}
+	static std::string CollisionMaskToString(CollisionMasks mask)
+	{
+		switch (mask)
+		{
+		case CollisionMasks::Clonemmings: return "Clonemmings";
+		case CollisionMasks::Everything: return "Everything";
+		case CollisionMasks::Nothing: return "Nothing";
+		case CollisionMasks::Scenary: return "Scenary";
+		}
+		ASSERT(false, "Unknown Collision mask");
+		return {};
+	}
 	static void SerialiseEntity(YAML::Emitter& out, Entity entity)
 	{
 		ASSERT(entity.HasComponent<IDComponent>())
@@ -259,6 +310,8 @@ namespace Clonemmings
 			out << YAML::Key << "Friction" << YAML::Value << bc2d.Friction;
 			out << YAML::Key << "Restitution" << YAML::Value << bc2d.Restitution;
 			out << YAML::Key << "Restitution Threshold" << YAML::Value << bc2d.RestitutionThreshold;
+			out << YAML::Key << "Category" << YAML::Value << CollisionCategoryToString((CollisionCategory)bc2d.Category);
+			out << YAML::Key << "Mask" << YAML::Value << CollisionMaskToString((CollisionMasks)bc2d.Mask);
 			out << YAML::EndMap;
 		}
 		if (entity.HasComponent<CircleCollider2DComponent>())
@@ -272,6 +325,8 @@ namespace Clonemmings
 			out << YAML::Key << "Friction" << YAML::Value << cc2d.Friction;
 			out << YAML::Key << "Restitution" << YAML::Value << cc2d.Restitution;
 			out << YAML::Key << "Restitution Threshold" << YAML::Value << cc2d.RestitutionThreshold;
+			out << YAML::Key << "Category" << YAML::Value << CollisionCategoryToString((CollisionCategory)cc2d.Category);
+			out << YAML::Key << "Mask" << YAML::Value << CollisionMaskToString((CollisionMasks)cc2d.Mask);
 			out << YAML::EndMap;
 		}
 		if (entity.HasComponent<ClonemmingComponent>())
@@ -376,6 +431,7 @@ namespace Clonemmings
 		out << YAML::Key << "CanRecycleDiggers" << YAML::Value << m_Scene->m_GameLevelData.CanRecycleDiggers;
 		out << YAML::Key << "CanRecycleMiners" << YAML::Value << m_Scene->m_GameLevelData.CanRecycleMiners;
 		out << YAML::Key << "TargetToSavePercentage" << YAML::Value << m_Scene->m_GameLevelData.PercentageToSave;
+		out << YAML::Key << "MaxSurivivableVelocityChange" << YAML::Value << m_Scene->m_GameLevelData.DeadVelocityChange;
 		out << YAML::EndMap;
 		out << YAML::Key << "Entities" << YAML::Value << YAML::BeginSeq;
 		m_Scene->m_Registry.each([&](auto entityid)
@@ -421,6 +477,7 @@ namespace Clonemmings
 			m_Scene->m_GameLevelData.CanRecycleFloaters = gldata["CanRecycleFloaters"].as<bool>();
 			m_Scene->m_GameLevelData.CanRecycleMiners = gldata["CanRecycleMiners"].as<bool>();
 			m_Scene->m_GameLevelData.PercentageToSave = gldata["TargetToSavePercentage"].as<float>();
+			m_Scene->m_GameLevelData.DeadVelocityChange = gldata["MaxSurivivableVelocityChange"].as<float>();
 		}
 		auto entities = data["Entities"];
 		if (entities)
@@ -525,6 +582,8 @@ namespace Clonemmings
 					bc2d.Friction = boxcollider2Dcomponent["Friction"].as<float>();
 					bc2d.Restitution = boxcollider2Dcomponent["Restitution"].as<float>();
 					bc2d.RestitutionThreshold = boxcollider2Dcomponent["Restitution Threshold"].as<float>();
+					bc2d.Category = (uint16_t)CollisionCategoryFromString(boxcollider2Dcomponent["Category"].as<std::string>());
+					bc2d.Mask = (uint16_t)CollisionMaskFromString(boxcollider2Dcomponent["Mask"].as<std::string>());
 				}
 				auto circlecollider2Dcomponent = entity["CircleCollider2DComponent"];
 				if (circlecollider2Dcomponent)
@@ -536,6 +595,8 @@ namespace Clonemmings
 					cc2d.Friction = circlecollider2Dcomponent["Friction"].as<float>();
 					cc2d.Restitution = circlecollider2Dcomponent["Restitution"].as<float>();
 					cc2d.RestitutionThreshold = circlecollider2Dcomponent["Restitution Threshold"].as<float>();
+					cc2d.Category = (uint16_t)CollisionCategoryFromString(circlecollider2Dcomponent["Category"].as<std::string>());
+					cc2d.Mask = (uint16_t)CollisionMaskFromString(circlecollider2Dcomponent["Mask"].as<std::string>());
 				}
 				auto clonemmingcomponent = entity["ClonemmingComponent"];
 				if (clonemmingcomponent)
@@ -573,6 +634,7 @@ namespace Clonemmings
 						cc.MineSpeed = 1.0f;
 						TRACE("no mine speed in file using 1.0");
 					}
+					m_Scene->GetGameLevelData().StartClonemmingCount++;
 				}
 				auto clonemmingstartcomponent = entity["ClonemmingStartComponent"];
 				if (clonemmingstartcomponent)
@@ -582,6 +644,7 @@ namespace Clonemmings
 					csc.ClonemmingReleaseRate = clonemmingstartcomponent["ClonemmingReleaseRate"].as<uint32_t>();
 					TRACE("Clonemming start point, number of clonemmings: {}", csc.NumberOfClonemmings);
 					TRACE("Clonemming Startpoint, Release Rate: {}", csc.ClonemmingReleaseRate);
+					m_Scene->GetGameLevelData().StartClonemmingCount =+ csc.NumberOfClonemmings;
 				}
 				auto clonemmingexitcomponent = entity["ClonemmingExitComponent"];
 				if (clonemmingexitcomponent)
