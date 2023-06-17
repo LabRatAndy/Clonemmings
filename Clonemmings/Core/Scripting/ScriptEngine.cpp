@@ -284,7 +284,7 @@ namespace Clonemmings
 	std::shared_ptr<ScriptInstance> ScriptEngine::GetEntityScriptInstance(UUID entityid)
 	{
 		auto it = s_Data->EntityInstances.find(entityid);
-		if (it != s_Data->EntityInstances.end())
+		if (it == s_Data->EntityInstances.end())
 		{
 			return nullptr;
 		}
