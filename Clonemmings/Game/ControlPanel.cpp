@@ -101,7 +101,7 @@ namespace Clonemmings
 		ImGui::SameLine();
 		if (ImGui::Button(GetLabelText(MAKEBLOCKERBUTTON), m_ButtonSize))
 		{
-			if (m_SelectedEntity && !PhysicsEngine::IsContactBottom(m_SelectedEntity.GetUUID()))
+			if (m_SelectedEntity && PhysicsEngine::IsContactBottom(m_SelectedEntity.GetUUID()))
 			{
 				if (m_Context->GetGameLevelData().UseBlocker())
 					ChangeClonemmingStatus(ClonemmingComponent::ClonemingStatus::Blocker);
