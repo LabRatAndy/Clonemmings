@@ -342,7 +342,7 @@ namespace Clonemmings
 		const auto& bc2d = entity.GetComponent<BoxCollider2DComponent>();
 		CreateBoxCollider(bc2d, transform, body);
 		//add sensors to left right top bottom
-		glm::vec2 sensorsize = { (bc2d.Size.x * 0.75f) * transform.Scale.x,(bc2d.Size.y * 0.5f) * transform.Scale.y };
+		glm::vec2 sensorsize = { (bc2d.Size.x * 0.8f) * transform.Scale.x,(bc2d.Size.y * 0.5f) * transform.Scale.y };
 		glm::vec2 sensorcentre = { 0.0f,-bc2d.Size.y };
 		AddSensorToBody(body, sensorsize,sensorcentre, 0, SensorSide::Bottom);
 		sensorcentre = { 0.0f,bc2d.Size.y };
