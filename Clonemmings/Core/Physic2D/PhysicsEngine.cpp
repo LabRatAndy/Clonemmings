@@ -24,6 +24,7 @@ namespace Clonemmings
 	{
 		delete s_PhysicsWorld;
 		s_PhysicsWorld = nullptr;
+		s_BodyMap.clear();
 	}
 	void PhysicsEngine::PhysicsWorldUpdate(TimeStep ts, int32_t veliterations, int32_t positerations)
 	{
@@ -387,5 +388,13 @@ namespace Clonemmings
 		}
 		return UUID(0);
 	}
-	
+	UUID PhysicsEngine::GetBottomContactUUID(UUID uuid)
+	{
+		ASSERT(s_BodyMap.find(uuid) != s_BodyMap.end(), "Entity has not been added to Physics!");
+		if (IsContactBottom(uuid))
+		{
+			return GetContactUUID(uuid);
+		}
+		return UUID(0);
+	}
 }
