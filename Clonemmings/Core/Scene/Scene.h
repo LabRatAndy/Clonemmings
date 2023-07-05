@@ -4,6 +4,7 @@
 #include "Core/Application/Layer.h"
 #include "Game/GameLevelData.h"
 #include <entt.hpp>
+#include <glm/glm.hpp>
 
 class b2World;
 namespace Clonemmings
@@ -26,6 +27,8 @@ namespace Clonemmings
 		Entity GetEntityByName(std::string_view name);
 		Entity GetEntityByUUID(UUID uuid);
 		Entity DuplicateEntity(Entity entity);
+		void SplitHorizontalEntity(Entity entity, const glm::vec3& gapposition, float gapwidth);
+		void SplitVerticalEntity(Entity entity, const glm::vec3& gapposition, float gapheight);
 
 		void SetGameLayer(Layer* gamelayer); 
 		Layer* GetGameLayer(); 
