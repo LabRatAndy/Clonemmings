@@ -197,6 +197,16 @@ namespace Clonemmings
 		ASSERT(entity.HasComponent<RectangleComponent>(), "Entity doesn't have rectangle component");
 		entity.RemoveComponent<RectangleComponent>();
 	}
+	static void Entity_SplitHorizontalEntity(UUID uuid, glm::vec3* gapposition, float gapwidth)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		ASSERT(entity);
+		scene->SplitHorizontalEntity(entity, *gapposition, gapwidth);
+		//deletion of original entity rests with calling function so delete it here!
+		scene->DestroyEntity(entity);
+	}
 #pragma endregion
 #pragma region RectangleComponent
 	static void RectangleComponent_GetTranslation(UUID uuid, glm::vec3* outresult)
@@ -394,7 +404,275 @@ namespace Clonemmings
 	{
 		return PhysicsEngine::IsContactRight(uuid);
 	}
+	static uint64_t RigidBody2DComponent_GetBottomContact(UUID uuid)
+	{
+		return PhysicsEngine::GetBottomContactUUID(uuid);
+	}
 #pragma endregion
+#pragma region BoxCollider2DComponent
+	static void BoxCollider2DComponent_GetOffset(UUID uuid, glm::vec2* outoffset)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		ASSERT(entity);
+		auto& bc2d = entity.GetComponent<BoxCollider2DComponent>();
+		*outoffset = bc2d.Offset;
+	}
+	static void BoxCollider2DComponent_SetOffset(UUID uuid, glm::vec2* offset)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		ASSERT(entity);
+		auto& bc2d = entity.GetComponent<BoxCollider2DComponent>();
+		bc2d.Offset = *offset;
+	}
+	static void BoxCollider2DComponent_GetSize(UUID uuid, glm::vec2* outsize)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		auto& bc2d = entity.GetComponent<BoxCollider2DComponent>();
+		*outsize = bc2d.Size;
+	}
+	static void BoxCollider2DComponent_SetSize(UUID uuid, glm::vec2* size)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		auto& bc2d = entity.GetComponent<BoxCollider2DComponent>();
+		bc2d.Size = *size;
+	}
+	static float BoxCollider2DComponent_GetFriction(UUID uuid)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		auto& bc2d = entity.GetComponent<BoxCollider2DComponent>();
+		return bc2d.Friction;
+	}
+	static void BoxCollider2DComponent_SetFriction(UUID uuid, float friction)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		auto& bc2d = entity.GetComponent<BoxCollider2DComponent>();
+		bc2d.Friction = friction;
+	}
+	static float BoxCollider2DComponent_GetDensity(UUID uuid)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		auto& bc2d = entity.GetComponent<BoxCollider2DComponent>();
+		return bc2d.Density;
+	}
+	static void BoxCollider2DComponent_SetDensity(UUID uuid, float density)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		auto& bc2d = entity.GetComponent<BoxCollider2DComponent>();
+		bc2d.Density = density;
+	}
+	static float BoxCollider2DComponent_GetRestitution(UUID uuid)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		auto& bc2d = entity.GetComponent<BoxCollider2DComponent>();
+		return bc2d.Restitution;
+	}
+	static void BoxCollider2DComponent_SetRestitution(UUID uuid, float restitution)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		auto& bc2d = entity.GetComponent<BoxCollider2DComponent>();
+		bc2d.Restitution = restitution;
+	}
+	static float BoxCollider2DComponent_GetRestitutionThreshold(UUID uuid)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		auto& bc2d = entity.GetComponent<BoxCollider2DComponent>();
+		return bc2d.RestitutionThreshold;
+	}
+	static void BoxCollider2DComponent_SetRestitutionThreshold(UUID uuid, float threshold)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		auto& bc2d = entity.GetComponent<BoxCollider2DComponent>();
+		bc2d.RestitutionThreshold = threshold;
+	}
+	static uint16_t BoxCollider2DComponent_GetCategory(UUID uuid)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		auto& bc2d = entity.GetComponent<BoxCollider2DComponent>();
+		return bc2d.Category;
+	}
+	static void BoxCollider2DComponent_SetCategory(UUID uuid, uint16_t category)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		auto& bc2d = entity.GetComponent<BoxCollider2DComponent>();
+		bc2d.Category = category;
+	}
+	static uint16_t BoxCollider2DComponent_GetMask(UUID uuid)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		auto& bc2d = entity.GetComponent<BoxCollider2DComponent>();
+		return bc2d.Mask;
+	}
+	static void BoxCollider2DComponent_SetMask(UUID uuid, uint16_t mask)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		auto& bc2d = entity.GetComponent<BoxCollider2DComponent>();
+		bc2d.Mask = mask;
+	}
+#pragma endregion
+#pragma region CircleCollider2DComponent
+	static void CircleCollider2DComponent_GetOffset(UUID uuid, glm::vec2* outoffset)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		auto& cc2d = entity.GetComponent<CircleCollider2DComponent>();
+		*outoffset = cc2d.Offset;
+	}
+	static void CircleCollider2DComponent_SetOffset(UUID uuid, glm::vec2* offset)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		auto& cc2d = entity.GetComponent<CircleCollider2DComponent>();
+		cc2d.Offset = *offset;
+	}
+	static float CircleCollider2DComponent_GetRadius(UUID uuid)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		auto& cc2d = entity.GetComponent<CircleCollider2DComponent>();
+		return cc2d.Radius;
+	}
+	static void CircleCollider2DComponent_SetRadius(UUID uuid, float radius)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		auto& cc2d = entity.GetComponent<CircleCollider2DComponent>();
+		cc2d.Radius = radius;
+	}
+	static float CircleCollider2DComponent_GetFriction(UUID uuid)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		auto& cc2d = entity.GetComponent<CircleCollider2DComponent>();
+		return cc2d.Friction;
+	}
+	static void CircleCollider2DComponent_SetFriction(UUID uuid, float friction)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		auto& cc2d = entity.GetComponent<CircleCollider2DComponent>();
+		cc2d.Friction = friction;
+	}
+	static float CircleCollider2DComponent_GetDensity(UUID uuid)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		auto& cc2d = entity.GetComponent<CircleCollider2DComponent>();
+		return cc2d.Density;
+	}
+	static void CircleCollider2DComponent_SetDensity(UUID uuid, float density)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		auto& cc2d = entity.GetComponent<CircleCollider2DComponent>();
+		cc2d.Density = density;
+	}
+	static float CircleCollider2DComponent_GetRestitution(UUID uuid)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		auto& cc2d = entity.GetComponent<CircleCollider2DComponent>();
+		return cc2d.Restitution;
+	}
+	static void CircleCollider2DComponent_SetRestitution(UUID uuid, float restitution)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		auto& cc2d = entity.GetComponent<CircleCollider2DComponent>();
+		cc2d.Restitution = restitution;
+	}
+	static float CircleCollider2DComponent_GetRestitutionThreshold(UUID uuid)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		auto& cc2d = entity.GetComponent<CircleCollider2DComponent>();
+		return cc2d.RestitutionThreshold;
+	}
+	static void CircleCollider2DComponent_SetRestitutionThreshold(UUID uuid, float threshold)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		auto& cc2d = entity.GetComponent<CircleCollider2DComponent>();
+		cc2d.RestitutionThreshold = threshold;
+	}
+	static uint16_t CircleCollider2DComponent_GetCategory(UUID uuid)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		auto& cc2d = entity.GetComponent<CircleCollider2DComponent>();
+		return cc2d.Category;
+	}
+	static void CircleCollider2DComponent_SetCategory(UUID uuid, uint16_t category)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		auto& cc2d = entity.GetComponent<CircleCollider2DComponent>();
+		cc2d.Category = category;
+	}
+	static uint16_t CircleCollider2DComponent_GetMask(UUID uuid)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		auto& cc2d = entity.GetComponent<CircleCollider2DComponent>();
+		return cc2d.Mask;
+	}
+	static void CircleCollider2DComponent_SetMask(UUID uuid, uint16_t mask)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		auto& cc2d = entity.GetComponent<CircleCollider2DComponent>();
+		cc2d.Mask = mask;
+	}
+#pragma endregion
+
+
 #pragma region SpriteRendererComponent
 	static void SpriteRendererComponent_GetColour(UUID uuid, glm::vec4* outresult)
 	{
@@ -630,6 +908,7 @@ namespace Clonemmings
 		ADD_INTERNAL_CALL(Entity_RemoveRectangleComponent);
 		ADD_INTERNAL_CALL(Entity_AddComponent);
 		ADD_INTERNAL_CALL(Entity_RemoveComponent);
+		ADD_INTERNAL_CALL(Entity_SplitHorizontalEntity);
 		ADD_INTERNAL_CALL(TransformComponent_GetTranslation);
 		ADD_INTERNAL_CALL(TransformComponent_SetTranslation);
 		ADD_INTERNAL_CALL(TransformComponent_GetRotation);
@@ -651,6 +930,39 @@ namespace Clonemmings
 		ADD_INTERNAL_CALL(RigidBody2DComponent_HasContactRight);
 		ADD_INTERNAL_CALL(RigidBody2DComponent_HasContactTop);
 		ADD_INTERNAL_CALL(RigidBody2DComponent_HasContactBottom);
+		ADD_INTERNAL_CALL(RigidBody2DComponent_GetBottomContact);
+		ADD_INTERNAL_CALL(BoxCollider2DComponent_GetCategory);
+		ADD_INTERNAL_CALL(BoxCollider2DComponent_GetDensity);
+		ADD_INTERNAL_CALL(BoxCollider2DComponent_GetFriction);
+		ADD_INTERNAL_CALL(BoxCollider2DComponent_GetMask);
+		ADD_INTERNAL_CALL(BoxCollider2DComponent_GetOffset);
+		ADD_INTERNAL_CALL(BoxCollider2DComponent_GetRestitution);
+		ADD_INTERNAL_CALL(BoxCollider2DComponent_GetRestitutionThreshold);
+		ADD_INTERNAL_CALL(BoxCollider2DComponent_GetSize);
+		ADD_INTERNAL_CALL(BoxCollider2DComponent_SetCategory);
+		ADD_INTERNAL_CALL(BoxCollider2DComponent_SetDensity);
+		ADD_INTERNAL_CALL(BoxCollider2DComponent_SetFriction);
+		ADD_INTERNAL_CALL(BoxCollider2DComponent_SetMask);
+		ADD_INTERNAL_CALL(BoxCollider2DComponent_SetOffset);
+		ADD_INTERNAL_CALL(BoxCollider2DComponent_SetRestitution);
+		ADD_INTERNAL_CALL(BoxCollider2DComponent_SetRestitutionThreshold);
+		ADD_INTERNAL_CALL(BoxCollider2DComponent_SetSize);
+		ADD_INTERNAL_CALL(CircleCollider2DComponent_GetCategory);
+		ADD_INTERNAL_CALL(CircleCollider2DComponent_GetDensity);
+		ADD_INTERNAL_CALL(CircleCollider2DComponent_GetFriction);
+		ADD_INTERNAL_CALL(CircleCollider2DComponent_GetMask);
+		ADD_INTERNAL_CALL(CircleCollider2DComponent_GetOffset);
+		ADD_INTERNAL_CALL(CircleCollider2DComponent_GetRadius);
+		ADD_INTERNAL_CALL(CircleCollider2DComponent_GetRestitution);
+		ADD_INTERNAL_CALL(CircleCollider2DComponent_GetRestitutionThreshold);
+		ADD_INTERNAL_CALL(CircleCollider2DComponent_SetCategory);
+		ADD_INTERNAL_CALL(CircleCollider2DComponent_SetDensity);
+		ADD_INTERNAL_CALL(CircleCollider2DComponent_SetFriction);
+		ADD_INTERNAL_CALL(CircleCollider2DComponent_SetMask);
+		ADD_INTERNAL_CALL(CircleCollider2DComponent_SetOffset);
+		ADD_INTERNAL_CALL(CircleCollider2DComponent_SetRadius);
+		ADD_INTERNAL_CALL(CircleCollider2DComponent_SetRestitution);
+		ADD_INTERNAL_CALL(CircleCollider2DComponent_SetRestitutionThreshold);
 		ADD_INTERNAL_CALL(SpriteRendererComponent_GetColour);
 		ADD_INTERNAL_CALL(SpriteRendererComponent_SetColour);
 		ADD_INTERNAL_CALL(SpriteRendererComponent_GetTilingFactor);

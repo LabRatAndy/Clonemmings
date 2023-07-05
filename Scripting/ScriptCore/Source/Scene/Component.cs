@@ -108,7 +108,110 @@
         {
             get => InternalCalls.RigidBody2DComponent_HasContactBottom(Entity.ID);
         }
+        public ulong GetBottomContact
+        {
+            get => InternalCalls.RigidBody2DComponent_GetBottomContact(Entity.ID);
+        }
     }
+    public class BoxCollider2DComponent : Component
+    {
+        public Vector2 Offset 
+        {
+            get 
+            {
+                InternalCalls.BoxCollider2DComponent_GetOffset(Entity.ID, out Vector2 result);
+                return result;
+            }
+            set => InternalCalls.BoxCollider2DComponent_SetOffset(Entity.ID, ref value);
+        }
+        public Vector2 Size
+        {
+            get 
+            {
+                InternalCalls.BoxCollider2DComponent_GetSize(Entity.ID,out Vector2 result);
+                return result;
+            }
+            set => InternalCalls.BoxCollider2DComponent_SetSize(Entity.ID, ref value);
+        }
+        public float Friction
+        {
+            get => InternalCalls.BoxCollider2DComponent_GetFriction(Entity.ID);
+            set => InternalCalls.BoxCollider2DComponent_SetFriction(Entity.ID, value);            
+        }
+        public float Density
+        {
+            get => InternalCalls.BoxCollider2DComponent_GetDensity(Entity.ID);
+            set => InternalCalls.BoxCollider2DComponent_SetDensity(Entity.ID, value);
+        }
+        public float Restitution
+        {
+            get => InternalCalls.BoxCollider2DComponent_GetRestitution(Entity.ID);
+            set => InternalCalls.BoxCollider2DComponent_SetRestitution(Entity.ID, value);
+        }
+        public float RestitutionThreshold
+        {
+            get => InternalCalls.boxCollider2DComponent_GetRestitutionThreshold(Entity.ID);
+            set => InternalCalls.BoxCollider2DComponent_SetRestitutionThreshold(Entity.ID, value);
+        }
+        public ushort CollisionCategory
+        {
+            get => InternalCalls.BoxCollider2DComponent_GetCategory(Entity.ID);
+            set => InternalCalls.BoxCollider2DComponent_SetCategory(Entity.ID, value);
+        }
+        public ushort CollisionMask
+        {
+            get => InternalCalls.BoxCollider2DComponent_GetMask(Entity.ID);
+            set => InternalCalls.BoxCollider2DComponent_SetMask(Entity.ID, value);
+        }
+    }
+    public class CircleCollider2DComponent : Component
+    {
+        public Vector2 Offset
+        {
+            get
+            {
+                InternalCalls.CircleCollider2DComponent_GetOffset(Entity.ID,out Vector2 result);
+                return result;
+            }
+            set => InternalCalls.CircleCollider2DComponent_SetOffset(Entity.ID, ref value);
+        }
+        public float Radius
+        {
+            get => InternalCalls.CircleCollider2DComponent_GetRadius(Entity.ID);
+            set => InternalCalls.CircleCollider2DComponent_SetRadius(Entity.ID, value);
+        }
+        public float Friction
+        {
+            get => InternalCalls.CircleCollider2DComponent_GetFriction(Entity.ID);
+            set => InternalCalls.CircleCollider2DComponent_SetFriction(Entity.ID, value);
+        }
+        public  float Density
+        {
+            get => InternalCalls.CircleCollider2DComponent_GetDensity(Entity.ID);
+            set => InternalCalls.CircleCollider2DComponent_SetDensity(Entity.ID, value);
+        }
+        public float Restitution
+        {
+            get => InternalCalls.CircleCollider2DComponent_GetRestitution(Entity.ID);
+            set => InternalCalls.CircleCollider2DComponent_SetRestitution(Entity.ID, value);
+        }
+        public float RestitutionThreshold
+        {
+            get => InternalCalls.CircleCollider2DComponent_GetRestitutionThreshold(Entity.ID);
+            set => InternalCalls.CircleCollider2DComponent_SetRestitutionThreshold(Entity.ID, value);
+        }
+        public ushort CollisionCategory
+        {
+            get => InternalCalls.CircleCollider2DComponent_GetCategory(Entity.ID);
+            set => InternalCalls.CircleCollider2DComponent_SetCategory(Entity.ID, value);
+        }
+        public ushort CollisionMask
+        {
+            get => InternalCalls.CircleCollider2DComponent_GetMask(Entity.ID);
+            set => InternalCalls.CircleCollider2DComponent_SetMask(Entity.ID, value);
+        }
+    }
+
 
     public class SpriteRendererComponent : Component
     {

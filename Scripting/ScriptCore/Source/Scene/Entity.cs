@@ -105,5 +105,9 @@ namespace Core
         {
             InternalCalls.Entity_DestroyEntity(ID);
         }
+        public void HorizontalSplit(ref Vector3 gapposition, float gapwidth)
+        {
+            InternalCalls.Entity_SplitHorizontalEntity(ID, ref gapposition, gapwidth);
+        }
    }
 }
