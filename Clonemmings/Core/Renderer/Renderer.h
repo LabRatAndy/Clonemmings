@@ -87,6 +87,7 @@ namespace Clonemmings
 		void SetLineWidth(float linewidth) { m_LineWidth = linewidth; }
 		void SetLineSmooth(bool enable);
 
+		const glm::vec4& GetQuadVertices(uint32_t index) { return m_QuadVertices[index]; }
 
 	private:
 		//shaders
