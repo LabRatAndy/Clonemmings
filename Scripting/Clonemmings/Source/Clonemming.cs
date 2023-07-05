@@ -3,9 +3,11 @@ using Core;
 
 namespace Clonemmings
 {
+    
     public class Clonemming : Entity
     {
-       
+        private readonly ushort DIGGABLEFLOOR = 1 << 7;
+        private readonly ushort MINEABLEWALL = 1 << 6;
         private TransformComponent m_Transform;
         private RigidBody2DComponent m_RigidBody;
         private ClonemmingComponent m_ClonemmingComponent;
@@ -16,6 +18,9 @@ namespace Clonemmings
         private float fallvelocity = 0;
         private Vector2 m_CurrentLinearVelocity;
         private float m_DeadTime = 0.0f;
+        private float m_Digtime = float.NaN;
+        private float m_CurrentTimeDigging = 0.0f;
+        private Entity m_Ledge = null;
         public float m_MaxSurvivableVelocityChange;
         void OnCreate()
         {
@@ -60,6 +65,56 @@ namespace Clonemmings
             if(m_ClonemmingComponent.Status == ClonemmingComponent.ClonmmingStatus.Floater)
             {
                 ProcessFloater(linearvelocity);
+            }
+            if(m_ClonemmingComponent.Status == ClonemmingComponent.ClonmmingStatus.Digger)
+            {
+                
+                InternalCalls.Native_Log("C#: Processing miner");
+                m_Ledge = new Entity(m_RigidBody.GetBottomContact);              
+                if (m_Ledge.GetComponent<BoxCollider2DComponent>().CollisionCategory != DIGGABLEFLOOR)
+                {
+                    //cant dig through this floor os reset
+                    InternalCalls.Native_Log("C#: can't dig the floor!");
+                    m_ClonemmingComponent.Status = ClonemmingComponent.ClonmmingStatus.Walker;
+                    m_previousStatus = ClonemmingComponent.ClonmmingStatus.Digger;
+                }
+                else
+                {
+                    InternalCalls.Native_Log("Floor is diggable");
+                    InternalCalls.Native_Log("Digtime is: " + m_Digtime);
+                    //set colour
+                    m_Sprite.Colour = new Vector4(1.0f, 0.0f, 1.0f, 1.0f);
+                    //get thicknessof ledge and work out howlong digging should take, digspeed should be in m/s ledge thickness is in meters
+                    if (float.IsNaN(m_Digtime))
+                    {
+                        InternalCalls.Native_Log("C#: m_Digtime is NaN");
+                        float ledgethickness = m_Ledge.GetComponent<TransformComponent>().Scale.Y;
+                        if (m_ClonemmingComponent.DigSpeed > 0.0f)
+                        {
+                            m_Digtime = ledgethickness / m_ClonemmingComponent.DigSpeed;
+                        }
+                        else
+                            m_Digtime = ledgethickness / 1.0f;
+                        InternalCalls.Native_Log("C#: ledge thickness: " + ledgethickness + " m_Digtime: " + m_Digtime);
+                    }
+                    else
+                    {
+                        m_CurrentTimeDigging += ts;
+                        InternalCalls.Native_Log("C#: m_currenttimedigging set: " + m_CurrentTimeDigging);
+                    }
+                    //compare if enough time digging has passed if so split the ledge entity
+                    if (m_CurrentTimeDigging >= m_Digtime)
+                    {
+                        InternalCalls.Native_Log("C#: digging is finised");
+                        Vector3 position = m_Transform.Translation;
+                        float width = m_Transform.Scale.X + 0.1f;
+                        InternalCalls.Native_Log("C#: Spliting entity: " + m_Ledge.ID + " at: " + position.ToString() + "gap width: " + width);
+                        m_Ledge.HorizontalSplit(ref position, width);
+                        m_ClonemmingComponent.Status = ClonemmingComponent.ClonmmingStatus.Walker;
+                    }
+                    m_previousStatus = ClonemmingComponent.ClonmmingStatus.Digger;
+                }
+                InternalCalls.Native_Log("C#: End of miner code!");
             }
 
         }
@@ -112,12 +167,12 @@ namespace Clonemmings
             //check if already dead and return if so!
             if (m_ClonemmingComponent.Status == ClonemmingComponent.ClonmmingStatus.Dead) return;
             float velocitychange = Math.Abs(m_CurrentLinearVelocity.Y) - Math.Abs(linearvelocity.Y);
-            InternalCalls.Native_Log("C#: Check if dead");
-            InternalCalls.Native_Log("C#: Dead check velocity change: " + velocitychange);
+            //InternalCalls.Native_Log("C#: Check if dead");
+            //InternalCalls.Native_Log("C#: Dead check velocity change: " + velocitychange);
             if (Math.Abs(velocitychange) >= m_MaxSurvivableVelocityChange)
             {
                 //clonemming is dead
-                InternalCalls.Native_Log("C#: Clonemming is dead");
+                //InternalCalls.Native_Log("C#: Clonemming is dead");
                 m_ClonemmingComponent.Status = ClonemmingComponent.ClonmmingStatus.Dead;
                 InternalCalls.SetDeadClonemming(ID);
                 return;
@@ -128,40 +183,40 @@ namespace Clonemmings
         {
             if (m_RigidBody.HasContactLeft)
             {
-                InternalCalls.Native_Log("C#: Left contact");
+                //InternalCalls.Native_Log("C#: Left contact");
                 m_Direction = 1;
             }
             if (m_RigidBody.HasContactRight)
             {
-                InternalCalls.Native_Log("C#: Right contact");
+                //InternalCalls.Native_Log("C#: Right contact");
                 m_Direction = -1;
             }
             if (m_RigidBody.HasContactBottom)
             {
-                InternalCalls.Native_Log("C#: Bottom Contact");
+                //InternalCalls.Native_Log("C#: Bottom Contact");
                 float targetvelocity = 0;
                 switch (m_Direction)
                 {
                     case 1: targetvelocity = Math.Min(linearvelocity.X + 0.5f, m_ClonemmingComponent.WalkSpeed); break; //Right
                     case -1: targetvelocity = Math.Max(linearvelocity.X - 0.5f, -m_ClonemmingComponent.WalkSpeed); break; //left
                 }
-                InternalCalls.Native_Log("C#: targetvelocity: " + targetvelocity);
+                //InternalCalls.Native_Log("C#: targetvelocity: " + targetvelocity);
                 float velocitychange = targetvelocity - linearvelocity.X;
-                InternalCalls.Native_Log("C#: velocitychange: " + velocitychange);
+                //InternalCalls.Native_Log("C#: velocitychange: " + velocitychange);
                 float impulse = m_RigidBody.Mass * velocitychange;
                 if (m_Direction == -1)
                 {
-                    InternalCalls.Native_Log("C#: apply leftward impulse of: " + impulse); ;
+                    //InternalCalls.Native_Log("C#: apply leftward impulse of: " + impulse); ;
                     m_RigidBody.ApplyLinearImpulse(new Vector2(impulse, 0), true);
                 }
                 else if (m_Direction == 1)
                 {
-                    InternalCalls.Native_Log("C#: apply rightward impulse of: " + impulse);
+                    //InternalCalls.Native_Log("C#: apply rightward impulse of: " + impulse);
                     m_RigidBody.ApplyLinearImpulse(new Vector2(impulse, 0), true);
                 }
             }
             m_previousStatus = ClonemmingComponent.ClonmmingStatus.Walker;
-            InternalCalls.Native_Log("C#: passed contact checking");
+            //InternalCalls.Native_Log("C#: passed contact checking");
         }
         private void ProcessBlocker()
         {
@@ -214,6 +269,14 @@ namespace Clonemmings
                     m_Sprite.Colour = new Vector4(0, 1, 0, 1);
                     m_previousStatus = m_ClonemmingComponent.Status;
                     fallvelocity = 0.0f;
+                    break;
+                case ClonemmingComponent.ClonmmingStatus.Digger:
+                    InternalCalls.Native_Log("C#: Recycle digger");
+                    m_Sprite.Colour = new Vector4(0, 1, 0, 1);
+                    m_previousStatus = m_ClonemmingComponent.Status;
+                    m_Digtime = float.NaN;
+                    m_CurrentTimeDigging = 0.0f;
+                    m_Ledge = null;
                     break;
             }
         }
