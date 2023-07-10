@@ -207,6 +207,16 @@ namespace Clonemmings
 		//deletion of original entity rests with calling function so delete it here!
 		scene->DestroyEntity(entity);
 	}
+	static void Entity_SplitVerticalEntity(UUID uuid, glm::vec3* gapposition, float gapwidth)
+	{
+		Scene* scene = ScriptEngine::GetSceneContext();
+		ASSERT(scene);
+		Entity entity = scene->GetEntityByUUID(uuid);
+		ASSERT(entity);
+		scene->SplitVerticalEntity(entity, *gapposition, gapwidth);
+		//deletion of original entity rests with calling function so delete it here
+		scene->DestroyEntity(entity);
+	}
 #pragma endregion
 #pragma region RectangleComponent
 	static void RectangleComponent_GetTranslation(UUID uuid, glm::vec3* outresult)
