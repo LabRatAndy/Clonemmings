@@ -123,7 +123,7 @@ namespace Clonemmings
 			UUID assethandle = asset["Handle"].as<uint64_t>();
 			auto& metadata = m_AssetRegistry[assethandle];
 			metadata.FilePath = asset["FilePath"].as<std::string>();
-			metadata.Type = AssetTypeFromSring(asset["Type"].as<std::string>());
+			metadata.Type = AssetTypeFromString(asset["Type"].as<std::string>());
 		}
 		return true;
 	}
