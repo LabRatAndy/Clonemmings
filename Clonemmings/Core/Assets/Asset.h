@@ -3,14 +3,16 @@
 #include <string>
 namespace  Clonemmings
 {
-	enum class AssetType
+	enum class AssetType : uint16_t
 	{
 		None = 0,
 		Texture2D,
 		Level
 	};
+
 	std::string AssetTypeToString(AssetType type);
-	AssetType AssetTypeFromSring(const std::string& typestr);
+	AssetType AssetTypeFromString(const std::string& typestr);
+	
 	class Asset
 	{
 	public: 
