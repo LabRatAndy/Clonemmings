@@ -11,6 +11,12 @@ namespace Clonemmings
 	{
 	public:
 		std::shared_ptr<Asset> GetAsset(UUID assethandle) const;
+		template<typename T>
+		std::shared_ptr<T> GetAssetAs(UUID assethandle) const
+		{
+			std::shared_ptr<Asset> asset = GetAsset(assethandle);
+			return std::static_pointer_cast<T>(asset);
+		}
 		void ImportAsset(std::filesystem::path& filename);
 		bool IsAssetHandleValid(UUID assethandle) const;
 		bool IsAssetLoaded(UUID assethandle) const;
