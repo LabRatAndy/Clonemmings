@@ -6,6 +6,7 @@
 #include "Core/Application/Assert.h"
 #include "Core/ImGui/ImGuiLayer.h"
 #include "Core/Renderer/Renderer.h"
+#include "Core/Assets/AssetManager.h"
 
 #include <memory>
 
@@ -35,6 +36,7 @@ namespace Clonemmings
 		Window& GetWindow() { return *m_Window; }
 		CommandLineArguements GetCommandLineArguments() { return m_CommandLineArgs; }
 		static Application& Get() { return *s_Instance; }
+		static AssetManager& GetAssetManager() { return *s_AssetManager; }
 		ImGuiLayer* GetImGuiLayer() { return m_ImGuiLayer; }
 		Renderer& GetRenderer() { return *m_Renderer; }
 		void SubmitToMainThread(const std::function<void()>& function);
@@ -48,6 +50,7 @@ namespace Clonemmings
 		CommandLineArguements m_CommandLineArgs;
 		ImGuiLayer* m_ImGuiLayer;
 		static Application* s_Instance;
+		static AssetManager* s_AssetManager;
 		std::unique_ptr<Renderer> m_Renderer = nullptr;
 		SceneCamera* m_Camera = nullptr;
 		std::vector<std::function<void()>> m_MainThreadQueue;

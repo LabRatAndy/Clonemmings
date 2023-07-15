@@ -7,6 +7,7 @@
 namespace Clonemmings
 {
 	Application* Application::s_Instance = nullptr;
+	AssetManager* Application::s_AssetManager = nullptr;
 
 	Application::Application(const std::string& name, const CommandLineArguements& args) : m_CommandLineArgs(args)
 	{
