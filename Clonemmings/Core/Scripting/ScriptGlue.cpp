@@ -117,7 +117,7 @@ namespace Clonemmings
 		auto& src = clonemming.AddComponent<SpriteRendererComponent>();
 		src.Colour = { 0.100689799, 0.729729772, 0.0957946256, 1.0 };
 		src.TilingFactor = 1.0f;
-		src.Tex = nullptr;
+		src.TextureAssetHandle = 0;
 		auto& rb2d = clonemming.AddComponent<RigidBody2DComponent>();
 		rb2d.Type = RigidBody2DComponent::BodyType::Dynamic;
 		rb2d.FixedRotation = false;

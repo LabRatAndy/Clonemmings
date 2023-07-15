@@ -6,6 +6,7 @@
 #include "Core/Application/Physics2D.h"
 #include "Core/Scripting/ScriptEngine.h"
 #include "Core/Physic2D/PhysicsEngine.h"
+#include "Core/Assets/AssetManager.h"
 
 #include <box2d/b2_body.h>
 #include <box2d/b2_world.h>
@@ -178,7 +179,8 @@ namespace Clonemmings
 				{
 					auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
 					glm::vec2 size = { transform.Scale.x,transform.Scale.y };
-					Application::Get().GetRenderer().DrawBatchedRotatedQuad(transform.Translation, size, sprite.Tex, sprite.Colour, glm::degrees(transform.Rotation.z), sprite.TilingFactor, (int)entity);
+					std::shared_ptr<Texture> texture = Application::GetAssetManager().GetAssetAs<Texture>(sprite.TextureAssetHandle);
+					Application::Get().GetRenderer().DrawBatchedRotatedQuad(transform.Translation, size, texture, sprite.Colour, glm::degrees(transform.Rotation.z), sprite.TilingFactor, (int)entity);
 				}
 				Application::Get().GetRenderer().EndBatch(BatchType::Quad);
 				Application::Get().GetRenderer().StartBatch(BatchType::Line);
