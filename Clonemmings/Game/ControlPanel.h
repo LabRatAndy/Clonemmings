@@ -1,6 +1,7 @@
 #pragma once
 #include "Core/Scene/Scene.h"
 #include "Core/Scene/Entity.h"
+#include "Game/LoadLevelPanel.h"
 
 #include <imgui.h>
 
@@ -64,6 +65,9 @@ namespace Clonemmings
 		Entity m_SelectedEntity = {};
 		std::unordered_map<uint32_t, LabelText> m_LabelMap;
 		ImVec2 m_ButtonSize = { 0.0,0.0 };
+		LoadLevelPanel m_LoadLevelPanel;
+		LevelLoad m_LoadLevelPanelResult = LevelLoad::Invalid;
+		bool m_ShowLoadLevelPanel = false;
 
 		void GetLargestButtonSize();
 		const char* GetLabelText(const uint32_t stringkey) const;
@@ -77,6 +81,7 @@ namespace Clonemmings
 		
 
 		friend class LabelSerialiser;
+		friend void LoadLevelPanel::OnImGuiRender();
 
 	};
 }
