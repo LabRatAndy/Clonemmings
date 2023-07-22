@@ -47,7 +47,7 @@ namespace Clonemmings
 	struct SpriteRendererComponent
 	{
 		glm::vec4 Colour = { 1.0,1.0,1.0,1.0 };
-		std::shared_ptr<Texture> Tex = nullptr;
+		UUID TextureAssetHandle = 0;
 		float TilingFactor = 1.0f;
 
 		SpriteRendererComponent() = default;

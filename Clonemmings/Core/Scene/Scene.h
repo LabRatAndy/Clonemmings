@@ -3,13 +3,14 @@
 #include "Core/Application/UUID.h"
 #include "Core/Application/Layer.h"
 #include "Game/GameLevelData.h"
+#include "Core/Assets/Asset.h"
 #include <entt.hpp>
 
 class b2World;
 namespace Clonemmings
 {
 	class Entity;
-	class Scene
+	class Scene : public Asset
 	{
 	public:
 		Scene();
@@ -39,6 +40,8 @@ namespace Clonemmings
 		
 		GameLevelData& GetGameLevelData() { return m_GameLevelData; }
 		void SetGameLevelData(const GameLevelData& gameleveldata) { m_GameLevelData = gameleveldata; }
+
+		virtual AssetType GetType() const override { return AssetType::Level; }
 
 
 	private:

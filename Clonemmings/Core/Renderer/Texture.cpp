@@ -26,6 +26,26 @@ SOFTWARE.*/
 #include <glad/glad.h>
 namespace Clonemmings
 {
+	static GLenum ImageFormatToGLDataFormat(ImageFormat format)
+	{
+		switch (format)
+		{
+		case ImageFormat::RGB8: return GL_RGB;
+		case ImageFormat::RGBA8: return GL_RGBA;
+		}
+		ASSERT(false, "Invalid ImageFormat!");
+		return 0;
+	}
+	static GLenum ImageFormatToGLInternalFormat(ImageFormat format)
+	{
+		switch (format)
+		{
+		case ImageFormat::RGB8: return GL_RGB8;
+		case ImageFormat::RGBA8: return GL_RGBA8;
+		}
+		ASSERT(false, "Invalid ImageFormat!");
+		return 0;
+	}
 	Texture::Texture(const std::filesystem::path& filename) :m_Filename(filename)
 	{
 		ASSERT(std::filesystem::exists(m_Filename), "Texture file does not exist!");
@@ -63,6 +83,17 @@ namespace Clonemmings
 			stbi_image_free(data);
 			m_IsLoaded = true;
 		}
+	}
+	Texture::Texture(TextureSettings settings, Buffer data) :m_Settings(settings), m_Filename(""), m_Height(m_Settings.Height), m_Width(m_Settings.Width)
+	{
+		glCreateTextures(GL_TEXTURE_2D, 1, &m_Handle);
+		glTextureStorage2D(m_Handle, 1, ImageFormatToGLInternalFormat(m_Settings.Format), m_Width, m_Height);
+		glTextureParameteri(m_Handle, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTextureParameteri(m_Handle, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTextureParameteri(m_Handle, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTextureParameteri(m_Handle, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTextureSubImage2D(m_Handle, 0, 0, 0, m_Width, m_Height, ImageFormatToGLDataFormat(m_Settings.Format), GL_UNSIGNED_BYTE, data.As<uint8_t>());
+		m_IsLoaded = true;
 	}
 	Texture::Texture(uint32_t width, uint32_t height, const glm::vec4& colour): m_Width(width), m_Height(height), m_Filename("")
 	{

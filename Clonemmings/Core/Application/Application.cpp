@@ -7,11 +7,14 @@
 namespace Clonemmings
 {
 	Application* Application::s_Instance = nullptr;
+	AssetManager* Application::s_AssetManager = nullptr;
 
 	Application::Application(const std::string& name, const CommandLineArguements& args) : m_CommandLineArgs(args)
 	{
 		ASSERT(!s_Instance, "Application already exists!");
 		s_Instance = this;
+		s_AssetManager = new AssetManager();
+		s_AssetManager->DeserialiseAssetRegistry();
 		INFO("Setting up the application window");
 		m_Window = std::make_unique<Window>(name, 1100, 720);
 		m_Window->SetEventCallbackFunction([this](auto&&...args)->decltype(auto) {return this->Application::OnEvent(std::forward<decltype(args)>(args)...); });
@@ -56,6 +59,7 @@ namespace Clonemmings
 	{
 		delete m_Layers;
 		delete m_Camera;
+		delete s_AssetManager;
 	}
 	void Application::PushLayer(Layer* layer)
 	{

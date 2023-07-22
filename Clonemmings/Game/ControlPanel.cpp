@@ -58,11 +58,7 @@ namespace Clonemmings
 		}
 		if (ImGui::Button(GetLabelText(OPENLEVELBUTTON), m_ButtonSize))
 		{
-			std::string filename = FileDialog::OpenFile("lvl");
-			if (!filename.empty())
-			{
-				((GameLayer*)m_Context->GetGameLayer())->LoadScene(filename);
-			}
+			m_ShowLoadLevelPanel = true;
 		}
 		ImGui::SameLine();
 		if (ImGui::Button(GetLabelText(QUITBUTTON), m_ButtonSize))
@@ -158,6 +154,23 @@ namespace Clonemmings
 		ImGui::Columns(1);
 		ImGui::PopID();
 		ImGui::End();
+		if (m_ShowLoadLevelPanel)
+		{
+			m_LoadLevelPanel.SetControlPanel(this);
+			m_LoadLevelPanel.OnImGuiRender();
+		}
+		if (m_LoadLevelPanelResult == LevelLoad::Selected)
+		{
+			TRACE("Level selected");
+			UUID leveluuid = m_LoadLevelPanel.GetSelectedLevelHandle();
+			((GameLayer*)m_Context->GetGameLayer())->SetScene(Application::Get().GetAssetManager().GetAssetAs<Scene>(leveluuid));
+			m_LoadLevelPanelResult = LevelLoad::Invalid;
+		}
+		else if (m_LoadLevelPanelResult == LevelLoad::Cancelled)
+		{
+			TRACE("Level load cancelled");
+			m_LoadLevelPanelResult = LevelLoad::Invalid;
+		}
 	}
 	void ControlPanel::LoadLabelText(const std::string& filename)
 	{

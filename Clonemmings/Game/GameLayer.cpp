@@ -124,7 +124,7 @@ namespace Clonemmings
 #ifndef DIST	//todo flesh out scene loading and saving routine etc. this basic implementation will allow me to save the current hard coded test scene and reload it again.
 				if (ImGui::MenuItem("Save Scene"))
 				{
-					std::string filename = FileDialog::SaveFile("lvl");
+					std::string filename = FileDialog::SaveFile(".lvl");
 					if (!filename.empty())
 					{
 						SaveScene(filename);
@@ -134,7 +134,7 @@ namespace Clonemmings
 #endif
 				if (ImGui::MenuItem("Load Scene"))
 				{
-					std::string filename = FileDialog::OpenFile("lvl");
+					std::string filename = FileDialog::OpenFile(".lvl");
 					if (!filename.empty())
 					{
 						LoadScene(filename);
@@ -157,6 +157,29 @@ namespace Clonemmings
 					m_ActiveScene->StopScene();
 					m_ActiveScene = m_ResetScene;
 					m_ResetScene = Scene::Copy(m_ActiveScene);
+				}
+				ImGui::EndMenu();
+			}
+			if (ImGui::BeginMenu("Import Assets"))
+			{
+				if (ImGui::MenuItem("Import Level File"))
+				{
+					std::string filename = FileDialog::OpenFile(".lvl");
+					if (!filename.empty())
+					{
+						Application::Get().GetAssetManager().ImportAsset(filename);
+						Application::Get().GetAssetManager().SerialiseAssetRegistry();
+					}
+				}
+				ImGui::Separator();
+				if (ImGui::MenuItem("Import Texture"))
+				{
+					std::string filename = FileDialog::OpenFile(".png");
+					if (!filename.empty())
+					{
+						Application::Get().GetAssetManager().ImportAsset(filename);
+						Application::Get().GetAssetManager().SerialiseAssetRegistry();
+					}
 				}
 				ImGui::EndMenu();
 			}
@@ -193,6 +216,8 @@ namespace Clonemmings
 	void GameLayer::SetScene(std::shared_ptr<Scene> scene)
 	{
 		m_ActiveScene = scene;
+		m_ActiveScene->SetGameLayer(this);
+		m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
 		m_ResetScene = Scene::Copy(m_ActiveScene);
 		m_ControlPanel.SetContext(m_ActiveScene);
 #if 0

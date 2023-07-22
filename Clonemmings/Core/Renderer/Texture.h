@@ -20,15 +20,32 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 #pragma once
+#include "Core/Assets/Asset.h"
+#include "Core/Application/Utills.h"
 #include <glm/glm.hpp>
 #include <filesystem>
 namespace Clonemmings
 {
-	class Texture
+	enum class ImageFormat
+	{
+		None = 0,
+		R8,
+		RGB8,
+		RGBA8,
+		RGBA32F
+	};
+	struct TextureSettings
+	{
+		uint32_t Width = 1;
+		uint32_t Height = 1;
+		ImageFormat Format = ImageFormat::RGBA8;
+	};
+	class Texture :public Asset
 	{
 	public:
 		Texture(const std::filesystem::path& filename);
 		Texture(uint32_t width, uint32_t height, const glm::vec4& colour);
+		Texture(TextureSettings settings, Buffer data);
 		~Texture();
 
 		uint32_t GetWidth() const { return m_Width; }
@@ -41,6 +58,9 @@ namespace Clonemmings
 
 		bool operator==(const Texture& other) { return m_Handle == other.m_Handle; }
 		bool operator!=(const Texture& other) { return m_Handle != other.m_Handle; }
+
+		static AssetType GetStaticType() { return AssetType::Texture2D; }
+		virtual AssetType GetType() const { return GetStaticType(); }
 	private:
 		uint32_t m_Width = 0;
 		uint32_t m_Height = 0;
@@ -48,5 +68,6 @@ namespace Clonemmings
 		uint32_t m_Handle = 0;
 		bool m_IsLoaded = false;
 		std::string m_FilenameStr;
+		TextureSettings m_Settings;
 	};
 }

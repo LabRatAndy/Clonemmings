@@ -16,6 +16,7 @@ Scripting/Assets
 *.lvl
 *.pdb
 *.csproj
+*.arg
 
 # Exclude
 !Setup/

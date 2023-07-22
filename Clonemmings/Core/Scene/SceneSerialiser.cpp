@@ -232,10 +232,7 @@ namespace Clonemmings
 			out << YAML::BeginMap;
 			auto& src = entity.GetComponent<SpriteRendererComponent>();
 			out << YAML::Key << "Colour" << YAML::Value << src.Colour;
-			if (src.Tex)
-			{
-				out << YAML::Key << "TexturePath" << YAML::Value << src.Tex->GetPath();
-			}
+			out << YAML::Key << "TextureAssetHandle" << YAML::Value << src.TextureAssetHandle;
 			out << YAML::Key << "TilingFactor" << YAML::Value << src.TilingFactor;
 			out << YAML::EndMap;
 		}
@@ -498,9 +495,14 @@ namespace Clonemmings
 					TRACE("SRC colour: Red {0}, Green {1}, Blue {2}, Alpha {3}", src.Colour.r, src.Colour.g, src.Colour.b, src.Colour.a);
 					if (spriterenderercomponent["TexturePath"])
 					{
-						std::string texturepath = spriterenderercomponent["TexturePath"].as<std::string>();
-						TRACE("SRC texture : {0}", texturepath);
-						src.Tex = std::make_shared<Texture>(texturepath);
+						//std::string texturepath = spriterenderercomponent["TexturePath"].as<std::string>();
+						//TRACE("SRC texture : {0}", texturepath);
+						//src.Tex = std::make_shared<Texture>(texturepath);
+						TRACE("OLD texture path needs updating to new asset handle system");
+					}
+					if (spriterenderercomponent["TextureAssetHandle"])
+					{
+						src.TextureAssetHandle = spriterenderercomponent["TextureAssetHandle"].as<UUID>();
 					}
 					if (spriterenderercomponent["TilingFactor"])
 					{
