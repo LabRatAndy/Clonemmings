@@ -17,7 +17,7 @@ namespace Clonemmings
 			std::shared_ptr<Asset> asset = GetAsset(assethandle);
 			return std::static_pointer_cast<T>(asset);
 		}
-		void ImportAsset(std::filesystem::path& filename);
+		void ImportAsset(const std::filesystem::path& filename);
 		bool IsAssetHandleValid(UUID assethandle) const;
 		bool IsAssetLoaded(UUID assethandle) const;
 		const AssetMetaData& GetMetaData(UUID assethandle) const;

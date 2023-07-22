@@ -10,10 +10,21 @@ namespace Clonemmings
 	static AssetType AssetTypeFromFileExtension(const std::filesystem::path& filename)
 	{
 		auto extension = filename.extension().generic_string();
-		if (extension == "lvl") return AssetType::Level;
-		if (extension == "png") return AssetType::Texture2D;
-		if (extension == "bmp") return AssetType::Texture2D;
+		if (extension == ".lvl") return AssetType::Level;
+		if (extension == ".png") return AssetType::Texture2D;
+		if (extension == ".bmp") return AssetType::Texture2D;
 		return AssetType::None;
+	}
+	static void CheckAndCreateDirectory(const std::string& filepath)
+	{
+		std::filesystem::path path(filepath);
+		std::filesystem::path directory = path.parent_path();
+		//check if directory  is a  dir and if it exists
+		if (!std::filesystem::is_directory(directory))
+		{
+			// if not, need to create the dir 
+			std::filesystem::create_directory(directory);
+		}
 	}
 	std::shared_ptr<Asset> AssetManager::GetAsset(UUID assethandle) const
 	{
@@ -36,7 +47,7 @@ namespace Clonemmings
 		}
 		return asset;
 	}
-	void AssetManager::ImportAsset(std::filesystem::path& filename)
+	void AssetManager::ImportAsset(const std::filesystem::path& filename)
 	{
 		UUID handle;
 		AssetMetaData metadata;
@@ -96,7 +107,8 @@ namespace Clonemmings
 		}
 		out << YAML::EndSeq;
 		out << YAML::EndMap;
-		std::ofstream fout("Asset/AssetReg.arg");
+		std::string filename = "Assets/AssetReg.arg";
+		std::ofstream fout(filename.c_str(), std::ios::out | std::ios::trunc);
 		fout << out.c_str();
 	}
 
@@ -105,20 +117,22 @@ namespace Clonemmings
 		YAML::Node data;
 		try
 		{
-			YAML::LoadFile("Asset/AssetReg.arg");
+			data = YAML::LoadFile("Assets/AssetReg.arg");
 		}
 		catch (YAML::ParserException e)
 		{
 			LOGERROR("Failed to load Asset registry file with error {0}", e.what());
+			m_AssetRegistry.clear();
 			return false;
 		}
 		auto assetreg = data["AssetRegistry"];
 		if (!assetreg)
 		{
 			LOGERROR("corrupt asset registry");
+			m_AssetRegistry.clear();
 			return false;
 		}
-		for (const auto& asset : assetreg)
+		for (auto& asset : assetreg)
 		{
 			UUID assethandle = asset["Handle"].as<uint64_t>();
 			auto& metadata = m_AssetRegistry[assethandle];

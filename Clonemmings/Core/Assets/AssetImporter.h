@@ -20,6 +20,5 @@ namespace Clonemmings
 	{
 	public:
 		static std::shared_ptr<Scene> ImportLevel(UUID assethandle, const AssetMetaData& metadata);
-		static void LoadLevel(const std::filesystem::path& filename, std::shared_ptr<Scene> newscene);
 	};
 }

@@ -66,7 +66,7 @@ namespace Clonemmings
 	}
 	std::shared_ptr<Scene> LevelImporter::ImportLevel(UUID assethandle, const AssetMetaData& metadata)
 	{
-		std::shared_ptr<Scene> newscene = nullptr;
+		std::shared_ptr<Scene> newscene = std::make_shared<Scene>();
 		SceneSerialiser serialiser(newscene);
 		serialiser.Deserialise(metadata.FilePath.generic_string());
 		return newscene;
