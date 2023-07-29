@@ -38,16 +38,7 @@ namespace Clonemmings
             CheckIfDead(linearvelocity);
             if(m_ClonemmingComponent.Status == ClonemmingComponent.ClonmmingStatus.Dead)
             {
-                InternalCalls.Native_Log("C#: Dead Clonemming !!");
-                float newalpha = Math.Max(m_Sprite.Colour.W * 0.9f, 0.0f);
-                InternalCalls.Native_Log("C#: dead new alpha value: " + newalpha);
-                m_Sprite.Colour = new Vector4(0.0f, 1.0f, 0.0f, newalpha);
-                InternalCalls.Native_Log("C#: dead time value: " + m_DeadTime);
-                if(newalpha < 0.01f|| m_DeadTime >10.0)
-                {
-                    Destroy();
-                }
-                m_DeadTime += ts;
+                ProcessDead(ts);
                 return;
             }
             if(m_previousStatus != m_ClonemmingComponent.Status)
@@ -68,53 +59,11 @@ namespace Clonemmings
             }
             if(m_ClonemmingComponent.Status == ClonemmingComponent.ClonmmingStatus.Digger)
             {
-                
-                InternalCalls.Native_Log("C#: Processing miner");
-                m_Ledge = new Entity(m_RigidBody.GetBottomContact);              
-                if (m_Ledge.GetComponent<BoxCollider2DComponent>().CollisionCategory != DIGGABLEFLOOR)
-                {
-                    //cant dig through this floor os reset
-                    InternalCalls.Native_Log("C#: can't dig the floor!");
-                    m_ClonemmingComponent.Status = ClonemmingComponent.ClonmmingStatus.Walker;
-                    m_previousStatus = ClonemmingComponent.ClonmmingStatus.Digger;
-                }
-                else
-                {
-                    InternalCalls.Native_Log("Floor is diggable");
-                    InternalCalls.Native_Log("Digtime is: " + m_Digtime);
-                    //set colour
-                    m_Sprite.Colour = new Vector4(1.0f, 0.0f, 1.0f, 1.0f);
-                    //get thicknessof ledge and work out howlong digging should take, digspeed should be in m/s ledge thickness is in meters
-                    if (float.IsNaN(m_Digtime))
-                    {
-                        InternalCalls.Native_Log("C#: m_Digtime is NaN");
-                        float ledgethickness = m_Ledge.GetComponent<TransformComponent>().Scale.Y;
-                        if (m_ClonemmingComponent.DigSpeed > 0.0f)
-                        {
-                            m_Digtime = ledgethickness / m_ClonemmingComponent.DigSpeed;
-                        }
-                        else
-                            m_Digtime = ledgethickness / 1.0f;
-                        InternalCalls.Native_Log("C#: ledge thickness: " + ledgethickness + " m_Digtime: " + m_Digtime);
-                    }
-                    else
-                    {
-                        m_CurrentTimeDigging += ts;
-                        InternalCalls.Native_Log("C#: m_currenttimedigging set: " + m_CurrentTimeDigging);
-                    }
-                    //compare if enough time digging has passed if so split the ledge entity
-                    if (m_CurrentTimeDigging >= m_Digtime)
-                    {
-                        InternalCalls.Native_Log("C#: digging is finised");
-                        Vector3 position = m_Transform.Translation;
-                        float width = m_Transform.Scale.X + 0.1f;
-                        InternalCalls.Native_Log("C#: Spliting entity: " + m_Ledge.ID + " at: " + position.ToString() + "gap width: " + width);
-                        m_Ledge.HorizontalSplit(ref position, width);
-                        m_ClonemmingComponent.Status = ClonemmingComponent.ClonmmingStatus.Walker;
-                    }
-                    m_previousStatus = ClonemmingComponent.ClonmmingStatus.Digger;
-                }
-                InternalCalls.Native_Log("C#: End of miner code!");
+                ProcessDigger(ts);                
+            }
+            if(m_ClonemmingComponent.Status==ClonemmingComponent.ClonmmingStatus.Miner)
+            {
+                ProcessMiner(linearvelocity, ts);   
             }
 
         }
@@ -254,6 +203,130 @@ namespace Clonemmings
             }
             m_previousStatus = ClonemmingComponent.ClonmmingStatus.Floater;
         }
+        private void ProcessDigger(float ts)
+        {
+            InternalCalls.Native_Log("C#: Processing Digger");
+            m_Ledge = new Entity(m_RigidBody.GetBottomContact);
+            if (m_Ledge.GetComponent<BoxCollider2DComponent>().CollisionCategory != DIGGABLEFLOOR)
+            {
+                //cant dig through this floor os reset
+                InternalCalls.Native_Log("C#: can't dig the floor!");
+                m_ClonemmingComponent.Status = ClonemmingComponent.ClonmmingStatus.Walker;
+                m_previousStatus = ClonemmingComponent.ClonmmingStatus.Digger;
+            }
+            else
+            {
+                InternalCalls.Native_Log("Floor is diggable");
+                InternalCalls.Native_Log("Digtime is: " + m_Digtime);
+                //set colour
+                m_Sprite.Colour = new Vector4(1.0f, 0.0f, 1.0f, 1.0f);
+                //get thicknessof ledge and work out howlong digging should take, digspeed should be in m/s ledge thickness is in meters
+                if (float.IsNaN(m_Digtime))
+                {
+                    InternalCalls.Native_Log("C#: m_Digtime is NaN");
+                    float ledgethickness = m_Ledge.GetComponent<TransformComponent>().Scale.Y;
+                    if (m_ClonemmingComponent.DigSpeed > 0.0f)
+                    {
+                        m_Digtime = ledgethickness / m_ClonemmingComponent.DigSpeed;
+                    }
+                    else
+                        m_Digtime = ledgethickness / 1.0f;
+                    InternalCalls.Native_Log("C#: ledge thickness: " + ledgethickness + " m_Digtime: " + m_Digtime);
+                }
+                else
+                {
+                    m_CurrentTimeDigging += ts;
+                    InternalCalls.Native_Log("C#: m_currenttimedigging set: " + m_CurrentTimeDigging);
+                }
+                //compare if enough time digging has passed if so split the ledge entity
+                if (m_CurrentTimeDigging >= m_Digtime)
+                {
+                    InternalCalls.Native_Log("C#: digging is finised");
+                    Vector3 position = m_Transform.Translation;
+                    float width = m_Transform.Scale.X + 0.1f;
+                    InternalCalls.Native_Log("C#: Spliting entity: " + m_Ledge.ID + " at: " + position.ToString() + "gap width: " + width);
+                    m_Ledge.HorizontalSplit(ref position, width);
+                    m_ClonemmingComponent.Status = ClonemmingComponent.ClonmmingStatus.Walker;
+                }
+                m_previousStatus = ClonemmingComponent.ClonmmingStatus.Digger;
+            }
+            InternalCalls.Native_Log("C#: End of digger code!");
+        }
+        void ProcessMiner(Vector2 linearvelocity, float ts)
+        {
+            InternalCalls.Native_Log("C#: Processing Miner");
+            m_Ledge = null;
+            //are we touching a wall yet
+            if (m_RigidBody.HasContactRight)
+            {
+                m_Ledge = new Entity(m_RigidBody.GetRightContact);
+            }
+            if (m_RigidBody.HasContactLeft)
+            {
+                m_Ledge = new Entity(m_RigidBody.GetLeftContact);
+            }
+            if (m_Ledge == null)
+            {
+                InternalCalls.Native_Log("C#: not contacting any walls");
+                ProcessWalker(linearvelocity);
+            }
+            else if (m_Ledge.GetComponent<BoxCollider2DComponent>().CollisionCategory == MINEABLEWALL)
+            {
+                //we are touching a mineable wall
+                InternalCalls.Native_Log("wall is mineable");
+                InternalCalls.Native_Log("Minetime is: " + m_Digtime);
+                //set colour
+                m_Sprite.Colour = new Vector4(1.0f, 0.0f, 1.0f, 1.0f);
+                //get thickness of ledge and work out howlong digging should take, mine speed should be in m/s wall thickness is in meters
+                if (float.IsNaN(m_Digtime))
+                {
+                    InternalCalls.Native_Log("C#: m_Minetime is NaN");
+                    float wallthickness = m_Ledge.GetComponent<TransformComponent>().Scale.X;
+                    if (m_ClonemmingComponent.DigSpeed > 0.0f)
+                    {
+                        m_Digtime = wallthickness / m_ClonemmingComponent.MineSpeed;
+                    }
+                    else
+                        m_Digtime = wallthickness / 1.0f;
+                    InternalCalls.Native_Log("C#: ledge thickness: " + wallthickness + " m_Digtime: " + m_Digtime);
+                }
+                else
+                {
+                    m_CurrentTimeDigging += ts;
+                    InternalCalls.Native_Log("C#: m_currenttimedigging set: " + m_CurrentTimeDigging);
+                }
+                //compare if enough time digging has passed if so split the ledge entity
+                if (m_CurrentTimeDigging >= m_Digtime)
+                {
+                    InternalCalls.Native_Log("C#: mining is finised");
+                    Vector3 position = m_Transform.Translation;
+                    float width = m_Transform.Scale.Y + 0.1f;
+                    InternalCalls.Native_Log("C#: Spliting entity: " + m_Ledge.ID + " at: " + position.ToString() + "gap width: " + width);
+                    m_Ledge.VerticalSplit(ref position, width);
+                    m_ClonemmingComponent.Status = ClonemmingComponent.ClonmmingStatus.Walker;
+                }
+            }
+            else
+            {
+                //we are not touching a mineable wall carry on walking until we hit a wall
+                InternalCalls.Native_Log("C#: wall is not minable");
+                ProcessWalker(linearvelocity);
+            }
+            m_previousStatus = ClonemmingComponent.ClonmmingStatus.Miner;
+        }
+        private void ProcessDead(float ts)
+        {
+            InternalCalls.Native_Log("C#: Dead Clonemming !!");
+            float newalpha = Math.Max(m_Sprite.Colour.W * 0.9f, 0.0f);
+            InternalCalls.Native_Log("C#: dead new alpha value: " + newalpha);
+            m_Sprite.Colour = new Vector4(0.0f, 1.0f, 0.0f, newalpha);
+            InternalCalls.Native_Log("C#: dead time value: " + m_DeadTime);
+            if (newalpha < 0.01f || m_DeadTime > 10.0)
+            {
+                Destroy();
+            }
+            m_DeadTime += ts;
+        }
         private void ProcessRecycleStatus()
         {
             switch (m_previousStatus)
@@ -272,6 +345,14 @@ namespace Clonemmings
                     break;
                 case ClonemmingComponent.ClonmmingStatus.Digger:
                     InternalCalls.Native_Log("C#: Recycle digger");
+                    m_Sprite.Colour = new Vector4(0, 1, 0, 1);
+                    m_previousStatus = m_ClonemmingComponent.Status;
+                    m_Digtime = float.NaN;
+                    m_CurrentTimeDigging = 0.0f;
+                    m_Ledge = null;
+                    break;
+                case ClonemmingComponent.ClonmmingStatus.Miner:
+                    InternalCalls.Native_Log("C#: Recycle miner");
                     m_Sprite.Colour = new Vector4(0, 1, 0, 1);
                     m_previousStatus = m_ClonemmingComponent.Status;
                     m_Digtime = float.NaN;
