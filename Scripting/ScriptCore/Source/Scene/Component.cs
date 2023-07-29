@@ -1,4 +1,7 @@
-﻿namespace Core
+﻿using System.Dynamic;
+using System.Security.Policy;
+
+namespace Core
 {
     public abstract class Component
     {
@@ -111,6 +114,14 @@
         public ulong GetBottomContact
         {
             get => InternalCalls.RigidBody2DComponent_GetBottomContact(Entity.ID);
+        }
+        public ulong GetRightContact
+        {
+            get => InternalCalls.RigidBody2DComponent_GetRightContact(Entity.ID);
+        }
+        public ulong GetLeftContact
+        {
+            get => InternalCalls.RigidBody2DComponent_GetLeftContact(Entity.ID);
         }
     }
     public class BoxCollider2DComponent : Component

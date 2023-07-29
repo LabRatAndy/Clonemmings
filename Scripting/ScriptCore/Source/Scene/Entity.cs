@@ -109,5 +109,9 @@ namespace Core
         {
             InternalCalls.Entity_SplitHorizontalEntity(ID, ref gapposition, gapwidth);
         }
+        public void VerticalSplit(ref Vector3 gapposition, float gapwidth)
+        {
+            InternalCalls.Entity_SplitVerticalEntity(ID, ref gapposition, gapwidth);
+        }
    }
 }

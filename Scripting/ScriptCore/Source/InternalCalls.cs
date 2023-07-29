@@ -37,6 +37,8 @@ namespace Core
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Entity_SplitHorizontalEntity(ulong entityID, ref Vector3 gapposition, float gapwidth);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Entity_SplitVerticalEntity(ulong entityID, ref Vector3 gapposition, float gapwidth);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         public extern static object GetInstance(ulong entityID);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void TransformComponent_GetTranslation(ulong entityID, out Vector3 translation);
@@ -82,6 +84,10 @@ namespace Core
         internal extern static bool RigidBody2DComponent_HasContactBottom(ulong entityID);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         public extern static ulong RigidBody2DComponent_GetBottomContact(ulong entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        public extern static ulong RigidBody2DComponent_GetRightContact(ulong entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        public extern static ulong RigidBody2DComponent_GetLeftContact(ulong entityID);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void BoxCollider2DComponent_GetOffset(ulong entityID, out Vector2 offset);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
