@@ -397,4 +397,22 @@ namespace Clonemmings
 		}
 		return UUID(0);
 	}
+	UUID PhysicsEngine::GetLeftContactUUID(UUID uuid)
+	{
+		ASSERT(s_BodyMap.find(uuid) != s_BodyMap.end(), "Entity has not been added to physics!");
+		if (IsContactLeft(uuid))
+		{
+			return GetContactUUID(uuid);
+		}
+		return UUID(0);
+	}
+	UUID PhysicsEngine::GetRightContactUUID(UUID uuid)
+	{
+		ASSERT(s_BodyMap.find(uuid) != s_BodyMap.end(), "Entity has not been added to physics!");
+		if (IsContactRight(uuid))
+		{
+			return GetContactUUID(uuid);
+		}
+		return UUID(0);
+	}
 }

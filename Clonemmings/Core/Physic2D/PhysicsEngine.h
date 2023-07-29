@@ -83,6 +83,8 @@ namespace Clonemmings
 		static void SetBodyType(UUID uuid, RigidBody2DComponent::BodyType bodytype);
 		static UUID GetContactUUID(UUID uuid);
 		static UUID GetBottomContactUUID(UUID uuid);
+		static UUID GetLeftContactUUID(UUID uuid);
+		static UUID GetRightContactUUID(UUID uuid);
 
 		
 
