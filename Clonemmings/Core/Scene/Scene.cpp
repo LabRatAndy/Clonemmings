@@ -174,7 +174,7 @@ namespace Clonemmings
 				auto view = m_Registry.view<RectangleComponent>();
 				for (auto entity : view)
 				{
-					auto rectangle = view.get<RectangleComponent>(entity);
+					auto& rectangle = view.get<RectangleComponent>(entity);
 					Application::Get().GetRenderer().SetLineWidth(rectangle.LineThickness);
 					Application::Get().GetRenderer().DrawRectangle(rectangle.GetTransform(), rectangle.Colour, (int)entity);
 				}
@@ -469,7 +469,7 @@ namespace Clonemmings
 		std::string name = tag.Tag;
 		name.append(" top part!");
 		Entity lhsentity = CreateEntity(name);
-		auto& lhstc = lhsentity.AddComponent<TransformComponent>();
+		auto& lhstc = lhsentity.GetComponent<TransformComponent>();
 		lhstc.Scale = size1;
 		lhstc.Translation = centre1;
 		lhstc.Rotation = glm::vec3(0.0f);
@@ -477,7 +477,7 @@ namespace Clonemmings
 		name = tag.Tag;
 		name.append(" bottom part!");
 		Entity rhsentity = CreateEntity(name);
-		auto& rhstc = rhsentity.AddComponent<TransformComponent>();
+		auto& rhstc = rhsentity.GetComponent<TransformComponent>();
 		rhstc.Scale = size2;
 		rhstc.Translation = centre2;
 		rhstc.Rotation = glm::vec3(0.0f);
