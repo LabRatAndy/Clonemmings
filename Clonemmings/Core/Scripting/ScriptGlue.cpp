@@ -418,6 +418,14 @@ namespace Clonemmings
 	{
 		return PhysicsEngine::GetBottomContactUUID(uuid);
 	}
+	static uint64_t RigidBody2DComponent_GetLeftContact(UUID uuid)
+	{
+		return PhysicsEngine::GetLeftContactUUID(uuid);
+	}
+	static uint64_t RigidBody2DComponent_GetRightContact(UUID uuid)
+	{
+		return PhysicsEngine::GetRightContactUUID(uuid);
+	}
 #pragma endregion
 #pragma region BoxCollider2DComponent
 	static void BoxCollider2DComponent_GetOffset(UUID uuid, glm::vec2* outoffset)
@@ -805,7 +813,7 @@ namespace Clonemmings
 		ASSERT(entity);
 		entity.GetComponent<ClonemmingStartComponent>().NumberOfClonemmings = numberofclonemmings;
 	}
-	static uint32_t ClonemmingStartComponent_GetClonemmingReleaseRate(UUID uuid)
+	static float ClonemmingStartComponent_GetClonemmingReleaseRate(UUID uuid)
 	{
 		Scene* scene = ScriptEngine::GetSceneContext();
 		ASSERT(scene);
@@ -813,7 +821,7 @@ namespace Clonemmings
 		ASSERT(entity);
 		return entity.GetComponent<ClonemmingStartComponent>().ClonemmingReleaseRate;
 	}
-	static void ClonemmingStartComponent_SetClonemmingReleaseRate(UUID uuid, uint32_t releaserate)
+	static void ClonemmingStartComponent_SetClonemmingReleaseRate(UUID uuid, float releaserate)
 	{
 		Scene* scene = ScriptEngine::GetSceneContext();
 		ASSERT(scene);
@@ -919,6 +927,7 @@ namespace Clonemmings
 		ADD_INTERNAL_CALL(Entity_AddComponent);
 		ADD_INTERNAL_CALL(Entity_RemoveComponent);
 		ADD_INTERNAL_CALL(Entity_SplitHorizontalEntity);
+		ADD_INTERNAL_CALL(Entity_SplitVerticalEntity);
 		ADD_INTERNAL_CALL(TransformComponent_GetTranslation);
 		ADD_INTERNAL_CALL(TransformComponent_SetTranslation);
 		ADD_INTERNAL_CALL(TransformComponent_GetRotation);
@@ -941,6 +950,8 @@ namespace Clonemmings
 		ADD_INTERNAL_CALL(RigidBody2DComponent_HasContactTop);
 		ADD_INTERNAL_CALL(RigidBody2DComponent_HasContactBottom);
 		ADD_INTERNAL_CALL(RigidBody2DComponent_GetBottomContact);
+		ADD_INTERNAL_CALL(RigidBody2DComponent_GetLeftContact);
+		ADD_INTERNAL_CALL(RigidBody2DComponent_GetRightContact);
 		ADD_INTERNAL_CALL(BoxCollider2DComponent_GetCategory);
 		ADD_INTERNAL_CALL(BoxCollider2DComponent_GetDensity);
 		ADD_INTERNAL_CALL(BoxCollider2DComponent_GetFriction);
