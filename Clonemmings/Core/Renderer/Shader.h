@@ -56,8 +56,8 @@ namespace Clonemmings
 		uint32_t m_Handle;
 		const std::filesystem::path& m_VertexFilename;
 		const std::filesystem::path& m_FragmentFilename;
-		std::string& m_VertexSource;
-		std::string& m_FragmentSource;
+		std::string m_VertexSource;
+		std::string m_FragmentSource;
 		std::unordered_map<std::string, int32_t> m_UniformCache;
 
 		const std::string LoadShaderFile(const std::filesystem::path& filename);

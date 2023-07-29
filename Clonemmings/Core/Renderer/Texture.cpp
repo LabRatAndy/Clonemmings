@@ -81,10 +81,10 @@ namespace Clonemmings
 		{
 			for (uint32_t x = 0; x < m_Width; x++)
 			{
-				size_t redindex = (y * m_Width * 4) + (x * 4) + 0;
-				size_t greenindex = (y * m_Width * 4) + (x * 4) + 1;
-				size_t blueindex = (y * m_Width * 4) + (x * 4) + 2;
-				size_t alphaindex = (y * m_Width * 4) + (x * 4) + 3;
+				size_t redindex = ((size_t)y * (size_t)m_Width * 4) + ((size_t)x * 4) + 0;
+				size_t greenindex = ((size_t)y * (size_t)m_Width * 4) + ((size_t)x * 4) + 1;
+				size_t blueindex = ((size_t)y * (size_t)m_Width * 4) + ((size_t)x * 4) + 2;
+				size_t alphaindex = ((size_t)y * (size_t)m_Width * 4) + ((size_t)x * 4) + 3;
 				data[redindex] = red;
 				data[greenindex] = green;
 				data[blueindex] = blue;

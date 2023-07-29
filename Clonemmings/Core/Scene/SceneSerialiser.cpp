@@ -641,7 +641,7 @@ namespace Clonemmings
 				{
 					auto& csc = deserialisedentity.AddComponent<ClonemmingStartComponent>();
 					csc.NumberOfClonemmings = clonemmingstartcomponent["NumberOfClonemmings"].as<uint32_t>();
-					csc.ClonemmingReleaseRate = clonemmingstartcomponent["ClonemmingReleaseRate"].as<uint32_t>();
+					csc.ClonemmingReleaseRate = clonemmingstartcomponent["ClonemmingReleaseRate"].as<float>();
 					TRACE("Clonemming start point, number of clonemmings: {}", csc.NumberOfClonemmings);
 					TRACE("Clonemming Startpoint, Release Rate: {}", csc.ClonemmingReleaseRate);
 					m_Scene->GetGameLevelData().StartClonemmingCount =+ csc.NumberOfClonemmings;

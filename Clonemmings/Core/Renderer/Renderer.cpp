@@ -54,7 +54,7 @@ namespace Clonemmings
 			samplers[i] = i;
 		}
 		m_BatchShader->Bind();
-		m_BatchShader->SetIntArray("u_Textures", samplers, m_MaxTextures);
+		m_BatchShader->SetIntArray("u_Textures", samplers, (uint32_t)m_MaxTextures);
 		delete[] samplers;
 		m_BatchVBO = std::make_shared<VertexBufferObject>(m_MaxVertices * sizeof(BatchedVertex), VertexType::Batch);
 		m_BatchIBO = std::make_shared<IndexBuffer>((uint32_t) m_MaxIndices);

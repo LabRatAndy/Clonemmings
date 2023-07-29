@@ -109,7 +109,7 @@ namespace Clonemmings
 	void VertexBufferObject::Draw() const
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, m_Handle);
-		glDrawArrays(GL_TRIANGLES, 0, m_VertexCount);
+		glDrawArrays(GL_TRIANGLES, 0, (GLsizei)m_VertexCount);
 	}
 	void VertexBufferObject::DrawLines(uint32_t count) const
 	{

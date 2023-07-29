@@ -96,7 +96,7 @@ namespace Clonemmings
 		//delete framebuffer
 		glDeleteFramebuffers(1, &m_Handle);
 		//delete colour attachments 
-		glDeleteTextures(m_ColourAttachments.size(), m_ColourAttachments.data());
+		glDeleteTextures((GLsizei)m_ColourAttachments.size(), m_ColourAttachments.data());
 		//delete depth attachment
 		glDeleteTextures(1, &m_DepthAttachment);
 	}
@@ -107,7 +107,7 @@ namespace Clonemmings
 			//delete framebuffer
 			glDeleteFramebuffers(1, &m_Handle);
 			//delete colour attachments 
-			glDeleteTextures(m_ColourAttachments.size(), m_ColourAttachments.data());
+			glDeleteTextures((GLsizei)m_ColourAttachments.size(), m_ColourAttachments.data());
 			//delete depth attachment
 			glDeleteTextures(1, &m_DepthAttachment);
 			m_ColourAttachments.clear();
@@ -121,17 +121,17 @@ namespace Clonemmings
 		if (m_ColourAttachmentSpecifications.size())
 		{
 			m_ColourAttachments.resize(m_ColourAttachmentSpecifications.size());
-			Utills::CreateTextures(multisample, m_ColourAttachments.data(), m_ColourAttachments.size());
+			Utills::CreateTextures(multisample, m_ColourAttachments.data(), (uint32_t)m_ColourAttachments.size());
 			for (size_t i = 0; i < m_ColourAttachments.size(); i++)
 			{
 				Utills::BindTexture(multisample, m_ColourAttachments[i]);
 				switch (m_ColourAttachmentSpecifications[i].TextureFormat)
 				{
 				case FramebufferTextureFormat::RGBA8:
-					Utills::AttachColourTexture(m_ColourAttachments[i], m_Specification.Samples, GL_RGBA8, GL_RGBA, m_Specification.Width, m_Specification.Height, i);
+					Utills::AttachColourTexture(m_ColourAttachments[i], m_Specification.Samples, GL_RGBA8, GL_RGBA, m_Specification.Width, m_Specification.Height, (int)i);
 					break;
 				case FramebufferTextureFormat::RedInteger:
-					Utills::AttachColourTexture(m_ColourAttachments[i], m_Specification.Samples, GL_R32I, GL_RED_INTEGER, m_Specification.Width, m_Specification.Height, i);
+					Utills::AttachColourTexture(m_ColourAttachments[i], m_Specification.Samples, GL_R32I, GL_RED_INTEGER, m_Specification.Width, m_Specification.Height, (int)i);
 					break;
 				}
 			}
@@ -152,7 +152,7 @@ namespace Clonemmings
 		{
 			ASSERT(m_ColourAttachments.size() <= 4);
 			GLenum buffers[4] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
-			glDrawBuffers(m_ColourAttachments.size(), buffers);
+			glDrawBuffers((GLsizei)m_ColourAttachments.size(), buffers);
 		}
 		else if (m_ColourAttachments.empty())
 		{

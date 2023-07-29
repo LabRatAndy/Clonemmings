@@ -39,7 +39,7 @@ namespace Clonemmings
 		{
 			ScopedBuffer filedata = FileSystem::ReadBinaryFile(assemblypath);
 			MonoImageOpenStatus status;
-			MonoImage* image = mono_image_open_from_data_full(filedata.As<char>(), filedata.Size(), 1, &status, 0);
+			MonoImage* image = mono_image_open_from_data_full(filedata.As<char>(), (uint32_t)filedata.Size(), 1, &status, 0);
 			if (status != MONO_IMAGE_OK)
 			{
 				const char* errormessage = mono_image_strerror(status);
@@ -52,7 +52,7 @@ namespace Clonemmings
 				if (std::filesystem::exists(pdbpath))
 				{
 					ScopedBuffer pdbfiledata = FileSystem::ReadBinaryFile(pdbpath);
-					mono_debug_open_image_from_memory(image, pdbfiledata.As<const mono_byte>(), pdbfiledata.Size());
+					mono_debug_open_image_from_memory(image, pdbfiledata.As<const mono_byte>(), (int)pdbfiledata.Size());
 					INFO("Loaded PDB {}", pdbpath);
 				}
 			}
@@ -471,5 +471,6 @@ namespace Clonemmings
 		}
 		const ScriptField& field = it->second;
 		mono_field_set_value(m_Instance, field.ClassField, (void*)value);
+		return true;
 	}
 }

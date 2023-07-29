@@ -212,8 +212,9 @@ namespace Clonemmings
 				indexoflargest = n;
 			}
 		}
-		m_ButtonSize.x = m_LabelMap.at(buttonlist[indexoflargest]).SizeInImGui.x + (ImGui::GetStyle().FramePadding.x * 2);
-		m_ButtonSize.y = m_LabelMap.at(buttonlist[indexoflargest]).SizeInImGui.y + (ImGui::GetStyle().FramePadding.y * 2);
+		auto& style = ImGui::GetStyle();
+		m_ButtonSize.x = m_LabelMap.at(buttonlist[indexoflargest]).SizeInImGui.x + (style.FramePadding.x * 2);
+		m_ButtonSize.y = m_LabelMap.at(buttonlist[indexoflargest]).SizeInImGui.y + (style.FramePadding.y * 2);
 
 	
 	}

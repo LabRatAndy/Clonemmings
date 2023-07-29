@@ -26,7 +26,7 @@ namespace Clonemmings
 	struct ClonemmingStartComponent
 	{
 		uint32_t NumberOfClonemmings = 0;
-		uint32_t ClonemmingReleaseRate = 0;
+		float ClonemmingReleaseRate = 0.0;
 
 		ClonemmingStartComponent() = default;
 		ClonemmingStartComponent(const ClonemmingStartComponent&) = default;

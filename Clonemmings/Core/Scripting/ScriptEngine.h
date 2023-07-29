@@ -30,10 +30,10 @@ namespace Clonemmings
 
 	struct ScriptField
 	{
-		ScriptFieldType Type;
+		ScriptFieldType Type = ScriptFieldType::None;
 		std::string Name;
 
-		MonoClassField* ClassField;
+		MonoClassField* ClassField = nullptr;
 	};
 
 	struct ScriptFieldInstance
