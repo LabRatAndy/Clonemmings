@@ -28,7 +28,7 @@ namespace Clonemmings
             float clonemmingspersecond = 60.0f / m_Component.ClonemmingReleaseRate;
             if(m_Time > clonemmingspersecond) 
             {
-                InternalCalls.Native_Log("C#: New clonemming to be created. spawnpoint.cs line 32");
+                Log("C# spawn point OnUpdate: New clonemming to be created. spawnpoint.cs line 32");
                 CreateNewClonemming(m_Component.NumberOfClonemmings.ToString());
                 m_Component.NumberOfClonemmings--;
                 m_Time = 0.0f;

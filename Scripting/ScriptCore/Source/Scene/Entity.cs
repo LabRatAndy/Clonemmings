@@ -113,5 +113,12 @@ namespace Core
         {
             InternalCalls.Entity_SplitVerticalEntity(ID, ref gapposition, gapwidth);
         }
+        protected void Log(string logmessage)
+        {
+            if (EntitySelected()) 
+            {
+                InternalCalls.Native_Log(logmessage);
+            }
+        }
    }
 }

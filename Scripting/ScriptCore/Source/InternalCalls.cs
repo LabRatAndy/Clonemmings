@@ -9,7 +9,7 @@ namespace Core
     {
         //core stuff
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        public extern static void Native_Log(string text);
+        internal extern static void Native_Log(string text);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         public extern static void SetDeadClonemming(ulong entityID);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
