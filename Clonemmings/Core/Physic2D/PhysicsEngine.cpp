@@ -300,7 +300,28 @@ namespace Clonemmings
 		b2FixtureDef fdef;
 		fdef.shape = &shape;
 		fdef.isSensor = true;
-		fdef.filter.categoryBits = CollisionCategory::Clonemming;
+		switch (side)
+		{
+		case SensorSide::Left:
+			fdef.filter.categoryBits = CollisionCategory::ClonemmingLeftSensor;
+			fdef.filter.maskBits = CollisionMasks::ClonemmingSensorSide | CollisionMasks::Scenary;
+			break;
+		case SensorSide::Right:
+			fdef.filter.categoryBits = CollisionCategory::ClonemmingRightSensor;
+			fdef.filter.maskBits = CollisionMasks::ClonemmingSensorSide | CollisionMasks::Scenary;
+			break;
+		case SensorSide::Top:
+			fdef.filter.categoryBits = CollisionCategory::ClonemmingTopSensor;
+			fdef.filter.maskBits = CollisionMasks::ClonemmingSensorBottom | CollisionMasks::Scenary;
+			break;
+		case SensorSide::Bottom:
+			fdef.filter.categoryBits = CollisionCategory::ClonemmingBottomSensor;
+			fdef.filter.maskBits = CollisionMasks::Scenary | CollisionMasks::ClonemmingSensorTop;
+			break;
+		default:
+			fdef.filter.categoryBits = CollisionCategory::Default;
+			fdef.filter.maskBits = CollisionMasks::Everything;
+		}
 		fdef.filter.maskBits = CollisionMasks::Clonemmings | CollisionMasks::Scenary;
 		if (side != SensorSide::None)
 			fdef.userData.pointer = (uintptr_t)side;
@@ -362,7 +383,7 @@ namespace Clonemmings
 		DestroyBody(s_BodyMap.at(uuid));
 		s_BodyMap.erase(uuid);
 	}
-	UUID PhysicsEngine::GetContactUUID(UUID uuid)
+	UUID PhysicsEngine::GetContactUUID(UUID uuid, SensorSide side)
 	{
 		ASSERT(s_BodyMap.find(uuid) != s_BodyMap.end(), "Entity has not been added to physics!");
 		const b2ContactEdge* contactedge = s_BodyMap.at(uuid)->GetContactList();
@@ -373,15 +394,23 @@ namespace Clonemmings
 			{
 				if (contact->GetFixtureA()->GetBody() == s_BodyMap.at(uuid))
 				{
-					//fixture A is the test body return fixture B's uuid stored in body userdata
-					UUID retval = (UUID)contact->GetFixtureB()->GetBody()->GetUserData().pointer;
-					return retval;
+					if ((SensorSide)contact->GetFixtureA()->GetUserData().pointer == side)
+					{
+						//fixture A is the test body return fixture B's uuid stored in body userdata
+						UUID retval = (UUID)contact->GetFixtureB()->GetBody()->GetUserData().pointer;
+						ASSERT(retval != uuid, "Error contacting UUID is the same as the contactors one");
+						return retval;
+					}
 				}
 				if (contact->GetFixtureB()->GetBody() == s_BodyMap.at(uuid))
 				{
-					//fixture B is the test body return fixture A's uuid stored in body userdata
-					UUID retval = (UUID)contact->GetFixtureA()->GetBody()->GetUserData().pointer;
-					return retval;
+					if ((SensorSide)contact->GetFixtureB()->GetUserData().pointer == side)
+					{
+						//fixture B is the test body return fixture A's uuid stored in body userdata
+						UUID retval = (UUID)contact->GetFixtureA()->GetBody()->GetUserData().pointer;
+						ASSERT(retval != uuid, "Error contacting UUID is the same as the contactors one");
+						return retval;
+					}
 				}
 			}
 			contactedge = contactedge->next;
@@ -393,7 +422,7 @@ namespace Clonemmings
 		ASSERT(s_BodyMap.find(uuid) != s_BodyMap.end(), "Entity has not been added to Physics!");
 		if (IsContactBottom(uuid))
 		{
-			return GetContactUUID(uuid);
+			return GetContactUUID(uuid, SensorSide::Bottom);
 		}
 		return UUID(0);
 	}
@@ -402,7 +431,7 @@ namespace Clonemmings
 		ASSERT(s_BodyMap.find(uuid) != s_BodyMap.end(), "Entity has not been added to physics!");
 		if (IsContactLeft(uuid))
 		{
-			return GetContactUUID(uuid);
+			return GetContactUUID(uuid, SensorSide::Left);
 		}
 		return UUID(0);
 	}
@@ -411,7 +440,7 @@ namespace Clonemmings
 		ASSERT(s_BodyMap.find(uuid) != s_BodyMap.end(), "Entity has not been added to physics!");
 		if (IsContactRight(uuid))
 		{
-			return GetContactUUID(uuid);
+			return GetContactUUID(uuid, SensorSide::Right);
 		}
 		return UUID(0);
 	}

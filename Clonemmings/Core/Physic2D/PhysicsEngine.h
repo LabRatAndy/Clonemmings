@@ -29,13 +29,21 @@ namespace Clonemmings
 		Wall = 1 << 4,
 		Floor = 1 << 5,
 		MineableWall = 1 << 6,
-		DigableFloor = 1 << 7
+		DigableFloor = 1 << 7,
+		ClonemmingLeftSensor = 1 << 8,
+		ClonemmingRightSensor = 1 << 9,
+		ClonemmingTopSensor = 1 << 10,
+		ClonemmingBottomSensor = 1 << 11
 	};
 	//collision masks (Say I can collide with...)
 	enum CollisionMasks : uint16_t
 	{
 		Scenary = CollisionCategory::Floor | CollisionCategory::Wall | CollisionCategory::DigableFloor | CollisionCategory::MineableWall,
 		Clonemmings = CollisionCategory::Clonemming,
+		ClonemmingSensorSide = CollisionCategory::ClonemmingLeftSensor | ClonemmingRightSensor,
+		ClonemmingSensorTop = CollisionCategory::ClonemmingTopSensor,
+		ClonemmingSensorBottom = CollisionCategory::ClonemmingBottomSensor,
+		ClonemmingSensorAny = CollisionCategory::ClonemmingBottomSensor | CollisionCategory::ClonemmingTopSensor | CollisionCategory::ClonemmingLeftSensor | CollisionCategory::ClonemmingRightSensor,
 		Everything = 0xFFFF,
 		Nothing = 0x0000
 	};
@@ -81,7 +89,7 @@ namespace Clonemmings
 		static bool IsContactLeft(UUID uuid);
 		static RigidBody2DComponent::BodyType GetBodyType(UUID uuid);
 		static void SetBodyType(UUID uuid, RigidBody2DComponent::BodyType bodytype);
-		static UUID GetContactUUID(UUID uuid);
+		static UUID GetContactUUID(UUID uuid, SensorSide side = SensorSide::None);
 		static UUID GetBottomContactUUID(UUID uuid);
 		static UUID GetLeftContactUUID(UUID uuid);
 		static UUID GetRightContactUUID(UUID uuid);
