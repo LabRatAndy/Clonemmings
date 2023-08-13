@@ -532,6 +532,7 @@ namespace Clonemmings
 		ASSERT(scene);
 		Entity entity = scene->GetEntityByUUID(uuid);
 		auto& bc2d = entity.GetComponent<BoxCollider2DComponent>();
+		LOGERROR("CPP to C#: Collider category is: {0}", bc2d.Category);
 		return bc2d.Category;
 	}
 	static void BoxCollider2DComponent_SetCategory(UUID uuid, uint16_t category)
