@@ -181,7 +181,7 @@ namespace Clonemmings
 		ASSERT(false, "Unknown clonemming status string");
 		return ClonemmingComponent::ClonemingStatus::Walker;
 	}
-	static std::string CollisionCategoryToString(CollisionCategory category)
+	static std::string CollisionCategoryToString(const CollisionCategory category)
 	{
 		switch (category)
 		{
@@ -193,6 +193,10 @@ namespace Clonemmings
 		case CollisionCategory::MineableWall: return "MineableWall";
 		case CollisionCategory::SpawnPoint: return "SpawnPoint";
 		case CollisionCategory::Wall: return "Wall";
+		case CollisionCategory::ClonemmingBottomSensor: return "ClonemmingBottomSensor";
+		case CollisionCategory::ClonemmingLeftSensor: return "ClonemmingLeftSensor";
+		case CollisionCategory::ClonemmingRightSensor: return "ClonemmingRightSensor";
+		case CollisionCategory::ClonemmingTopSensor: return "ClonemmingTopSensor";
 		}
 		ASSERT(false, "Unknown Collision Category");
 		return {};
@@ -207,6 +211,10 @@ namespace Clonemmings
 		if (categorystring == "MineableWall") return CollisionCategory::MineableWall;
 		if (categorystring == "SpawnPoint") return CollisionCategory::SpawnPoint;
 		if (categorystring == "Wall") return CollisionCategory::Wall;
+		if (categorystring == "ClonemmingBottomSensor") return CollisionCategory::ClonemmingBottomSensor;
+		if (categorystring == "ClonemmingLeftSensor") return CollisionCategory::ClonemmingLeftSensor;
+		if (categorystring == "ClonemmingRightSensor") return CollisionCategory::ClonemmingRightSensor;
+		if (categorystring == "ClonemmingTopSensor") return CollisionCategory::ClonemmingTopSensor;
 		ASSERT(false, "Unknown Collision Category string");
 		return CollisionCategory::Default;
 	}
@@ -216,6 +224,10 @@ namespace Clonemmings
 		if (maskString == "Everything") return CollisionMasks::Everything;
 		if (maskString == "Nothing") return CollisionMasks::Nothing;
 		if (maskString == "Scenary") return CollisionMasks::Scenary;
+		if (maskString == "ClonemmingSensorAny") return CollisionMasks::ClonemmingSensorAny;
+		if (maskString == "ClonemmingSensorBottom") return CollisionMasks::ClonemmingSensorBottom;
+		if (maskString == "ClonemmingSensorSide") return CollisionMasks::ClonemmingSensorSide;
+		if (maskString == "ClonemmingSensorTop") return CollisionMasks::ClonemmingSensorTop;
 		ASSERT(false, "Unknown collision mask string");
 		return CollisionMasks::Everything;
 	}
@@ -227,6 +239,10 @@ namespace Clonemmings
 		case CollisionMasks::Everything: return "Everything";
 		case CollisionMasks::Nothing: return "Nothing";
 		case CollisionMasks::Scenary: return "Scenary";
+		case CollisionMasks::ClonemmingSensorAny: return "ClonemmingSensorAny";
+		case CollisionMasks::ClonemmingSensorBottom: return "ClonemmingSensorBottom";
+		case CollisionMasks::ClonemmingSensorSide: return "ClonemmingSensorSide";
+		case CollisionMasks::ClonemmingSensorTop: return "ClonemmingSensorTop";
 		}
 		ASSERT(false, "Unknown Collision mask");
 		return {};
