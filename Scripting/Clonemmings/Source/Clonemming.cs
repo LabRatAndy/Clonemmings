@@ -22,6 +22,7 @@ namespace Clonemmings
         private float m_CurrentTimeDigging = 0.0f;
         private Entity m_Ledge = null;
         public float m_MaxSurvivableVelocityChange;
+        private Random m_Random = new Random();
         void OnCreate()
         {
             m_Transform = GetComponent<TransformComponent>();
@@ -131,12 +132,18 @@ namespace Clonemmings
         private void ProcessWalker(Vector2 linearvelocity)
         {
             Log("C#: Walker");
-            if (m_RigidBody.HasContactLeft)
+            if(m_RigidBody.HasContactLeft && m_RigidBody.HasContactRight)
+            {
+                Log("C# Process walker: both left and right contact, picking random dir to go in");
+                int randdir = m_Random.Next();
+                m_Direction = randdir % 2 == 0 ? -1 : 1;
+            }
+            else if (m_RigidBody.HasContactLeft)
             {
                 Log("C# ProcessWalker: Left contact");
                 m_Direction = 1;
             }
-            if (m_RigidBody.HasContactRight)
+            else if (m_RigidBody.HasContactRight)
             {
                 Log("C# ProcessWalker: Right contact");
                 m_Direction = -1;
